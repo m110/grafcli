@@ -1,0 +1,68 @@
+#!/usr/bin/python3
+import sys
+import json
+import base64
+import urllib.request
+import urllib.error
+import urllib.parse
+import argparse
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(add_help=False)
+
+    required_args = parser.add_argument_group("required arguments")
+    required_args.add_argument("-h", "--host", help="Elastic's API host", required=True)
+
+    parser.add_argument("--help", help="show usage and exit", action='help')
+
+    parser.add_argument("-p", "--port", help="Elastic's API port", default=9200)
+    parser.add_argument("-U", "--user", help="HTTP user", default=None)
+    parser.add_argument("-P", "--password", help="HTTP password", default=None)
+    parser.add_argument("-i", "--index", help="Grafana's index", default="grafana-dash")
+
+    return parser.parse_args()
+
+
+class Grafcli(object):
+    def __init__(self):
+        self.args = parse_args()
+
+        index = self.args.host.find('/')
+        if index < 0:
+            index = 0
+        self.url = "http://{}:{}{}".format(self.args.host[:index],
+                                           self.args.port,
+                                           self.args.host[index:])
+
+    def _request(self, url):
+        request = urllib.request.Request(url)
+
+        if self.args.user and self.args.password:
+            credentials = "{}:{}".format(self.args.user, self.args.password)
+            credentials = base64.encodebytes(credentials.encode("utf-8"))
+            credentials = credentials.decode("utf-8").strip("\n")
+            request.add_header("Authorization", "Basic {}".format(credentials))
+
+        try:
+            response = urllib.request.urlopen(request)
+            return json.loads(response.read().decode("utf-8"))
+        except (urllib.error.HTTPError, urllib.error.HTTPError) as exc:
+            print("Search failed:", exc)
+            raise exc
+
+    def search(self, match_type):
+        url = '/'.join((self.url, "{}/{}/_search/".format(self.args.index, match_type)))
+
+        result = self._request(url)
+
+        return result['hits']['hits']
+
+
+def main():
+    grafcli = Grafcli()
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
