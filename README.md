@@ -1,0 +1,2 @@
+# grafcli
+Grafana CLI.
