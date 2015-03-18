@@ -9,8 +9,15 @@ DEFAULT_CONFIG_PATHS = [
     '/etc/grafcli/grafcli.conf',
 ]
 
+config = None
 
-def get_config():
+
+def load_config():
+    global config
+
+    if config:
+        return
+
     config = configparser.ConfigParser()
 
     for config_path in DEFAULT_CONFIG_PATHS:
