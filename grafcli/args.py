@@ -1,8 +1,13 @@
 import argparse
 
 
-def get_args():
-    parser = argparse.ArgumentParser()
+class Args(object):
 
-    return parser.parse_args()
+    def __init__(self):
+        parser = argparse.ArgumentParser()
+
+        self._parser = parser
+
+    def parse(self, args):
+        return self._parser.parse_args(args)
 
