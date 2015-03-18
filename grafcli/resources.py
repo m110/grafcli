@@ -1,12 +1,12 @@
 import os
 from grafcli.config import config
 
-DATA_DIR = config['filesystem']['data-dir']
+DATA_DIR = config['resources']['data-dir']
 DASHBOARDS_DIR = os.path.join(DATA_DIR, 'dashboards')
 TEMPLATES_DIR = os.path.join(DATA_DIR, 'templates')
 
 
-class FileSystem(object):
+class Resources(object):
 
     def __init__(self):
         self._ensure_paths()

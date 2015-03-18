@@ -2,7 +2,7 @@
 from grafcli.config import config
 from grafcli.args import Args
 from grafcli.elastic import Elastic
-from grafcli.filesystem import FileSystem
+from grafcli.resources import Resources
 
 ROOT_PATH = "/"
 PROMPT = "> "
@@ -13,7 +13,7 @@ class GrafCLI(object):
     def __init__(self):
         self._args = Args()
         self._elastic = Elastic()
-        self._filesystem = FileSystem()
+        self._resources = Resources()
 
         self._current_path = ROOT_PATH
 
