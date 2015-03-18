@@ -18,8 +18,11 @@ class GrafCLI(object):
     def run(self):
         while True:
             try:
-                print(self._format_prompt(), end='')
-                user_input = input()
+                user_input = input(self._format_prompt())
+
+                if not user_input:
+                    continue
+
             except (KeyboardInterrupt, EOFError):
                 break
 
