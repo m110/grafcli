@@ -1,3 +1,4 @@
+import readline
 
 from grafcli.config import config
 from grafcli.args import Args
@@ -19,6 +20,8 @@ class GrafCLI(object):
 
     def run(self):
         """Loops and executes commands in interactive mode."""
+        readline.parse_and_bind("tab: complete")
+
         while True:
             try:
                 command = input(self._format_prompt())
