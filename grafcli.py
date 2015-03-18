@@ -5,28 +5,14 @@ import base64
 import urllib.request
 import urllib.error
 import urllib.parse
-import argparse
 
-
-def parse_args():
-    parser = argparse.ArgumentParser(add_help=False)
-
-    required_args = parser.add_argument_group("required arguments")
-    required_args.add_argument("-h", "--host", help="Elastic's API host", required=True)
-
-    parser.add_argument("--help", help="show usage and exit", action='help')
-
-    parser.add_argument("-p", "--port", help="Elastic's API port", default=9200)
-    parser.add_argument("-U", "--user", help="HTTP user", default=None)
-    parser.add_argument("-P", "--password", help="HTTP password", default=None)
-    parser.add_argument("-i", "--index", help="Grafana's index", default="grafana-dash")
-
-    return parser.parse_args()
+from grafcli.args import get_args
+from grafcli.config import get_config
 
 
 class Grafcli(object):
     def __init__(self):
-        self.args = parse_args()
+        self.config = get_config()
 
         index = self.args.host.find('/')
         if index < 0:
