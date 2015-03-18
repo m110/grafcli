@@ -11,9 +11,9 @@ def main():
     cli = GrafCLI()
 
     if len(sys.argv) > 1:
-        cli.execute(sys.argv[1:])
+        return cli.execute(sys.argv[1:])
     else:
-        cli.run()
+        return cli.run()
 
 
 if __name__ == "__main__":
