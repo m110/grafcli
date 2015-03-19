@@ -42,6 +42,9 @@ class PathsTest(unittest.TestCase):
                 self.fail("format_path('{}', '{}') == '{}' but expected '{}'".format(
                           current, path, result, expected))
 
+        self.assertEqual(format_path('/a', ''), '/a')
+        self.assertEqual(format_path('/a', '', default='/b'), '/b')
+
     def test_split_path(self):
         tests = [
             ("/", []),

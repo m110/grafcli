@@ -2,8 +2,12 @@ ROOT_PATH = "/"
 SEPARATOR = "/"
 
 
-def format_path(current_path, path):
-    path = path.strip()
+def format_path(current_path, path, default=None):
+    if path:
+        path = path.strip()
+
+    if not path:
+        return default if default else current_path
 
     absolute = path.startswith(ROOT_PATH)
     if not absolute:

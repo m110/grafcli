@@ -71,20 +71,14 @@ class GrafCLI(object):
         return command, kwargs
 
     def ls(self, path=None):
-        if path:
-            path = format_path(self._current_path, path)
-        else:
-            path = self._current_path
+        path = format_path(self._current_path, path)
 
         result = self._resources.list_resources(path)
 
         return "\n".join(result)
 
     def cd(self, path=None):
-        if path:
-            path = format_path(self._current_path, path)
-        else:
-            path = ROOT_PATH
+        path = format_path(self._current_path, path, default=ROOT_PATH)
 
         # No exception means correct path
         self._resources.list_resources(path)
