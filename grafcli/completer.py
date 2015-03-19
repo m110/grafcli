@@ -1,13 +1,15 @@
 import readline
 
+from grafcli.paths import SEPARATOR, ROOT_PATH
+
 
 class Completer(object):
 
     def __init__(self, cli):
         self._cli = cli
         self._completions = {
-            "ls": self.ls,
-            "cd": self.cd,
+            'ls': self.ls,
+            'cd': self.cd,
         }
 
     def complete(self, text, state):
@@ -33,14 +35,14 @@ class Completer(object):
             return None
 
     def ls(self, path=None):
-        parent = None
+        if path and not path.endswith(SEPARATOR):
+            # List one level up
+            absolute = path.startswith(ROOT_PATH)
+            path = SEPARATOR.join(path.split(SEPARATOR)[:-1])
+            if absolute:
+                path = "{}{}".format(ROOT_PATH, path)
 
-        if path:
-            parent = '/'.join(path.split('/')[:-1])
-            if path[0] == '/':
-                parent = "/{}".format(parent)
-
-        return self._cli.ls(parent).split()
+        return self._cli.ls(path).split()
 
     def cd(self, path=None):
         # TODO check if path is a directory
