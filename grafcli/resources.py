@@ -3,6 +3,7 @@ import os
 from grafcli.exceptions import InvalidPath
 from grafcli.config import config
 from grafcli.elastic import Elastic
+from grafcli.paths import split_path
 
 DATA_DIR = config['resources']['data-dir']
 DASHBOARDS_DIR = os.path.join(DATA_DIR, 'dashboards')
@@ -24,9 +25,7 @@ class Resources(object):
         self._make_local_dirs()
 
     def list_resources(self, path):
-        parts = [part for part in path.split('/')
-                 if part]
-
+        parts = split_path(path)
         if not parts:
             return self._resources.keys()
 

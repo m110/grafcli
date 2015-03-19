@@ -25,3 +25,8 @@ def format_path(current_path, path):
     new_path = ROOT_PATH + SEPARATOR.join(result)
 
     return new_path
+
+
+def split_path(path):
+    return [part for part in path.strip().split(SEPARATOR)
+            if part]

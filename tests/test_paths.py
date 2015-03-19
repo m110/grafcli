@@ -5,7 +5,7 @@ import unittest
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
 
-from grafcli.paths import format_path
+from grafcli.paths import format_path, split_path
 
 
 class PathsTest(unittest.TestCase):
@@ -41,6 +41,17 @@ class PathsTest(unittest.TestCase):
             if result != expected:
                 self.fail("format_path('{}', '{}') == '{}' but expected '{}'".format(
                           current, path, result, expected))
+
+    def test_split_path(self):
+        tests = [
+            ("/", []),
+            ("/a", ["a"]),
+            ("/a/b/c/d", ["a", "b", "c", "d"]),
+        ]
+
+        for data in tests:
+            path, expected = data
+            self.assertEqual(split_path(path), expected)
 
 
 if __name__ == "__main__":

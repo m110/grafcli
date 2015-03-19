@@ -4,8 +4,8 @@ from grafcli.config import config
 from grafcli.exceptions import UnknownCommand
 from grafcli.args import Args
 from grafcli.resources import Resources
+from grafcli.paths import ROOT_PATH, SEPARATOR, format_path
 
-ROOT_PATH = "/"
 PROMPT = "> "
 
 
@@ -35,11 +35,8 @@ class GrafCLI(object):
 
     def execute(self, args):
         """Executes single command and prints result, if any."""
-        parsed = self._args.parse(args)
+        command, kwargs = self.parse(args)
 
-        kwargs = dict(parsed._get_kwargs())
-
-        command = kwargs.pop('command')
         if command not in self._commands_map:
             raise UnknownCommand("There is no action for command {}".format(command))
 
@@ -54,8 +51,18 @@ class GrafCLI(object):
             print(str(exc))
             return 1
 
+    def parse(self, args):
+        parsed = self._args.parse(args)
+        kwargs = dict(parsed._get_kwargs())
+
+        command = kwargs.pop('command')
+
+        return command, kwargs
+
     def ls(self, path=None):
-        if not path:
+        if path:
+            path = format_path(self._current_path, path)
+        else:
             path = self._current_path
 
         result = self._resources.list_resources(path)
