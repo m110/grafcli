@@ -12,6 +12,7 @@ PROMPT = "> "
 class GrafCLI(object):
 
     def __init__(self):
+        self._running = True
         self._args = Args()
         self._resources = Resources()
 
@@ -20,13 +21,15 @@ class GrafCLI(object):
         self._commands_map = {
             'ls': self.ls,
             'cd': self.cd,
+            'help': self.help,
+            'exit': self.exit,
         }
 
     def run(self):
         """Loops and executes commands in interactive mode."""
         readline.parse_and_bind("tab: complete")
 
-        while True:
+        while self._running:
             try:
                 command = input(self._format_prompt())
                 if command:
@@ -35,6 +38,8 @@ class GrafCLI(object):
                 print(exc)
             except (KeyboardInterrupt, EOFError):
                 return 0
+
+        return 0
 
     def execute(self, args):
         """Executes single command and prints result, if any."""
@@ -81,6 +86,18 @@ class GrafCLI(object):
         # No exception means correct path
         self._resources.list_resources(path)
         self._current_path = path
+
+    def help(self, parser, all_commands, subject):
+        if subject:
+            subparsers = [command for command in all_commands
+                          if command.name == subject]
+            if subparsers:
+                parser = subparsers[0].parser
+
+        return parser.print_help()
+
+    def exit(self):
+        self._running = False
 
     def _format_prompt(self):
         return "[{path}]{prompt}".format(path=self._current_path,
