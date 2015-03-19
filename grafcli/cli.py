@@ -19,6 +19,7 @@ class GrafCLI(object):
 
         self._commands_map = {
             'ls': self.ls,
+            'cd': self.cd,
         }
 
     def run(self):
@@ -68,6 +69,16 @@ class GrafCLI(object):
         result = self._resources.list_resources(path)
 
         return "\n".join(result)
+
+    def cd(self, path=None):
+        if path:
+            path = format_path(self._current_path, path)
+        else:
+            path = ROOT_PATH
+
+        # No exception means correct path
+        self._resources.list_resources(path)
+        self._current_path = path
 
     def _format_prompt(self):
         return "[{path}]{prompt}".format(path=self._current_path,

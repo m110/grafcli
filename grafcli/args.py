@@ -10,7 +10,9 @@ class Args(object):
         ls = self._add_command("ls", "list resources")
         ls.add_argument("path", nargs="?", default=None,  help="resource path (defaults to current)")
 
-        self._add_command("cd", "set current path to resource")
+        cd = self._add_command("cd", "set current path to resource")
+        cd.add_argument("path", nargs="?", default=None,  help="resource path (defaults to /)")
+
         self._add_command("cp", "copy resource")
         self._add_command("mv", "move (rename) resource")
         self._add_command("get", "save local copy of remote resource")
@@ -24,4 +26,3 @@ class Args(object):
 
     def parse(self, args):
         return self._parser.parse_args(args)
-
