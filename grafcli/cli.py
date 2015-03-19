@@ -4,6 +4,7 @@ from grafcli.config import config
 from grafcli.exceptions import UnknownCommand
 from grafcli.args import Args
 from grafcli.resources import Resources
+from grafcli.completer import Completer
 from grafcli.paths import ROOT_PATH, SEPARATOR, format_path
 
 PROMPT = "> "
@@ -15,6 +16,7 @@ class GrafCLI(object):
         self._running = True
         self._args = Args()
         self._resources = Resources()
+        self._completer = Completer(self)
 
         self._current_path = ROOT_PATH
 
@@ -28,6 +30,7 @@ class GrafCLI(object):
     def run(self):
         """Loops and executes commands in interactive mode."""
         readline.parse_and_bind("tab: complete")
+        readline.set_completer(self._completer.complete)
 
         while self._running:
             try:
@@ -102,3 +105,7 @@ class GrafCLI(object):
     def _format_prompt(self):
         return "[{path}]{prompt}".format(path=self._current_path,
                                          prompt=PROMPT)
+
+    @property
+    def commands(self):
+        return self._args.commands
