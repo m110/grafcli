@@ -31,6 +31,8 @@ class GrafCLI(object):
                 command = input(self._format_prompt())
                 if command:
                     self.execute(command.split())
+            except UnknownCommand as exc:
+                print(exc)
             except (KeyboardInterrupt, EOFError):
                 return 0
 

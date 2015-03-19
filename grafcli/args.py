@@ -1,10 +1,18 @@
 import argparse
 
+from grafcli.exceptions import UnknownCommand
+
+
+class ArgsParser(argparse.ArgumentParser):
+
+    def error(self, message):
+        raise UnknownCommand(self.format_help())
+
 
 class Args(object):
 
     def __init__(self):
-        self._parser = argparse.ArgumentParser()
+        self._parser = ArgsParser(add_help=False)
         self._commands = self._parser.add_subparsers(help="command")
 
         ls = self._add_command("ls", "list resources")
