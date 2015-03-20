@@ -82,7 +82,7 @@ class GrafCLI(object):
     def ls(self, path=None):
         path = format_path(self._current_path, path)
 
-        result = self._resources.list_resources(path)
+        result = self._resources.list(path)
 
         return "\n".join(result)
 
@@ -90,7 +90,7 @@ class GrafCLI(object):
         path = format_path(self._current_path, path, default=ROOT_PATH)
 
         # No exception means correct path
-        self._resources.list_resources(path)
+        self._resources.list(path)
         self._current_path = path
 
     def help(self, parser, all_commands, subject):

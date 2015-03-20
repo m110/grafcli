@@ -1,74 +1,38 @@
-import json
-import base64
-import urllib.request
-import urllib.error
-import urllib.parse
+from elasticsearch import Elasticsearch
 
 from grafcli.config import config
 
+connections_pool = {}
 
-class Elastic(object):
 
-    def __init__(self):
-        self._url = "http://{host}:{port}{path}/{index}".format(**config['elastic'])
+def connection(host):
+    if host not in connections_pool:
+        if host not in config['hosts']:
+            raise ConnectionError("No such host: {}".format(host))
 
-        if config['elastic']['user'] and config['elastic']['password']:
-            credentials = "{user}:{password}".format(**config['elastic'])
-            encoded = base64.encodebytes(credentials.encode("utf-8"))
-            self._credentials = encoded.strip().decode("utf-8")
+        if not config.getboolean('hosts', host):
+            raise ConnectionError("Host {} is disabled".format(host))
+
+        cfg = config[host]
+
+        hosts = cfg['hosts'].split(',')
+        port = int(cfg['port'])
+        if cfg['user'] and cfg['password']:
+            http_auth = (cfg['user'], cfg['password'])
         else:
-            self._credentials = None
+            http_auth = None
 
-    def search(self, match_type=None):
-        query = Query()
+        conn = Elasticsearch(hosts,
+                             port=port,
+                             http_auth=http_auth)
+        connections_pool[host] = conn
 
-        if match_type:
-            query.match('_type', match_type)
-
-        result = self._request(self._search_url, query=query)
-
-        return result['hits']['hits']
-
-    def _request(self, url, query=None, method=None):
-        if query:
-            data = json.dumps(query.build()).encode("utf-8")
-        else:
-            data = None
-
-        request = urllib.request.Request(url, data=data, method=method)
-
-        if self._credentials:
-            request.add_header("Authorization", "Basic {}".format(self._credentials))
-
-        try:
-            response = urllib.request.urlopen(request)
-            return json.loads(response.read().decode("utf-8"))
-        except (urllib.error.HTTPError, urllib.error.HTTPError) as exc:
-            raise ConnectionError(str(exc))
-
-    @property
-    def _search_url(self):
-        return '/'.join((self._url, "_search"))
+    return connections_pool[host]
 
 
-class Query(object):
+def search(host, *args, **kwargs):
+    conn = connection(host)
+    index = config[host]['index']
 
-    def __init__(self):
-        self._query = {
-            "query": {}
-        }
-
-    def build(self):
-        if not self._query['query']:
-            self._query['query'] = {
-                'match_all': {}
-            }
-
-        return self._query
-
-    def match(self, field, value):
-        self._query['query']['match'] = {
-            field: value
-        }
-
-        return self
+    result = conn.search(index=index, *args, **kwargs)
+    return result['hits']['hits']

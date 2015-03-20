@@ -8,3 +8,7 @@ class UnknownCommand(Exception):
 
 class InvalidPath(Exception):
     pass
+
+
+class InvalidDashboard(Exception):
+    pass
