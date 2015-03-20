@@ -1,3 +1,4 @@
+import os
 import readline
 
 from grafcli.config import config
@@ -5,7 +6,7 @@ from grafcli.exceptions import UnknownCommand
 from grafcli.args import Args
 from grafcli.resources import Resources
 from grafcli.completer import Completer
-from grafcli.paths import ROOT_PATH, SEPARATOR, format_path
+from grafcli.paths import ROOT_PATH, format_path
 
 PROMPT = "> "
 
@@ -29,7 +30,13 @@ class GrafCLI(object):
 
     def run(self):
         """Loops and executes commands in interactive mode."""
+        history_file = os.path.expanduser(config['grafcli']['history'])
+        # Ensure history file exists
+        if not os.path.isfile(history_file):
+            open(history_file, 'w').close()
+
         readline.parse_and_bind("tab: complete")
+        readline.read_history_file(history_file)
         readline.set_completer(self._completer.complete)
 
         while self._running:
@@ -40,7 +47,9 @@ class GrafCLI(object):
             except UnknownCommand as exc:
                 print(exc)
             except (KeyboardInterrupt, EOFError):
-                return 0
+                self._running = False
+
+        readline.write_history_file(history_file)
 
         return 0
 
