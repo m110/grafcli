@@ -1,7 +1,11 @@
 import json
 
 from grafcli.exceptions import InvalidPath, InvalidDashboard
+from grafcli.config import config
 import grafcli.elastic as elastic
+
+REMOTE_RESOURCES = [host for host in config['hosts']
+                    if config.getboolean('hosts', host)]
 
 
 class RemoteResources(object):

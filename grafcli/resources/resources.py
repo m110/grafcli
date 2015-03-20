@@ -1,13 +1,8 @@
 from grafcli.exceptions import InvalidPath
-from grafcli.config import config
 from grafcli.paths import split_path
 
-from grafcli.resources.local import LocalResources
-from grafcli.resources.remote import RemoteResources
-
-LOCAL_RESOURCES = ('dashboards', 'rows', 'panels')
-REMOTE_RESOURCES = [host for host in config['hosts']
-                    if config.getboolean('hosts', host)]
+from grafcli.resources.local import LocalResources, LOCAL_RESOURCES
+from grafcli.resources.remote import RemoteResources, REMOTE_RESOURCES
 
 
 class Resources(object):

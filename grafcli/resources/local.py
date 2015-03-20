@@ -7,6 +7,8 @@ DASHBOARDS = 'dashboards'
 ROWS = 'rows'
 PANELS = 'panels'
 
+LOCAL_RESOURCES = (DASHBOARDS, ROWS, PANELS)
+
 DATA_DIR = config['resources']['data-dir']
 DASHBOARDS_DIR = os.path.join(DATA_DIR, DASHBOARDS)
 ROWS_DIR = os.path.join(DATA_DIR, ROWS)
