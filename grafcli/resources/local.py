@@ -73,7 +73,62 @@ class LocalResources(object):
         raise InvalidPath("Panels contain no sub-nodes")
 
     def get(self, parts):
-        return {}
+        directory = parts.pop(0)
+
+        if directory not in LOCAL_RESOURCES:
+            raise InvalidPath("Invalid local directory: {}".format(directory))
+
+        if not parts:
+            raise InvalidPath("No resources provided")
+
+        if directory == DASHBOARDS:
+            return self._get_dashboards(parts)
+        elif directory == ROWS:
+            return self._get_rows(parts)
+        elif directory == PANELS:
+            return self._get_panels(parts)
+
+    def _get_dashboards(self, parts):
+        dashboard_name = parts.pop(0) if parts else None
+        row_name = parts.pop(0) if parts else None
+        panel_name = parts.pop(0) if parts else None
+        if parts:
+            raise InvalidPath("Panels contain no sub-nodes")
+
+        source = read_file(DASHBOARDS_DIR, dashboard_name)
+
+        if row_name:
+            dashboard = Dashboard(source, dashboard_name)
+            row = dashboard.row(row_name)
+
+            if panel_name:
+                return row.panel(panel_name).source
+            else:
+                return row.source
+
+        return source
+
+    def _get_rows(self, parts):
+        row_name = parts.pop(0) if parts else None
+        panel_name = parts.pop(0) if parts else None
+        if parts:
+            raise InvalidPath("Panels contain no sub-nodes")
+
+        source = read_file(ROWS_DIR, row_name)
+
+        if panel_name:
+            row = Row(source)
+            return row.panel(panel_name).source
+        else:
+            return source
+
+    def _get_panels(self, parts):
+        panel_name = parts.pop(0) if parts else None
+        if parts:
+            raise InvalidPath("Panels contain no sub-nodes")
+
+        source = read_file(PANELS_DIR, panel_name)
+        return source
 
 
 def to_file_format(filename):
