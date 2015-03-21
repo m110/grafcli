@@ -43,12 +43,12 @@ class RemoteResources(object):
         dashboard = dashboard_by_id(host, dashboard_name)
 
         if not row_name:
-            return dashboard.source
+            return dashboard
 
         if not panel_name:
-            return dashboard.row(row_name).source
+            return dashboard.row(row_name)
 
-        return dashboard.row(row_name).panel(panel_name).source
+        return dashboard.row(row_name).panel(panel_name)
 
 
 def unpack_parts(parts):

@@ -96,17 +96,17 @@ class LocalResources(object):
             raise InvalidPath("Panels contain no sub-nodes")
 
         source = read_file(DASHBOARDS_DIR, dashboard_name)
+        dashboard = Dashboard(source, dashboard_name)
 
         if row_name:
-            dashboard = Dashboard(source, dashboard_name)
             row = dashboard.row(row_name)
 
             if panel_name:
-                return row.panel(panel_name).source
+                return row.panel(panel_name)
             else:
-                return row.source
+                return row
 
-        return source
+        return dashboard
 
     def _get_rows(self, parts):
         row_name = parts.pop(0) if parts else None
@@ -115,12 +115,12 @@ class LocalResources(object):
             raise InvalidPath("Panels contain no sub-nodes")
 
         source = read_file(ROWS_DIR, row_name)
+        row = Row(source)
 
         if panel_name:
-            row = Row(source)
-            return row.panel(panel_name).source
+            return row.panel(panel_name)
         else:
-            return source
+            return row
 
     def _get_panels(self, parts):
         panel_name = parts.pop(0) if parts else None
@@ -128,7 +128,7 @@ class LocalResources(object):
             raise InvalidPath("Panels contain no sub-nodes")
 
         source = read_file(PANELS_DIR, panel_name)
-        return source
+        return Panel(source)
 
 
 def to_file_format(filename):

@@ -25,7 +25,7 @@ class Resources(object):
         if not parts:
             raise InvalidPath("No path supplied")
 
-        return manager.get(parts)
+        return manager.get(parts).source
 
     def _parse_path(self, path):
         parts = split_path(path) if path else []
