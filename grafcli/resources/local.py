@@ -52,7 +52,7 @@ class LocalResources(object):
         if os.path.isdir(full_path):
             return os.listdir(full_path)
         else:
-            return []
+            raise InvalidPath("Panel contains no sub-nodes")
 
     def get(self, parts):
-        raise InvalidPath("Only remote resources can be downloaded")
+        return {}

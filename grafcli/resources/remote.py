@@ -11,17 +11,23 @@ REMOTE_RESOURCES = [host for host in config['hosts']
 ID_PATTERN = re.compile(r'^(\d+)-')
 
 
+def unpack_parts(parts):
+    host = parts.pop(0)
+
+    dashboard = parts.pop(0) if parts else None
+    row = parts.pop(0) if parts else None
+    panel = parts.pop(0) if parts else None
+
+    if parts:
+        raise InvalidPath("Path goes beyond panels")
+
+    return host, dashboard, row, panel
+
+
 class RemoteResources(object):
 
     def list(self, parts):
-        host = parts.pop(0)
-
-        dashboard = parts.pop(0) if parts else None
-        row = parts.pop(0) if parts else None
-        panel = parts.pop(0) if parts else None
-
-        if parts:
-            raise InvalidPath("Path goes beyond panels")
+        host, dashboard, row, panel = unpack_parts(parts)
 
         if not dashboard:
             return self._list_dashboards(host)
@@ -33,7 +39,7 @@ class RemoteResources(object):
 
         if panel:
             if panel in panels:
-                return []
+                raise InvalidPath("Panel contains no sub-nodes")
             else:
                 raise InvalidPath("There is no such panel: {}".format(panel))
         else:
@@ -47,7 +53,7 @@ class RemoteResources(object):
         return [hit['_id'] for hit in hits]
 
     def _list_rows(self, host, dashboard):
-        data = self._search_dashboard(host, dashboard)
+        data = self._dashboard_by_id(host, dashboard)
 
         rows = []
         for i, row in enumerate(data['rows']):
@@ -57,17 +63,7 @@ class RemoteResources(object):
         return rows
 
     def _list_panels(self, host, dashboard, row):
-        match = ID_PATTERN.search(row)
-        if not match:
-            raise InvalidPath("Row name should start with ID")
-
-        data = self._search_dashboard(host, dashboard)
-
-        row_id = int(match.group(1))-1
-        if len(data['rows']) <= row_id:
-            raise InvalidPath("There is no such row: {}".format(row))
-
-        row_data = data['rows'][row_id]
+        row_data = self._row_by_id(host, dashboard, row)
 
         panels = []
         for panel in row_data['panels']:
@@ -76,7 +72,18 @@ class RemoteResources(object):
 
         return panels
 
-    def _search_dashboard(self, host, dashboard):
+    def get(self, parts):
+        host, dashboard, row, panel = unpack_parts(parts)
+
+        if not row:
+            return self._dashboard_by_id(host, dashboard)
+
+        if not panel:
+            return self._row_by_id(host, dashboard, row)
+
+        return self._panel_by_id(host, dashboard, row, panel)
+
+    def _dashboard_by_id(self, host, dashboard):
         hits = elastic.search(host,
                               doc_type="dashboard",
                               _source=["dashboard"],
@@ -87,12 +94,31 @@ class RemoteResources(object):
 
         return json.loads(hits[0]['_source']['dashboard'])
 
-    def get(self, parts):
-        resource = parts.pop(0)
+    def _row_by_id(self, host, dashboard, row):
+        match = ID_PATTERN.search(row)
+        if not match:
+            raise InvalidPath("Row name should start with ID")
 
-        dashboard = parts.pop(0) if parts else None
-        row = parts.pop(0) if parts else None
-        panel = parts.pop(0) if parts else None
+        data = self._dashboard_by_id(host, dashboard)
 
-        if not dashboard:
-            raise InvalidPath("No dashboard supplied")
+        row_id = int(match.group(1))-1
+        if len(data['rows']) <= row_id:
+            raise InvalidPath("There is no such row: {}".format(row))
+
+        return data['rows'][row_id]
+
+    def _panel_by_id(self, host, dashboard, row, panel):
+        match = ID_PATTERN.search(panel)
+        if not match:
+            raise InvalidPath("Panel name should start with ID")
+
+        panel_id = int(match.group(1))
+
+        row_data = self._row_by_id(host, dashboard, row)
+        panels = [p for p in row_data['panels']
+                  if p['id'] == panel_id]
+
+        if not panels:
+            raise InvalidPath("There is no such panel: {}".format(panel))
+
+        return panels[0]
