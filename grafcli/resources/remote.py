@@ -10,19 +10,6 @@ REMOTE_RESOURCES = [host for host in config['hosts']
                     if config.getboolean('hosts', host)]
 
 
-def unpack_parts(parts):
-    host = parts.pop(0)
-
-    dashboard = parts.pop(0) if parts else None
-    row = parts.pop(0) if parts else None
-    panel = parts.pop(0) if parts else None
-
-    if parts:
-        raise InvalidPath("Path goes beyond panels")
-
-    return host, dashboard, row, panel
-
-
 class RemoteResources(object):
 
     def list(self, parts):
@@ -62,6 +49,19 @@ class RemoteResources(object):
             return dashboard.row(row_name).source
 
         return dashboard.row(row_name).panel(panel_name).source
+
+
+def unpack_parts(parts):
+    host = parts.pop(0)
+
+    dashboard = parts.pop(0) if parts else None
+    row = parts.pop(0) if parts else None
+    panel = parts.pop(0) if parts else None
+
+    if parts:
+        raise InvalidPath("Path goes beyond panels")
+
+    return host, dashboard, row, panel
 
 
 def list_dashboards(host):
