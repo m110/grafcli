@@ -12,6 +12,7 @@ class Resources(object):
         self._remote_resources = RemoteResources()
 
     def list(self, path):
+        """Returns list of sub-nodes for given path."""
         manager, parts = self._parse_path(path)
         if not parts:
             return REMOTE_RESOURCES + list(LOCAL_RESOURCES)
@@ -19,6 +20,7 @@ class Resources(object):
         return manager.list(parts)
 
     def get(self, path):
+        """Returns resource data."""
         manager, parts = self._parse_path(path)
         if not parts:
             raise InvalidPath("No path supplied")

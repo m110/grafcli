@@ -21,6 +21,11 @@ class ResourcesTest(unittest.TestCase):
         r = Resources()
         self.assertEqual(r.list(None), ['host.example.com', 'dashboards', 'rows', 'panels'])
 
+    def test_get_empty(self):
+        r = Resources()
+        with self.assertRaises(InvalidPath):
+            r.get(None)
+
     def test_parse_path(self):
         r = Resources()
 

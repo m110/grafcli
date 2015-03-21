@@ -35,14 +35,24 @@ class LocalResources(object):
 
         if resource == DASHBOARDS:
             path = DASHBOARDS_DIR
+            max_length = 3
         elif resource == ROWS:
             path = ROWS_DIR
+            max_length = 2
         elif resource == PANELS:
             path = PANELS_DIR
+            max_length = 1
         else:
             raise InvalidPath("Invalid resource: {}".format(resource))
 
-        return os.listdir(os.path.join(path, *parts))
+        if len(parts) > max_length:
+            raise InvalidPath("Path goes beyond scope")
+
+        full_path = os.path.join(path, *parts)
+        if os.path.isdir(full_path):
+            return os.listdir(full_path)
+        else:
+            return []
 
     def get(self, parts):
         raise InvalidPath("Only remote resources can be downloaded")

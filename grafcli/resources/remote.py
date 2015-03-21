@@ -20,6 +20,9 @@ class RemoteResources(object):
         row = parts.pop(0) if parts else None
         panel = parts.pop(0) if parts else None
 
+        if parts:
+            raise InvalidPath("Path goes beyond panels")
+
         if not dashboard:
             return self._list_dashboards(host)
 
@@ -29,7 +32,10 @@ class RemoteResources(object):
         panels = self._list_panels(host, dashboard, row)
 
         if panel:
-            return [panel] if panel in panels else []
+            if panel in panels:
+                return []
+            else:
+                raise InvalidPath("There is no such panel: {}".format(panel))
         else:
             return panels
 
