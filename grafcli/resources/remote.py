@@ -1,11 +1,14 @@
+import re
 import json
 
-from grafcli.exceptions import InvalidPath, InvalidDashboard
+from grafcli.exceptions import InvalidPath
 from grafcli.config import config
 import grafcli.elastic as elastic
 
 REMOTE_RESOURCES = [host for host in config['hosts']
                     if config.getboolean('hosts', host)]
+
+ID_PATTERN = re.compile(r'^(\d+)-')
 
 
 class RemoteResources(object):
@@ -23,10 +26,12 @@ class RemoteResources(object):
         if not row:
             return self._list_rows(host, dashboard)
 
-        if not panel:
-            return self._list_panels(host, dashboard, row)
+        panels = self._list_panels(host, dashboard, row)
 
-        return [panel]
+        if panel:
+            return [panel] if panel in panels else []
+        else:
+            return panels
 
     def _list_dashboards(self, host):
         hits = elastic.search(host,
@@ -46,10 +51,17 @@ class RemoteResources(object):
         return rows
 
     def _list_panels(self, host, dashboard, row):
+        match = ID_PATTERN.search(row)
+        if not match:
+            raise InvalidPath("Row name should start with ID")
+
         data = self._search_dashboard(host, dashboard)
 
-        row_index = int(row.split('-')[0])-1
-        row_data = data['rows'][row_index]
+        row_id = int(match.group(1))-1
+        if len(data['rows']) <= row_id:
+            raise InvalidPath("There is no such row: {}".format(row))
+
+        row_data = data['rows'][row_id]
 
         panels = []
         for panel in row_data['panels']:
@@ -65,7 +77,7 @@ class RemoteResources(object):
                               body={'query': {'match': {'_id': dashboard}}})
 
         if not hits:
-            raise InvalidDashboard("There is no such dashboard: {}".format(dashboard))
+            raise InvalidPath("There is no such dashboard: {}".format(dashboard))
 
         return json.loads(hits[0]['_source']['dashboard'])
 
