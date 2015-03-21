@@ -21,6 +21,8 @@ class GrafCLI(object):
 
         self._current_path = ROOT_PATH
 
+        self._history_file = os.path.expanduser(config['grafcli'].get('history', ''))
+
         self._commands_map = {
             'ls': self.ls,
             'cd': self.cd,
@@ -30,14 +32,15 @@ class GrafCLI(object):
 
     def run(self):
         """Loops and executes commands in interactive mode."""
-        history_file = os.path.expanduser(config['grafcli']['history'])
-        # Ensure history file exists
-        if not os.path.isfile(history_file):
-            open(history_file, 'w').close()
-
         readline.parse_and_bind("tab: complete")
-        readline.read_history_file(history_file)
         readline.set_completer(self._completer.complete)
+
+        if self._history_file:
+            # Ensure history file exists
+            if not os.path.isfile(self._history_file):
+                open(self._history_file, 'w').close()
+
+            readline.read_history_file(self._history_file)
 
         while self._running:
             try:
@@ -49,7 +52,8 @@ class GrafCLI(object):
             except (KeyboardInterrupt, EOFError):
                 self._running = False
 
-        readline.write_history_file(history_file)
+        if self._history_file:
+            readline.write_history_file(self._history_file)
 
         return 0
 
