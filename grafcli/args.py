@@ -26,10 +26,14 @@ class Args(object):
         cd = self._add_command("cd", "set current path to resource")
         cd.add_argument("path", nargs="?", default=None,  help="resource path (defaults to /)")
 
+        cat = self._add_command("cat", "display resource's content")
+        cat.add_argument("path", nargs="?", help="path of resource to be displayed")
+
+        get = self._add_command("get", "save local copy of remote resource")
+        get.add_argument("resources", nargs="*", help="resources to get")
+
         self._add_command("cp", "copy resource")
         self._add_command("mv", "move (rename) resource")
-        self._add_command("get", "save local copy of remote resource")
-        self._add_command("cat", "display resource's content")
         self._add_command("vim", "edit resource's content in best editor possible")
 
         help = self._add_command("help", "show this help",

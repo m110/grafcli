@@ -9,7 +9,9 @@ class Completer(object):
         self._cli = cli
         self._completions = {
             'ls': self.ls,
+            'cat': self.ls,
             'cd': self.cd,
+            'get': self.get,
         }
 
     def complete(self, text, state):
@@ -47,3 +49,6 @@ class Completer(object):
     def cd(self, path=None):
         # TODO check if path is a directory
         return self.ls(path)
+
+    def get(self, **kwargs):
+        return self._cli.ls().split()

@@ -7,6 +7,7 @@ from grafcli.args import Args
 from grafcli.resources import Resources
 from grafcli.completer import Completer
 from grafcli.paths import ROOT_PATH, format_path
+from grafcli.utils import json_pretty
 
 PROMPT = "> "
 
@@ -26,6 +27,8 @@ class GrafCLI(object):
         self._commands_map = {
             'ls': self.ls,
             'cd': self.cd,
+            'cat': self.cat,
+            'get': self.get,
             'help': self.help,
             'exit': self.exit,
         }
@@ -96,6 +99,17 @@ class GrafCLI(object):
         # No exception means correct path
         self._resources.list(path)
         self._current_path = path
+
+    def cat(self, path):
+        path = format_path(self._current_path, path, default=ROOT_PATH)
+
+        result = self._resources.get(path)
+        return json_pretty(result)
+
+    def get(self, resources):
+        for res in resources:
+            path = format_path(self._current_path, res)
+            self._resources.get(path)
 
     def help(self, parser, all_commands, subject):
         if subject:
