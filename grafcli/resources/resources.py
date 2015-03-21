@@ -26,7 +26,8 @@ class Resources(object):
         return manager.get(parts)
 
     def _parse_path(self, path):
-        parts = split_path(path)
+        parts = split_path(path) if path else []
+
         if not parts:
             return None, []
 
