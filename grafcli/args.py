@@ -32,7 +32,10 @@ class Args(object):
         get = self._add_command("get", "save local copy of remote resource")
         get.add_argument("resources", nargs="*", help="resources to get")
 
-        self._add_command("cp", "copy resource")
+        cp = self._add_command("cp", "copy resource")
+        cp.add_argument("source", nargs="?", default=None)
+        cp.add_argument("destination", nargs="?", default=None)
+
         self._add_command("mv", "move (rename) resource")
         self._add_command("vim", "edit resource's content in best editor possible")
 

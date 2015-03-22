@@ -12,3 +12,7 @@ class InvalidPath(Exception):
 
 class InvalidDocument(Exception):
     pass
+
+
+class DocumentNotFound(Exception):
+    pass

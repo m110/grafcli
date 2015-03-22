@@ -11,6 +11,7 @@ class Completer(object):
             'ls': self.ls,
             'cat': self.ls,
             'cd': self.cd,
+            'cp': self.cp,
             'get': self.get,
         }
 
@@ -48,6 +49,10 @@ class Completer(object):
 
     def cd(self, path=None):
         # TODO check if path is a directory
+        return self.ls(path)
+
+    def cp(self, source, destination):
+        path = destination if destination else source
         return self.ls(path)
 
     def get(self, **kwargs):

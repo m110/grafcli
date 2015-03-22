@@ -7,7 +7,7 @@ LIB_PATH = os.path.dirname(os.path.realpath(__file__)) + '/../'
 
 sys.path.append(LIB_PATH)
 
-from grafcli.exceptions import InvalidPath, InvalidDocument
+from grafcli.exceptions import InvalidPath, InvalidDocument, DocumentNotFound
 from grafcli.documents import Dashboard, Row, Panel, get_id
 
 DASHBOARD_SOURCE = {
@@ -62,9 +62,9 @@ class DocumentsTest(unittest.TestCase):
 
         self.assertEqual(dashboard.row('1-any-name').id, 1)
         self.assertEqual(dashboard.row('2-any-name').id, 2)
-        with self.assertRaises(InvalidPath):
+        with self.assertRaises(DocumentNotFound):
             dashboard.row('3-any-name')
-        with self.assertRaises(InvalidPath):
+        with self.assertRaises(DocumentNotFound):
             dashboard.row('0-any-name')
 
     def test_dashboard_update(self):
@@ -108,9 +108,9 @@ class DocumentsTest(unittest.TestCase):
 
         self.assertEqual(row.panel('1-any-name').id, 1)
         self.assertEqual(row.panel('2-any-name').id, 2)
-        with self.assertRaises(InvalidPath):
+        with self.assertRaises(DocumentNotFound):
             row.panel('3-any-name')
-        with self.assertRaises(InvalidPath):
+        with self.assertRaises(DocumentNotFound):
             row.panel('0-any-name')
 
         self.assertEqual(row.max_panel_id(), 2)

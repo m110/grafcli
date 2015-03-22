@@ -1,7 +1,7 @@
 import re
 from abc import ABCMeta, abstractmethod
 
-from grafcli.exceptions import InvalidPath, InvalidDocument
+from grafcli.exceptions import InvalidPath, InvalidDocument, DocumentNotFound
 
 ID_PATTERN = re.compile(r'^(\d+)-')
 
@@ -35,6 +35,10 @@ class Document(object, metaclass=ABCMeta):
     def source(self):
         return self._source
 
+    @property
+    def parent(self):
+        return None
+
 
 class Dashboard(Document):
 
@@ -65,7 +69,7 @@ class Dashboard(Document):
     def row(self, name):
         id = get_id(name)
         if id <= 0 or len(self._rows) < id:
-            raise InvalidPath("There is no row at index {}".format(id))
+            raise DocumentNotFound("There is no row at index {}".format(id))
 
         return self._rows[id-1]
 
@@ -80,6 +84,11 @@ class Dashboard(Document):
     def rows(self):
         return self._rows
 
+    @property
+    def source(self):
+        self._source['rows'] = [row.source for row in self._rows]
+        return self._source
+
 
 class Row(Document):
     def __init__(self, source, id=0, dashboard=None):
@@ -88,23 +97,31 @@ class Row(Document):
 
     def _load(self, source, id):
         self._id = id
-        self._name = "{}-{}".format(self._id, source['title'].replace(' ', '-'))
+
+        if id:
+            self._name = "{}-{}".format(self._id, source['title'].replace(' ', '-'))
+        else:
+            self._name = source['title'].replace(' ', '-')
+
         self._source = source
 
         self._panels = []
         for panel in source['panels']:
-            self._panels.append(Panel(panel))
+            self._panels.append(Panel(panel, self))
 
     def update(self, document):
         if isinstance(document, Row):
             self._load(document.source.copy(), document.id)
         elif isinstance(document, Panel):
-            next_id = self._dashboard.max_panel_id() + 1
+            if self._dashboard:
+                max_id = self._dashboard.max_panel_id()
+            else:
+                max_id = self.max_panel_id()
 
             source = document.source.copy()
-            source['id'] = next_id
+            source['id'] = max_id+1
 
-            panel = Panel(source)
+            panel = Panel(source, self)
             self._panels.append(panel)
         else:
             raise InvalidDocument("Can not update {} with {}"
@@ -117,7 +134,7 @@ class Row(Document):
                   if p.id == id]
 
         if not panels:
-            raise InvalidPath("There is no panel with id {}".format(id))
+            raise DocumentNotFound("There is no panel with id {}".format(id))
 
         return panels[0]
 
@@ -132,9 +149,19 @@ class Row(Document):
     def panels(self):
         return self._panels
 
+    @property
+    def source(self):
+        self._source['panels'] = [panel.source for panel in self._panels]
+        return self._source
+
+    @property
+    def parent(self):
+        return self._dashboard
+
 
 class Panel(Document):
-    def __init__(self, source):
+    def __init__(self, source, row=None):
+        self._row = row
         self._load(source)
 
     def _load(self, source):
@@ -149,3 +176,7 @@ class Panel(Document):
             raise InvalidDocument("Can not update {} with {}"
                                   .format(self.__class__.__name__,
                                           document.__class__.__name__))
+
+    @property
+    def parent(self):
+        return self._row

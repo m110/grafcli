@@ -1,7 +1,12 @@
+"""Local resources.
+
+TODO: simplify and refactor private methods.
+
+"""
 import os
 import json
 
-from grafcli.exceptions import InvalidPath
+from grafcli.exceptions import InvalidPath, InvalidDocument, DocumentNotFound
 from grafcli.config import config
 from grafcli.documents import Dashboard, Row, Panel
 
@@ -15,6 +20,12 @@ DATA_DIR = os.path.expanduser(config['resources'].get('data-dir', ''))
 DASHBOARDS_DIR = os.path.join(DATA_DIR, DASHBOARDS)
 ROWS_DIR = os.path.join(DATA_DIR, ROWS)
 PANELS_DIR = os.path.join(DATA_DIR, PANELS)
+
+DIR_DOCUMENTS = {
+    DASHBOARDS: Dashboard,
+    ROWS: Row,
+    PANELS: Panel,
+}
 
 
 class LocalResources(object):
@@ -78,9 +89,6 @@ class LocalResources(object):
         if directory not in LOCAL_RESOURCES:
             raise InvalidPath("Invalid local directory: {}".format(directory))
 
-        if not parts:
-            raise InvalidPath("No resources provided")
-
         if directory == DASHBOARDS:
             return self._get_dashboards(parts)
         elif directory == ROWS:
@@ -130,6 +138,32 @@ class LocalResources(object):
         source = read_file(PANELS_DIR, panel_name)
         return Panel(source)
 
+    def save(self, parts, document):
+        directory = parts[0]
+
+        try:
+            origin_document = self.get(list(parts))
+
+            origin_document.update(document)
+
+            top_parent = origin_document
+            while top_parent.parent:
+                top_parent = top_parent.parent
+
+            document = top_parent
+        except DocumentNotFound:
+            document_class = DIR_DOCUMENTS[directory]
+            if not isinstance(document, document_class):
+                raise InvalidDocument("Can not add {} to {}"
+                                      .format(type(document).__name__, directory))
+
+        if len(parts) >= 2:
+            file_name = parts[-1]
+        else:
+            file_name = document.name
+
+        write_file(os.path.join(DATA_DIR, directory), file_name, document.source)
+
 
 def to_file_format(filename):
     return "{}.json".format(filename)
@@ -152,11 +186,19 @@ def read_file(directory, name):
     file = to_file_format(name)
     full_path = os.path.join(directory, file)
 
-    if not os.path.isfile(full_path):
-        raise InvalidPath("File not found: {}".format(full_path))
+    if not name or not os.path.isfile(full_path):
+        raise DocumentNotFound("File not found: {}".format(full_path))
 
     with open(full_path, 'r') as f:
         return json.loads(f.read())
+
+
+def write_file(directory, name, data):
+    file = to_file_format(name)
+    full_path = os.path.join(directory, file)
+
+    with open(full_path, 'w') as f:
+        f.write(json.dumps(data))
 
 
 def make_local_dirs():

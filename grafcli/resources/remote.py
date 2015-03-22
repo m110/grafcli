@@ -1,7 +1,7 @@
 import re
 import json
 
-from grafcli.exceptions import InvalidPath
+from grafcli.exceptions import InvalidPath, DocumentNotFound
 from grafcli.config import config
 from grafcli.documents import Dashboard
 import grafcli.elastic as elastic
@@ -50,6 +50,9 @@ class RemoteResources(object):
 
         return dashboard.row(row_name).panel(panel_name)
 
+    def save(self, parts, document):
+        pass
+
 
 def unpack_parts(parts):
     host = parts.pop(0)
@@ -79,7 +82,7 @@ def dashboard_by_id(host, dashboard):
                           body={'query': {'match': {'_id': dashboard}}})
 
     if not hits:
-        raise InvalidPath("There is no such dashboard: {}".format(dashboard))
+        raise DocumentNotFound("There is no such dashboard: {}".format(dashboard))
 
     dashboard_id = hits[0]['_id']
     source = json.loads(hits[0]['_source']['dashboard'])
