@@ -10,37 +10,42 @@ sys.path.append(LIB_PATH)
 from grafcli.exceptions import InvalidPath, InvalidDocument, DocumentNotFound
 from grafcli.documents import Dashboard, Row, Panel, get_id
 
-DASHBOARD_SOURCE = {
-    'rows': [
-        {
-            'title': 'First row',
-            'panels': [],
-        },
-        {
-            'title': 'Second row',
-            'panels': [],
-        },
-    ]
-}
 
-ROW_SOURCE = {
-    'title': 'Any row',
-    'panels': [
-        {
-            'id': 1,
-            'title': 'First panel',
-        },
-        {
-            'id': 2,
-            'title': 'Second panel',
-        },
-    ]
-}
+def dashboard_source(rows=None):
+    if not rows:
+        rows = []
 
-PANEL_SOURCE = {
-    'title': 'Any panel',
-    'id': 1,
-}
+    return {
+        'rows': rows,
+    }
+
+
+def row_source(title, panels=None):
+    if not panels:
+        panels = []
+
+    return {
+        'title': title,
+        'panels': panels,
+    }
+
+
+def panel_source(title):
+    return {
+        'title': title,
+    }
+
+DASHBOARD_SOURCE = dashboard_source([
+    row_source("First row"),
+    row_source("Second row"),
+])
+
+ROW_SOURCE = row_source("Any row", [
+    panel_source("First panel"),
+    panel_source("Second panel"),
+])
+
+PANEL_SOURCE = panel_source("Any panel")
 
 
 class DocumentsTest(unittest.TestCase):
@@ -57,7 +62,6 @@ class DocumentsTest(unittest.TestCase):
 
         self.assertEqual(dashboard.id, 'any_dashboard')
         self.assertEqual(dashboard.name, 'any_dashboard')
-        self.assertDictEqual(dashboard.source, DASHBOARD_SOURCE)
         self.assertEqual(len(dashboard.rows), 2)
 
         self.assertEqual(dashboard.row('1-any-name').id, 1)
@@ -74,12 +78,16 @@ class DocumentsTest(unittest.TestCase):
         dashboard.update(new_dashboard)
         self.assertEqual(dashboard.id, 'new_dashboard')
 
-        row = Row(ROW_SOURCE)
+        row = Row(row_source("New row"))
         dashboard.update(row)
         self.assertEqual(len(dashboard.rows), 3)
         self.assertEqual(dashboard.rows[2].id, 3)
 
-        panel = Panel(PANEL_SOURCE)
+        row_with_panels = Row(ROW_SOURCE)
+        dashboard.update(row_with_panels)
+        self.assertEqual(dashboard.max_panel_id(), 2)
+
+        panel = Panel(panel_source("Any panel"))
         with self.assertRaises(InvalidDocument):
             dashboard.update(panel)
 
@@ -88,13 +96,8 @@ class DocumentsTest(unittest.TestCase):
 
         self.assertEqual(dashboard.max_panel_id(), 0)
 
-        low_source = PANEL_SOURCE.copy()
-        high_source = PANEL_SOURCE.copy()
-        low_source['id'] = 5
-        high_source['id'] = 15
-
-        dashboard.rows[0].panels.append(Panel(low_source))
-        dashboard.rows[1].panels.append(Panel(high_source))
+        dashboard.rows[0].panels.append(Panel(panel_source("Low id panel"), 5))
+        dashboard.rows[1].panels.append(Panel(panel_source("High id panel"), 15))
 
         self.assertEqual(dashboard.max_panel_id(), 15)
 
@@ -103,7 +106,6 @@ class DocumentsTest(unittest.TestCase):
 
         self.assertEqual(row.id, 1)
         self.assertEqual(row.name, '1-Any-row')
-        self.assertDictEqual(row.source, ROW_SOURCE)
         self.assertEqual(len(row.panels), 2)
 
         self.assertEqual(row.panel('1-any-name').id, 1)
@@ -137,23 +139,19 @@ class DocumentsTest(unittest.TestCase):
             row.update(dashboard)
 
     def test_panel(self):
-        panel = Panel(PANEL_SOURCE)
+        panel = Panel(PANEL_SOURCE, 1)
 
         self.assertEqual(panel.id, 1)
         self.assertEqual(panel.name, '1-Any-panel')
-        self.assertDictEqual(panel.source, PANEL_SOURCE)
 
     def test_panel_update(self):
-        panel = Panel(PANEL_SOURCE)
-
-        new_source = PANEL_SOURCE.copy()
-        new_source['title'] = 'New panel'
-        new_source['id'] = 2
-        new_panel = Panel(new_source)
+        panel = Panel(PANEL_SOURCE, 1)
+        new_panel = Panel(panel_source("New panel"), 2)
 
         panel.update(new_panel)
-        self.assertEqual(panel.id, 2)
-        self.assertEqual(panel.name, '2-New-panel')
+
+        self.assertEqual(panel.id, 1)
+        self.assertEqual(panel.name, '1-New-panel')
 
         dashboard = Dashboard(DASHBOARD_SOURCE, 'any_dashboard')
         with self.assertRaises(InvalidDocument):

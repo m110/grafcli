@@ -51,20 +51,23 @@ class Dashboard(Document):
         self._source = source
 
         self._rows = []
-        for id, row in enumerate(source['rows']):
-            self._rows.append(Row(row, id+1, self))
+        for row in source['rows']:
+            self._add_row(row)
 
     def update(self, document):
         if isinstance(document, Dashboard):
             self._load(document.source.copy(), document.id)
         elif isinstance(document, Row):
-            next_id = len(self._rows)+1
-            row = Row(document.source.copy(), next_id, self)
-            self._rows.append(row)
+            self._add_row(document.source)
         else:
             raise InvalidDocument("Can not update {} with {}"
                                   .format(self.__class__.__name__,
                                           document.__class__.__name__))
+
+    def _add_row(self, source):
+        max_id = len(self._rows)
+        row = Row(source, max_id+1, self)
+        self._rows.append(row)
 
     def row(self, name):
         id = get_id(name)
@@ -107,26 +110,25 @@ class Row(Document):
 
         self._panels = []
         for panel in source['panels']:
-            self._panels.append(Panel(panel, self))
+            self._add_panel(panel)
 
     def update(self, document):
         if isinstance(document, Row):
             self._load(document.source.copy(), document.id)
         elif isinstance(document, Panel):
-            if self._dashboard:
-                max_id = self._dashboard.max_panel_id()
-            else:
-                max_id = self.max_panel_id()
-
-            source = document.source.copy()
-            source['id'] = max_id+1
-
-            panel = Panel(source, self)
-            self._panels.append(panel)
+            self._add_panel(document.source)
         else:
             raise InvalidDocument("Can not update {} with {}"
                                   .format(self.__class__.__name__,
                                           document.__class__.__name__))
+
+    def _add_panel(self, source):
+        max_id = self.max_panel_id()
+        if self._dashboard:
+            max_id = max([max_id, self._dashboard.max_panel_id()])
+
+        panel = Panel(source, max_id+1, self)
+        self._panels.append(panel)
 
     def panel(self, name):
         id = get_id(name)
@@ -160,12 +162,13 @@ class Row(Document):
 
 
 class Panel(Document):
-    def __init__(self, source, row=None):
+    def __init__(self, source, id=0, row=None):
+        self._id = id
         self._row = row
         self._load(source)
 
     def _load(self, source):
-        self._id = source['id']
+        source['id'] = self._id
         self._name = "{}-{}".format(self._id, source['title'].replace(' ', '-'))
         self._source = source
 
