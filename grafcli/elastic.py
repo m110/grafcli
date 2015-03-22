@@ -36,3 +36,17 @@ def search(host, *args, **kwargs):
 
     result = conn.search(index=index, *args, **kwargs)
     return result['hits']['hits']
+
+
+def create(host, *args, **kwargs):
+    conn = connection(host)
+    index = config[host]['index']
+
+    return conn.create(index=index, *args, **kwargs)
+
+
+def update(host, *args, **kwargs):
+    conn = connection(host)
+    index = config[host]['index']
+
+    return conn.update(index=index, *args, **kwargs)

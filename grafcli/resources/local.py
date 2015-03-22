@@ -143,7 +143,6 @@ class LocalResources(object):
 
         try:
             origin_document = self.get(list(parts))
-
             origin_document.update(document)
 
             top_parent = origin_document

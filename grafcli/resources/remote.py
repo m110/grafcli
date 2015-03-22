@@ -18,7 +18,7 @@ class RemoteResources(object):
         if not dashboard_name:
             return list_dashboards(host)
 
-        dashboard = dashboard_by_id(host, dashboard_name)
+        dashboard = get_dashboard(host, dashboard_name)
 
         if not row_name:
             return [row.name for row in dashboard.rows]
@@ -40,7 +40,7 @@ class RemoteResources(object):
         if not dashboard_name:
             raise InvalidPath("Provide the dashboard at least")
 
-        dashboard = dashboard_by_id(host, dashboard_name)
+        dashboard = get_dashboard(host, dashboard_name)
 
         if not row_name:
             return dashboard
@@ -51,7 +51,20 @@ class RemoteResources(object):
         return dashboard.row(row_name).panel(panel_name)
 
     def save(self, parts, document):
-        pass
+        try:
+            origin_document = self.get(list(parts))
+            origin_document.update(document)
+
+            top_parent = origin_document
+            while top_parent.parent:
+                top_parent = top_parent.parent
+
+            document = top_parent
+            dashboard_id = document.name
+        except DocumentNotFound:
+            dashboard_id = parts[1]
+
+        save_dashboard(parts[0], dashboard_id, document.source)
 
 
 def unpack_parts(parts):
@@ -75,16 +88,35 @@ def list_dashboards(host):
     return [hit['_id'] for hit in hits]
 
 
-def dashboard_by_id(host, dashboard):
+def get_dashboard(host, dashboard_id):
     hits = elastic.search(host,
                           doc_type="dashboard",
                           _source=["dashboard"],
-                          body={'query': {'match': {'_id': dashboard}}})
+                          body={'query': {'match': {'_id': dashboard_id}}})
 
     if not hits:
-        raise DocumentNotFound("There is no such dashboard: {}".format(dashboard))
+        raise DocumentNotFound("There is no such dashboard: {}".format(dashboard_id))
 
-    dashboard_id = hits[0]['_id']
     source = json.loads(hits[0]['_source']['dashboard'])
 
     return Dashboard(source, dashboard_id)
+
+
+def save_dashboard(host, dashboard_id, data):
+    hits = elastic.search(host,
+                          doc_type="dashboard",
+                          _source=False,
+                          body={'query': {'match': {'_id': dashboard_id}}})
+
+    body = {'dashboard': json.dumps(data)}
+
+    if hits:
+        elastic.update(host,
+                       doc_type="dashboard",
+                       body={'doc': body},
+                       id=dashboard_id)
+    else:
+        elastic.create(host,
+                       doc_type="dashboard",
+                       body=body,
+                       id=dashboard_id)
