@@ -137,6 +137,12 @@ Some of the common operations.
 [/templates/dashboards]> cp main_dashboard new_dashboard
 ```
 
+* Update remote dashboard with local template:
+
+```
+[/]> cp templates/dashboards/new_dashboard remote/main_dashboard
+```
+
 * Move row from one dashboard to another (adds one more row to destination dashboard):
 
 ```
