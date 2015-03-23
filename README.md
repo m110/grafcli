@@ -17,7 +17,7 @@ To let you easily manage your dashboards using just your keyboard.
 
 ## How?
 
-Grafcli connects directly to ElasticSearch and modifies dashboard's documents. However, this is all hidden behind an interface you already know well, similar to *nix filesystem.
+Grafcli connects directly to ElasticSearch and modifies dashboards' documents. However, this is all hidden behind an interface you already know well, similar to *nix filesystem.
 
 # Usage
 
@@ -62,7 +62,37 @@ Most of the arguments here are paths to a dashboard, row or panel.
 * `cp <source> <destination>` - copies one element to another. Can be used to copy whole dashboards, rows or single panels.
 * `mv <source> <destination>` - the same as `cp`, but moves (renames) the source.
 * `rm <source> <destination>` - removes the element
-* `get <path>` - saved backup of given element.
+* `get <path>` - saves backup of given element.
+
+# Configuration
+
+Graftcli will attempt to read `./grafcli.conf`, `~/.grafcli.conf` and `/etc/grafcli/grafcli.conf` in that order.
+
+Here is the configuration file exmplained.
+```ini
+[grafcli]
+# Commands history file. Leave empty to disable.
+history = ~/.grafcli_history
+
+[resources]
+# Directory where all local data will be stored (including backups).
+data-dir = ~/.grafcli
+
+# List of remote ElasticSearch hosts.
+# The key names do not matter, as long as matching section exists.
+# Set the value to False to disable the host.
+[hosts]
+host.example.com = True
+
+[host.example.com]
+# In case of more hosts, use comma-separated values.
+hosts = host1.example.com,host2.example.com
+port = 9200
+index = grafana-dash
+# HTTP user and password, if any.
+user =
+password =
+```
 
 # Examples
 
