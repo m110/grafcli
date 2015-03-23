@@ -21,8 +21,6 @@ Grafcli connects directly to ElasticSearch and modifies dashboards' documents. H
 
 # Usage
 
-Note that any command can be passed directly as arguments to grafcli, which will exit just after after executing it. If you run it without arguments, you will get to interactive mode (preferable choice in most cases).
-
 ## Navigation
 
 Use `cd` and `ls` commands to list nodes and move around.
@@ -61,8 +59,9 @@ Most of the arguments here are paths to a dashboard, row or panel.
 * `$EDITOR <path>` - edit the JSON of given element in-place and update it afterwards.
 * `cp <source> <destination>` - copies one element to another. Can be used to copy whole dashboards, rows or single panels.
 * `mv <source> <destination>` - the same as `cp`, but moves (renames) the source.
-* `rm <source> <destination>` - removes the element
-* `get <path>` - saves backup of given element.
+* `rm <source> <destination>` - removes the element.
+* `get <remote_path>` - saves element as template.
+* `backup <remote_path>` - saves element as backup.
 
 # Configuration
 
@@ -94,10 +93,70 @@ user =
 password =
 ```
 
+# Tips
+
+## Batch mode
+
+Any command can be passed directly as arguments to grafcli, which will exit just after after executing it. If you run it without arguments, you will get to interactive mode (preferable choice in most cases).
+
+For example:
+```bash
+$ grafcli ls /remote
+host.example.com
+another.example.com
+```
+
+## Short names
+
+All rows and panels names start with a number and it may seem that typing all that stuff gets boring soon. However, there are completions available (triggered by `TAB` key) to help you with that. What is more, it is enough to provide just the number of the row or panel, so take advantage of that!
+
+So instead of typing:
+```
+[/]> cp /templates/dashboards/dashboard/1-Top-Row/1-Top-Panel /remote/example/dashboard/1-Top-Row
+```
+You can just do:
+```
+[/]> cp /templates/dashboards/dashboard/1/1 /remote/example/dashboard/1
+```
+
+But then again, TAB-completions make it easy enough to type full names.
+
 # Examples
 
 Some of the common operations.
 
+* Store dashboard as template (saved to `templates/dashboards/main_dashboard`):
+
 ```
-To be added
+[/]> get remote/example/main_dashboard
+```
+
+* Create the exact copy of dashboard's template:
+
+```
+[/templates/dashboards]> cp main_dashboard new_dashboard
+```
+
+* Move row from one dashboard to another (adds one more row to destination dashboard):
+
+```
+[/templates/dashboards]> cp main_dashboard/1-Top-Row new_dashboard
+```
+
+* Move row from one dashboard to another and replace existing row:
+
+```
+[/templates/dashboards]> cp main_dashboard/1-Top-Row new_dashboard/2-Some-Existing-Row
+```
+
+* Copy panel between rows (add one more panel to destination row).
+
+```
+[/templates/dashboards]> cp main_dashboard/1-Top-Row/1-Top-Panel new_dashboard/1-Top-Row
+```
+
+* Copy panel between rows and replace existing panel.
+
+```
+[/templates/dashboards]> cp main_dashboard/1-Top-Row/1-Top-Panel new_dashboard/1-Top-Row/2-Second-Panel
 ```
