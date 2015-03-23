@@ -68,7 +68,7 @@ Most of the arguments here are paths to a dashboard, row or panel.
 
 Graftcli will attempt to read `./grafcli.conf`, `~/.grafcli.conf` and `/etc/grafcli/grafcli.conf` in that order.
 
-Here is the configuration file exmplained.
+Here is the configuration file explained.
 ```ini
 [grafcli]
 # Commands history file. Leave empty to disable.
