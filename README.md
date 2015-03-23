@@ -65,7 +65,7 @@ Most of the arguments here are paths to a dashboard, row or panel.
 
 # Configuration
 
-Graftcli will attempt to read `./grafcli.conf`, `~/.grafcli.conf` and `/etc/grafcli/grafcli.conf` in that order.
+Grafcli will attempt to read `./grafcli.conf`, `~/.grafcli.conf` and `/etc/grafcli/grafcli.conf` in that order.
 
 Here is the configuration file explained.
 ```ini
