@@ -1,4 +1,3 @@
-import re
 import json
 
 from grafcli.exceptions import InvalidPath, DocumentNotFound
@@ -51,20 +50,16 @@ class RemoteResources(object):
         return dashboard.row(row_name).panel(panel_name)
 
     def save(self, parts, document):
-        try:
-            origin_document = self.get(list(parts))
-            origin_document.update(document)
+        host = parts[0]
 
-            top_parent = origin_document
-            while top_parent.parent:
-                top_parent = top_parent.parent
+        origin_document = self.get(list(parts))
+        origin_document.update(document)
 
-            document = top_parent
-            dashboard_id = document.name
-        except DocumentNotFound:
-            dashboard_id = parts[1]
+        dashboard = origin_document
+        while dashboard.parent:
+            dashboard = dashboard.parent
 
-        save_dashboard(parts[0], dashboard_id, document.source)
+        save_dashboard(host, dashboard.id, dashboard.source)
 
 
 def unpack_parts(parts):
