@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 
 from grafcli.exceptions import InvalidPath, InvalidDocument, DocumentNotFound
 
-ID_PATTERN = re.compile(r'^(\d+)-')
+ID_PATTERN = re.compile(r'^(\d+)-?')
 
 
 def get_id(name):
