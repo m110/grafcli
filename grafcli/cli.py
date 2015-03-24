@@ -1,5 +1,6 @@
 import os
 import readline
+import traceback
 
 from grafcli.config import config
 from grafcli.exceptions import UnknownCommand
@@ -76,7 +77,7 @@ class GrafCLI(object):
                 print(result)
             return 0
         except Exception as exc:
-            print(str(exc))
+            traceback.print_exc()
             return 1
 
     def parse(self, args):
