@@ -19,7 +19,7 @@ class ResourcesTest(unittest.TestCase):
 
     def test_list_empty(self):
         r = Resources()
-        self.assertEqual(r.list(None), ['host.example.com', 'dashboards', 'rows', 'panels'])
+        self.assertEqual(r.list(None), ['host.example.com', 'backups', 'templates'])
 
     def test_get_empty(self):
         r = Resources()
@@ -29,9 +29,9 @@ class ResourcesTest(unittest.TestCase):
     def test_parse_path(self):
         r = Resources()
 
-        manager, parts = r._parse_path('/dashboards/a/b/c')
+        manager, parts = r._parse_path('/templates/a/b/c')
         self.assertEqual(manager, r._local_resources)
-        self.assertListEqual(parts, ['dashboards', 'a', 'b', 'c'])
+        self.assertListEqual(parts, ['templates', 'a', 'b', 'c'])
 
         manager, parts = r._parse_path('/host.example.com/a/b/c')
         self.assertEqual(manager, r._remote_resources)

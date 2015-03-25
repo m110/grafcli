@@ -10,16 +10,20 @@ from grafcli.exceptions import InvalidPath, InvalidDocument, DocumentNotFound
 from grafcli.config import config
 from grafcli.documents import Dashboard, Row, Panel
 
+BACKUPS = 'backups'
+TEMPLATES = 'templates'
 DASHBOARDS = 'dashboards'
 ROWS = 'rows'
 PANELS = 'panels'
 
-LOCAL_RESOURCES = (DASHBOARDS, ROWS, PANELS)
+LOCAL_RESOURCES = (BACKUPS, TEMPLATES)
 
 DATA_DIR = os.path.expanduser(config['resources'].get('data-dir', ''))
-DASHBOARDS_DIR = os.path.join(DATA_DIR, DASHBOARDS)
-ROWS_DIR = os.path.join(DATA_DIR, ROWS)
-PANELS_DIR = os.path.join(DATA_DIR, PANELS)
+BACKUPS_DIR = os.path.join(DATA_DIR, BACKUPS)
+TEMPLATES_DIR = os.path.join(DATA_DIR, TEMPLATES)
+DASHBOARDS_DIR = os.path.join(TEMPLATES_DIR, DASHBOARDS)
+ROWS_DIR = os.path.join(TEMPLATES_DIR, ROWS)
+PANELS_DIR = os.path.join(TEMPLATES_DIR, PANELS)
 
 DIR_DOCUMENTS = {
     DASHBOARDS: Dashboard,
@@ -34,27 +38,35 @@ class LocalResources(object):
         make_local_dirs()
 
     def list(self, parts):
-        directory = parts.pop(0)
+        category = parts.pop(0)
 
-        if directory not in LOCAL_RESOURCES:
-            raise InvalidPath("Invalid local directory: {}".format(directory))
+        if category not in LOCAL_RESOURCES:
+            raise InvalidPath("Invalid local directory: {}".format(category))
 
         if not parts:
-            return list_files(os.path.join(DATA_DIR, directory))
+            return list_files(os.path.join(DATA_DIR, category))
 
-        if directory == DASHBOARDS:
-            return self._list_dashboards(parts)
-        elif directory == ROWS:
-            return self._list_rows(parts)
-        elif directory == PANELS:
-            return self._list_panels(parts)
+        if category == BACKUPS:
+            return self._list_dashboards(BACKUPS_DIR, parts)
+        elif category == TEMPLATES:
+            directory = parts.pop(0)
 
-    def _list_dashboards(self, parts):
+            if not parts:
+                return list_files(os.path.join(TEMPLATES_DIR, directory))
+
+            if directory == DASHBOARDS:
+                return self._list_dashboards(DASHBOARDS_DIR, parts)
+            elif directory == ROWS:
+                return self._list_rows(DASHBOARDS_DIR)
+            elif directory == PANELS:
+                return self._list_panels(DASHBOARDS_DIR)
+
+    def _list_dashboards(self, directory, parts):
         dashboard_name = parts.pop(0) if parts else None
         row_name = parts.pop(0) if parts else None
         panel_name = parts.pop(0) if parts else None
 
-        source = read_file(DASHBOARDS_DIR, dashboard_name)
+        source = read_file(directory, dashboard_name)
         dashboard = Dashboard(source, dashboard_name)
 
         if not row_name:
@@ -84,26 +96,34 @@ class LocalResources(object):
         raise InvalidPath("Panels contain no sub-nodes")
 
     def get(self, parts):
-        directory = parts.pop(0)
+        category = parts.pop(0)
 
-        if directory not in LOCAL_RESOURCES:
-            raise InvalidPath("Invalid local directory: {}".format(directory))
+        if category not in LOCAL_RESOURCES:
+            raise InvalidPath("Invalid local directory: {}".format(category))
 
-        if directory == DASHBOARDS:
-            return self._get_dashboards(parts)
-        elif directory == ROWS:
-            return self._get_rows(parts)
-        elif directory == PANELS:
-            return self._get_panels(parts)
+        if not parts:
+            raise InvalidPath("Can not get directory")
 
-    def _get_dashboards(self, parts):
+        if category == BACKUPS:
+            return self._get_dashboards(BACKUPS_DIR, parts)
+        else:
+            directory = parts.pop(0)
+
+            if directory == DASHBOARDS:
+                return self._get_dashboards(DASHBOARDS_DIR, parts)
+            elif directory == ROWS:
+                return self._get_rows(parts)
+            elif directory == PANELS:
+                return self._get_panels(parts)
+
+    def _get_dashboards(self, directory, parts):
         dashboard_name = parts.pop(0) if parts else None
         row_name = parts.pop(0) if parts else None
         panel_name = parts.pop(0) if parts else None
         if parts:
             raise InvalidPath("Panels contain no sub-nodes")
 
-        source = read_file(DASHBOARDS_DIR, dashboard_name)
+        source = read_file(directory, dashboard_name)
         dashboard = Dashboard(source, dashboard_name)
 
         if row_name:
@@ -139,7 +159,29 @@ class LocalResources(object):
         return Panel(source)
 
     def save(self, parts, document):
-        directory = parts[0]
+        category = parts[0]
+
+        if category not in LOCAL_RESOURCES:
+            raise InvalidPath("Invalid local directory: {}".format(category))
+
+        if category == BACKUPS:
+            self._save_backup(parts, document)
+        elif category == TEMPLATES:
+            self._save_template(parts, document)
+
+    def _save_backup(self, parts, document):
+        try:
+            dashboard = self.get(list(parts))
+            dashboard.update(document)
+        except DocumentNotFound:
+            if not isinstance(document, Dashboard):
+                raise InvalidDocument("Can not add {} as backup"
+                                      .format(type(document).__name__))
+
+        write_file(BACKUPS_DIR, document.name, document.source)
+
+    def _save_template(self, parts, document):
+        directory = parts[1]
 
         try:
             origin_document = self.get(list(parts))
@@ -156,12 +198,7 @@ class LocalResources(object):
                 raise InvalidDocument("Can not add {} to {}"
                                       .format(type(document).__name__, directory))
 
-        if len(parts) >= 2:
-            file_name = parts[-1]
-        else:
-            file_name = document.name
-
-        write_file(os.path.join(DATA_DIR, directory), file_name, document.source)
+        write_file(os.path.join(TEMPLATES_DIR, directory), document.name, document.source)
 
 
 def to_file_format(filename):
@@ -202,5 +239,5 @@ def write_file(directory, name, data):
 
 def make_local_dirs():
     if DATA_DIR:
-        for path in (DATA_DIR, DASHBOARDS_DIR, ROWS_DIR, PANELS_DIR):
+        for path in (DATA_DIR, BACKUPS_DIR, TEMPLATES_DIR, DASHBOARDS_DIR, ROWS_DIR, PANELS_DIR):
             os.makedirs(path, mode=0o755, exist_ok=True)
