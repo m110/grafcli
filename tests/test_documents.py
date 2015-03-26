@@ -91,6 +91,18 @@ class DocumentsTest(unittest.TestCase):
         with self.assertRaises(InvalidDocument):
             dashboard.update(panel)
 
+    def test_dashboard_remove_child(self):
+        dashboard = Dashboard(DASHBOARD_SOURCE, 'any_dashboard')
+
+        dashboard.remove_child("1-First-row")
+        self.assertEqual(len(dashboard.rows), 1)
+
+        dashboard.remove_child("1-Second-row")
+        self.assertEqual(len(dashboard.rows), 0)
+
+        with self.assertRaises(DocumentNotFound):
+            dashboard.remove_child("1-Any-row")
+
     def test_dashboard_max_panel_id(self):
         dashboard = Dashboard(DASHBOARD_SOURCE, 'any_dashboard')
 
@@ -138,6 +150,18 @@ class DocumentsTest(unittest.TestCase):
         with self.assertRaises(InvalidDocument):
             row.update(dashboard)
 
+    def test_row_remove_child(self):
+        row = Row(ROW_SOURCE, 1)
+
+        row.remove_child("1-First-panel")
+        self.assertEqual(len(row.panels), 1)
+
+        row.remove_child("2-Second-panel")
+        self.assertEqual(len(row.panels), 0)
+
+        with self.assertRaises(DocumentNotFound):
+            row.remove_child("1-Any-panel")
+
     def test_panel(self):
         panel = Panel(PANEL_SOURCE, 1)
 
@@ -160,6 +184,12 @@ class DocumentsTest(unittest.TestCase):
         row = Row(ROW_SOURCE, 1)
         with self.assertRaises(InvalidDocument):
             panel.update(row)
+
+    def test_panel_remove_child(self):
+        panel = Panel(PANEL_SOURCE, 1)
+
+        with self.assertRaises(InvalidDocument):
+            panel.remove_child("1-any-name")
 
 
 if __name__ == "__main__":

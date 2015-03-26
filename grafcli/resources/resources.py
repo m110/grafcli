@@ -35,6 +35,14 @@ class Resources(object):
 
         return manager.save(parts, document)
 
+    def remove(self, path):
+        """Removes resource."""
+        manager, parts = self._parse_path(path)
+        if not parts:
+            raise InvalidPath("No path supplied")
+
+        return manager.remove(parts)
+
     def _parse_path(self, path):
         parts = split_path(path) if path else []
 

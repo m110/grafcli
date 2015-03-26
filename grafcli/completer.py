@@ -12,6 +12,7 @@ class Completer(object):
             'cat': self.ls,
             'cd': self.cd,
             'cp': self.cp,
+            'rm': self.ls,
             'get': self.get,
         }
 

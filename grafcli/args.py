@@ -36,6 +36,9 @@ class Args(object):
         cp.add_argument("source", nargs="?", default=None)
         cp.add_argument("destination", nargs="?", default=None)
 
+        rm = self._add_command("rm", "remove resources")
+        rm.add_argument("path", nargs="?", default=None, help="resource path")
+
         self._add_command("mv", "move (rename) resource")
         self._add_command("vim", "edit resource's content in best editor possible")
 

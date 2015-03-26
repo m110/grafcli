@@ -23,6 +23,10 @@ class Document(object, metaclass=ABCMeta):
     def update(self, document):
         pass
 
+    @abstractmethod
+    def remove_child(self, name):
+        pass
+
     @property
     def id(self):
         return self._id
@@ -64,17 +68,25 @@ class Dashboard(Document):
                                   .format(self.__class__.__name__,
                                           document.__class__.__name__))
 
+    def remove_child(self, name):
+        id = self._get_row_id(name)
+        del self._rows[id-1]
+
     def _add_row(self, source):
         max_id = len(self._rows)
         row = Row(source, max_id+1, self)
         self._rows.append(row)
 
     def row(self, name):
+        id = self._get_row_id(name)
+        return self._rows[id-1]
+
+    def _get_row_id(self, name):
         id = get_id(name)
         if id <= 0 or len(self._rows) < id:
             raise DocumentNotFound("There is no row at index {}".format(id))
 
-        return self._rows[id-1]
+        return id
 
     def max_panel_id(self):
         if self.rows:
@@ -121,6 +133,9 @@ class Row(Document):
             raise InvalidDocument("Can not update {} with {}"
                                   .format(self.__class__.__name__,
                                           document.__class__.__name__))
+
+    def remove_child(self, name):
+        self._panels.remove(self.panel(name))
 
     def _add_panel(self, source):
         max_id = self.max_panel_id()
@@ -183,3 +198,6 @@ class Panel(Document):
     @property
     def parent(self):
         return self._row
+
+    def remove_child(self, name):
+        raise InvalidDocument("Panel has no child nodes")

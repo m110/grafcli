@@ -3,7 +3,7 @@ import readline
 import traceback
 
 from grafcli.config import config
-from grafcli.exceptions import UnknownCommand
+from grafcli.exceptions import UnknownCommand, InvalidPath
 from grafcli.args import Args
 from grafcli.resources import Resources
 from grafcli.completer import Completer
@@ -30,6 +30,7 @@ class GrafCLI(object):
             'cd': self.cd,
             'cat': self.cat,
             'cp': self.cp,
+            'rm': self.rm,
             'get': self.get,
             'help': self.help,
             'exit': self.exit,
@@ -114,6 +115,10 @@ class GrafCLI(object):
 
         document = self._resources.get(source)
         self._resources.save(destination, document)
+
+    def rm(self, path):
+        path = format_path(self._current_path, path)
+        self._resources.remove(path)
 
     def get(self, resources):
         for res in resources:

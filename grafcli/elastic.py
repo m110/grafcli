@@ -50,3 +50,10 @@ def update(host, *args, **kwargs):
     index = config[host]['index']
 
     return conn.update(index=index, *args, **kwargs)
+
+
+def remove(host, *args, **kwargs):
+    conn = connection(host)
+    index = config[host]['index']
+
+    return conn.delete(index=index, *args, **kwargs)

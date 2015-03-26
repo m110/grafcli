@@ -61,6 +61,24 @@ class RemoteResources(object):
 
         save_dashboard(host, dashboard.id, dashboard.source)
 
+    def remove(self, parts):
+        host, dashboard_name, row_name, panel_name = unpack_parts(parts)
+
+        if not dashboard_name:
+            raise InvalidPath("Provide the dashboard at least")
+
+        if row_name:
+            dashboard = get_dashboard(host, dashboard_name)
+
+            if panel_name:
+                dashboard.row(row_name).remove_child(panel_name)
+            else:
+                dashboard.remove_child(row_name)
+
+            save_dashboard(host, dashboard.id, dashboard.source)
+        else:
+            remove_dashboard(host, dashboard_name)
+
 
 def unpack_parts(parts):
     host = parts.pop(0)
@@ -115,3 +133,9 @@ def save_dashboard(host, dashboard_id, data):
                        doc_type="dashboard",
                        body=body,
                        id=dashboard_id)
+
+
+def remove_dashboard(host, dashboard_id):
+    elastic.remove(host,
+                   doc_type="dashboard",
+                   id=dashboard_id)
