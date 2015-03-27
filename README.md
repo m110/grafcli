@@ -59,7 +59,7 @@ Most of the arguments here are paths to a dashboard, row or panel.
 * `$EDITOR <path>` - edit the JSON of given element in-place and update it afterwards.
 * `cp <source> <destination>` - copies one element to another. Can be used to copy whole dashboards, rows or single panels.
 * `mv <source> <destination>` - the same as `cp`, but moves (renames) the source.
-* `rm <source> <destination>` - removes the element.
+* `rm <path>` - removes the element.
 * `get <remote_path>` - saves element as template.
 * `backup <remote_path>` - saves element as backup.
 
