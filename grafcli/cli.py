@@ -3,11 +3,11 @@ import readline
 import traceback
 
 from grafcli.config import config
-from grafcli.exceptions import UnknownCommand, InvalidPath
+from grafcli.exceptions import UnknownCommand
 from grafcli.args import Args
 from grafcli.resources import Resources
 from grafcli.completer import Completer
-from grafcli.paths import ROOT_PATH, format_path, split_path
+from grafcli.paths import ROOT_PATH, format_path
 from grafcli.utils import json_pretty
 
 PROMPT = "> "
@@ -113,8 +113,8 @@ class GrafCLI(object):
         source_path = format_path(self._current_path, source)
         destination_path = format_path(self._current_path, destination)
 
-        document = self._resources.get(source)
-        self._resources.save(destination, document)
+        document = self._resources.get(source_path)
+        self._resources.save(destination_path, document)
 
     def rm(self, path):
         path = format_path(self._current_path, path)

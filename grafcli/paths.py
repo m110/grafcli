@@ -13,8 +13,7 @@ def format_path(current_path, path, default=None):
     if not absolute:
         path = SEPARATOR.join((current_path, path))
 
-    parts = [part for part in path.split(SEPARATOR)
-             if part]
+    parts = split_path(path)
 
     result = []
     for part in parts:
@@ -32,5 +31,8 @@ def format_path(current_path, path, default=None):
 
 
 def split_path(path):
+    if not path:
+        return []
+
     return [part for part in path.strip().split(SEPARATOR)
             if part]
