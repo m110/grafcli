@@ -1,9 +1,6 @@
-import json
-
-from grafcli.exceptions import InvalidPath, DocumentNotFound
+from grafcli.exceptions import InvalidPath
 from grafcli.config import config
-from grafcli.documents import Dashboard
-import grafcli.elastic as elastic
+from grafcli.storage.elastic import elastic
 
 REMOTE_RESOURCES = [host for host in config['hosts']
                     if config.getboolean('hosts', host)]
@@ -15,9 +12,9 @@ class RemoteResources(object):
         host, dashboard_name, row_name, panel_name = unpack_parts(parts)
 
         if not dashboard_name:
-            return list_dashboards(host)
+            return elastic(host).list_dashboards()
 
-        dashboard = get_dashboard(host, dashboard_name)
+        dashboard = elastic(host).get_dashboard(dashboard_name)
 
         if not row_name:
             return [row.name for row in dashboard.rows]
@@ -39,7 +36,7 @@ class RemoteResources(object):
         if not dashboard_name:
             raise InvalidPath("Provide the dashboard at least")
 
-        dashboard = get_dashboard(host, dashboard_name)
+        dashboard = elastic(host).get_dashboard(dashboard_name)
 
         if not row_name:
             return dashboard
@@ -59,7 +56,7 @@ class RemoteResources(object):
         while dashboard.parent:
             dashboard = dashboard.parent
 
-        save_dashboard(host, dashboard.id, dashboard.source)
+        elastic(host).save_dashboard(dashboard.id, dashboard.source)
 
     def remove(self, parts):
         host, dashboard_name, row_name, panel_name = unpack_parts(parts)
@@ -68,16 +65,16 @@ class RemoteResources(object):
             raise InvalidPath("Provide the dashboard at least")
 
         if row_name:
-            dashboard = get_dashboard(host, dashboard_name)
+            dashboard = elastic(host).get_dashboard(dashboard_name)
 
             if panel_name:
                 dashboard.row(row_name).remove_child(panel_name)
             else:
                 dashboard.remove_child(row_name)
 
-            save_dashboard(host, dashboard.id, dashboard.source)
+            elastic(host).save_dashboard(dashboard.id, dashboard.source)
         else:
-            remove_dashboard(host, dashboard_name)
+            elastic(host).remove_dashboard(dashboard_name)
 
 
 def unpack_parts(parts):
@@ -91,51 +88,3 @@ def unpack_parts(parts):
         raise InvalidPath("Path goes beyond panels")
 
     return host, dashboard, row, panel
-
-
-def list_dashboards(host):
-    hits = elastic.search(host,
-                          doc_type="dashboard",
-                          _source=False)
-
-    return [hit['_id'] for hit in hits]
-
-
-def get_dashboard(host, dashboard_id):
-    hits = elastic.search(host,
-                          doc_type="dashboard",
-                          _source=["dashboard"],
-                          body={'query': {'match': {'_id': dashboard_id}}})
-
-    if not hits:
-        raise DocumentNotFound("There is no such dashboard: {}".format(dashboard_id))
-
-    source = json.loads(hits[0]['_source']['dashboard'])
-
-    return Dashboard(source, dashboard_id)
-
-
-def save_dashboard(host, dashboard_id, data):
-    hits = elastic.search(host,
-                          doc_type="dashboard",
-                          _source=False,
-                          body={'query': {'match': {'_id': dashboard_id}}})
-
-    body = {'dashboard': json.dumps(data)}
-
-    if hits:
-        elastic.update(host,
-                       doc_type="dashboard",
-                       body={'doc': body},
-                       id=dashboard_id)
-    else:
-        elastic.create(host,
-                       doc_type="dashboard",
-                       body=body,
-                       id=dashboard_id)
-
-
-def remove_dashboard(host, dashboard_id):
-    elastic.remove(host,
-                   doc_type="dashboard",
-                   id=dashboard_id)
