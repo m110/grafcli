@@ -4,11 +4,11 @@ TODO: simplify and refactor private methods.
 
 """
 import os
-import json
 
 from grafcli.exceptions import InvalidPath, InvalidDocument, DocumentNotFound
 from grafcli.config import config
 from grafcli.documents import Dashboard, Row, Panel
+from grafcli.storage import system
 
 BACKUPS = 'backups'
 TEMPLATES = 'templates'
@@ -35,7 +35,8 @@ DIR_DOCUMENTS = {
 class LocalResources(object):
 
     def __init__(self):
-        make_local_dirs()
+        for path in (DATA_DIR, BACKUPS_DIR, TEMPLATES_DIR, DASHBOARDS_DIR, ROWS_DIR, PANELS_DIR):
+            system.makepath(path)
 
     def list(self, parts):
         category = parts.pop(0)
@@ -44,7 +45,7 @@ class LocalResources(object):
             raise InvalidPath("Invalid local directory: {}".format(category))
 
         if not parts:
-            return list_files(os.path.join(DATA_DIR, category))
+            return system.list_files(DATA_DIR, category)
 
         if category == BACKUPS:
             return self._list_dashboards(BACKUPS_DIR, parts)
@@ -52,21 +53,21 @@ class LocalResources(object):
             directory = parts.pop(0)
 
             if not parts:
-                return list_files(os.path.join(TEMPLATES_DIR, directory))
+                return system.list_files(TEMPLATES_DIR, directory)
 
             if directory == DASHBOARDS:
                 return self._list_dashboards(DASHBOARDS_DIR, parts)
             elif directory == ROWS:
-                return self._list_rows(DASHBOARDS_DIR)
+                return self._list_rows(parts)
             elif directory == PANELS:
-                return self._list_panels(DASHBOARDS_DIR)
+                return self._list_panels(parts)
 
     def _list_dashboards(self, directory, parts):
         dashboard_name = parts.pop(0) if parts else None
         row_name = parts.pop(0) if parts else None
         panel_name = parts.pop(0) if parts else None
 
-        source = read_file(directory, dashboard_name)
+        source = system.read_file(directory, dashboard_name)
         dashboard = Dashboard(source, dashboard_name)
 
         if not row_name:
@@ -87,7 +88,7 @@ class LocalResources(object):
         if parts:
             raise InvalidPath("Panels contain no sub-nodes")
 
-        source = read_file(ROWS_DIR, row_name)
+        source = system.read_file(ROWS_DIR, row_name)
         row = Row(source)
 
         return [panel.name for panel in row.panels]
@@ -123,7 +124,7 @@ class LocalResources(object):
         if parts:
             raise InvalidPath("Panels contain no sub-nodes")
 
-        source = read_file(directory, dashboard_name)
+        source = system.read_file(directory, dashboard_name)
         dashboard = Dashboard(source, dashboard_name)
 
         if row_name:
@@ -142,7 +143,7 @@ class LocalResources(object):
         if parts:
             raise InvalidPath("Panels contain no sub-nodes")
 
-        source = read_file(ROWS_DIR, row_name)
+        source = system.read_file(ROWS_DIR, row_name)
         row = Row(source)
 
         if panel_name:
@@ -155,7 +156,7 @@ class LocalResources(object):
         if parts:
             raise InvalidPath("Panels contain no sub-nodes")
 
-        source = read_file(PANELS_DIR, panel_name)
+        source = system.read_file(PANELS_DIR, panel_name)
         return Panel(source)
 
     def save(self, parts, document):
@@ -178,7 +179,7 @@ class LocalResources(object):
                 raise InvalidDocument("Can not add {} as backup"
                                       .format(type(document).__name__))
 
-        write_file(BACKUPS_DIR, document.name, document.source)
+        system.write_file(BACKUPS_DIR, document.name, document.source)
 
     def _save_template(self, parts, document):
         directory = parts[1]
@@ -198,46 +199,31 @@ class LocalResources(object):
                 raise InvalidDocument("Can not add {} to {}"
                                       .format(type(document).__name__, directory))
 
-        write_file(os.path.join(TEMPLATES_DIR, directory), document.name, document.source)
+        system.write_file(os.path.join(TEMPLATES_DIR, directory), document.name, document.source)
 
+    def remove(self, parts):
+        category = parts[0]
 
-def to_file_format(filename):
-    return "{}.json".format(filename)
+        if category not in LOCAL_RESOURCES:
+            raise InvalidPath("Invalid local directory: {}".format(category))
 
+        if category == BACKUPS:
+            self._remove_backup(parts)
+        elif category == TEMPLATES:
+            self._remove_template(parts)
 
-def from_file_format(filename):
-    return filename.replace('.json', '')
+    def _remove_backup(self, parts):
+        backup = parts.pop(0)
+        system.remove_file(BACKUPS_DIR, backup)
 
+    def _remove_template(self, parts):
+        directory = parts[1]
 
-def list_files(path):
-    full_path = os.path.join(path)
-    if os.path.isdir(full_path):
-        return [from_file_format(file)
-                for file in os.listdir(full_path)]
-    else:
-        raise InvalidPath("No sub-nodes found")
+        document = self.get(list(parts))
 
-
-def read_file(directory, name):
-    file = to_file_format(name)
-    full_path = os.path.join(directory, file)
-
-    if not name or not os.path.isfile(full_path):
-        raise DocumentNotFound("File not found: {}".format(full_path))
-
-    with open(full_path, 'r') as f:
-        return json.loads(f.read())
-
-
-def write_file(directory, name, data):
-    file = to_file_format(name)
-    full_path = os.path.join(directory, file)
-
-    with open(full_path, 'w') as f:
-        f.write(json.dumps(data))
-
-
-def make_local_dirs():
-    if DATA_DIR:
-        for path in (DATA_DIR, BACKUPS_DIR, TEMPLATES_DIR, DASHBOARDS_DIR, ROWS_DIR, PANELS_DIR):
-            os.makedirs(path, mode=0o755, exist_ok=True)
+        parent = document.parent
+        if parent:
+            parent.remove_child(document.name)
+            system.write_file(os.path.join(TEMPLATES_DIR, directory), parent.name, parent.source)
+        else:
+            system.remove_file(directory, document.name)
