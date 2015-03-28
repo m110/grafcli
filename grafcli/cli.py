@@ -3,7 +3,7 @@ import readline
 import traceback
 
 from grafcli.config import config
-from grafcli.exceptions import UnknownCommand
+from grafcli.exceptions import UnknownCommand, CLIException
 from grafcli.args import Args
 from grafcli.resources import Resources
 from grafcli.completer import Completer
@@ -77,9 +77,12 @@ class GrafCLI(object):
             if result:
                 print(result)
             return 0
-        except Exception as exc:
-            traceback.print_exc()
+        except CLIException as exc:
+            print(exc)
             return 1
+        except Exception:
+            traceback.print_exc()
+            return 2
 
     def parse(self, args):
         parsed = self._args.parse(args)

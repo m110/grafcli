@@ -1,18 +1,22 @@
+class CLIException(Exception):
+    pass
+
+
 class ConfigNotFound(Exception):
     pass
 
 
-class UnknownCommand(Exception):
+class UnknownCommand(CLIException):
     pass
 
 
-class InvalidPath(Exception):
+class InvalidPath(CLIException):
     pass
 
 
-class InvalidDocument(Exception):
+class InvalidDocument(CLIException):
     pass
 
 
-class DocumentNotFound(Exception):
+class DocumentNotFound(CLIException):
     pass
