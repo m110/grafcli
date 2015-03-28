@@ -38,9 +38,7 @@ class LocalResources(object):
         for path in (DATA_DIR, BACKUPS_DIR, TEMPLATES_DIR, DASHBOARDS_DIR, ROWS_DIR, PANELS_DIR):
             system.makepath(path)
 
-    def list(self, parts):
-        category = parts.pop(0)
-
+    def list(self, category, *parts):
         if category not in LOCAL_RESOURCES:
             raise InvalidPath("Invalid local directory: {}".format(category))
 
@@ -48,25 +46,22 @@ class LocalResources(object):
             return system.list_files(DATA_DIR, category)
 
         if category == BACKUPS:
-            return self._list_dashboards(BACKUPS_DIR, parts)
+            return self._list_dashboards(BACKUPS_DIR, *parts)
         elif category == TEMPLATES:
-            directory = parts.pop(0)
+            return self._list_templates(*parts)
 
-            if not parts:
-                return system.list_files(TEMPLATES_DIR, directory)
+    def _list_templates(self, directory, *parts):
+        if not parts:
+            return system.list_files(TEMPLATES_DIR, directory)
 
-            if directory == DASHBOARDS:
-                return self._list_dashboards(DASHBOARDS_DIR, parts)
-            elif directory == ROWS:
-                return self._list_rows(parts)
-            elif directory == PANELS:
-                return self._list_panels(parts)
+        if directory == DASHBOARDS:
+            return self._list_dashboards(DASHBOARDS_DIR, *parts)
+        elif directory == ROWS:
+            return self._list_rows(*parts)
+        elif directory == PANELS:
+            return self._list_panels(*parts)
 
-    def _list_dashboards(self, directory, parts):
-        dashboard_name = parts.pop(0) if parts else None
-        row_name = parts.pop(0) if parts else None
-        panel_name = parts.pop(0) if parts else None
-
+    def _list_dashboards(self, directory, dashboard_name=None, row_name=None, panel_name=None):
         source = system.read_file(directory, dashboard_name)
         dashboard = Dashboard(source, dashboard_name)
 
@@ -83,22 +78,16 @@ class LocalResources(object):
         else:
             return panels
 
-    def _list_rows(self, parts):
-        row_name = parts.pop(0) if parts else None
-        if parts:
-            raise InvalidPath("Panels contain no sub-nodes")
-
+    def _list_rows(self, row_name=None):
         source = system.read_file(ROWS_DIR, row_name)
         row = Row(source)
 
         return [panel.name for panel in row.panels]
 
-    def _list_panels(self, parts):
+    def _list_panels(self, *parts):
         raise InvalidPath("Panels contain no sub-nodes")
 
-    def get(self, parts):
-        category = parts.pop(0)
-
+    def get(self, category, *parts):
         if category not in LOCAL_RESOURCES:
             raise InvalidPath("Invalid local directory: {}".format(category))
 
@@ -108,22 +97,17 @@ class LocalResources(object):
         if category == BACKUPS:
             return self._get_dashboards(BACKUPS_DIR, parts)
         else:
-            directory = parts.pop(0)
+            return self._get_templates(*parts)
 
-            if directory == DASHBOARDS:
-                return self._get_dashboards(DASHBOARDS_DIR, parts)
-            elif directory == ROWS:
-                return self._get_rows(parts)
-            elif directory == PANELS:
-                return self._get_panels(parts)
+    def _get_templates(self, directory, *parts):
+        if directory == DASHBOARDS:
+            return self._get_dashboards(DASHBOARDS_DIR, *parts)
+        elif directory == ROWS:
+            return self._get_rows(*parts)
+        elif directory == PANELS:
+            return self._get_panels(*parts)
 
-    def _get_dashboards(self, directory, parts):
-        dashboard_name = parts.pop(0) if parts else None
-        row_name = parts.pop(0) if parts else None
-        panel_name = parts.pop(0) if parts else None
-        if parts:
-            raise InvalidPath("Panels contain no sub-nodes")
-
+    def _get_dashboards(self, directory, dashboard_name=None, row_name=None, panel_name=None):
         source = system.read_file(directory, dashboard_name)
         dashboard = Dashboard(source, dashboard_name)
 
@@ -137,12 +121,7 @@ class LocalResources(object):
 
         return dashboard
 
-    def _get_rows(self, parts):
-        row_name = parts.pop(0) if parts else None
-        panel_name = parts.pop(0) if parts else None
-        if parts:
-            raise InvalidPath("Panels contain no sub-nodes")
-
+    def _get_rows(self, row_name=None, panel_name=None):
         source = system.read_file(ROWS_DIR, row_name)
         row = Row(source)
 
@@ -151,26 +130,20 @@ class LocalResources(object):
         else:
             return row
 
-    def _get_panels(self, parts):
-        panel_name = parts.pop(0) if parts else None
-        if parts:
-            raise InvalidPath("Panels contain no sub-nodes")
-
+    def _get_panels(self, panel_name=None):
         source = system.read_file(PANELS_DIR, panel_name)
         return Panel(source)
 
-    def save(self, parts, document):
-        category = parts[0]
-
+    def save(self, document, category, *parts):
         if category not in LOCAL_RESOURCES:
             raise InvalidPath("Invalid local directory: {}".format(category))
 
         if category == BACKUPS:
-            self._save_backup(parts, document)
+            self._save_backup(document, *parts)
         elif category == TEMPLATES:
-            self._save_template(parts, document)
+            self._save_template(document, *parts)
 
-    def _save_backup(self, parts, document):
+    def _save_backup(self, document, *parts):
         try:
             dashboard = self.get(list(parts))
             dashboard.update(document)
@@ -181,11 +154,9 @@ class LocalResources(object):
 
         system.write_file(BACKUPS_DIR, document.name, document.source)
 
-    def _save_template(self, parts, document):
-        directory = parts[1]
-
+    def _save_template(self, document, directory, *parts):
         try:
-            origin_document = self.get(list(parts))
+            origin_document = self.get(TEMPLATES, directory, *parts)
             origin_document.update(document)
 
             top_parent = origin_document
@@ -201,25 +172,20 @@ class LocalResources(object):
 
         system.write_file(os.path.join(TEMPLATES_DIR, directory), document.name, document.source)
 
-    def remove(self, parts):
-        category = parts[0]
-
+    def remove(self, category, *parts):
         if category not in LOCAL_RESOURCES:
             raise InvalidPath("Invalid local directory: {}".format(category))
 
         if category == BACKUPS:
-            self._remove_backup(parts)
+            self._remove_backup(*parts)
         elif category == TEMPLATES:
-            self._remove_template(parts)
+            self._remove_template(*parts)
 
-    def _remove_backup(self, parts):
-        backup = parts.pop(0)
+    def _remove_backup(self, backup):
         system.remove_file(BACKUPS_DIR, backup)
 
-    def _remove_template(self, parts):
-        directory = parts[1]
-
-        document = self.get(list(parts))
+    def _remove_template(self, directory, *parts):
+        document = self.get(TEMPLATES, directory, *parts)
 
         parent = document.parent
         if parent:

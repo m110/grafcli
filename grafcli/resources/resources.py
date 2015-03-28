@@ -17,7 +17,7 @@ class Resources(object):
         if not parts:
             return REMOTE_RESOURCES + list(LOCAL_RESOURCES)
 
-        return manager.list(parts)
+        return manager.list(*parts)
 
     def get(self, path):
         """Returns resource data."""
@@ -25,7 +25,7 @@ class Resources(object):
         if not parts:
             raise InvalidPath("No path supplied")
 
-        return manager.get(parts)
+        return manager.get(*parts)
 
     def save(self, path, document):
         """Returns resource data."""
@@ -33,7 +33,7 @@ class Resources(object):
         if not parts:
             raise InvalidPath("No path supplied")
 
-        return manager.save(parts, document)
+        return manager.save(document, *parts)
 
     def remove(self, path):
         """Removes resource."""
@@ -41,10 +41,10 @@ class Resources(object):
         if not parts:
             raise InvalidPath("No path supplied")
 
-        return manager.remove(parts)
+        return manager.remove(*parts)
 
     def _parse_path(self, path):
-        parts = split_path(path) if path else []
+        parts = split_path(path)
 
         if not parts:
             return None, []
