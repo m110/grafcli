@@ -30,8 +30,9 @@ def row_source(title, panels=None):
     }
 
 
-def panel_source(title):
+def panel_source(id, title):
     return {
+        'id': id,
         'title': title,
     }
 
@@ -41,11 +42,11 @@ DASHBOARD_SOURCE = dashboard_source([
 ])
 
 ROW_SOURCE = row_source("Any row", [
-    panel_source("First panel"),
-    panel_source("Second panel"),
+    panel_source(1, "First panel"),
+    panel_source(2, "Second panel"),
 ])
 
-PANEL_SOURCE = panel_source("Any panel")
+PANEL_SOURCE = panel_source(1, "Any panel")
 
 
 class DocumentsTest(unittest.TestCase):
@@ -87,7 +88,7 @@ class DocumentsTest(unittest.TestCase):
         dashboard.update(row_with_panels)
         self.assertEqual(dashboard.max_panel_id(), 2)
 
-        panel = Panel(panel_source("Any panel"))
+        panel = Panel(panel_source(1, "Any panel"))
         with self.assertRaises(InvalidDocument):
             dashboard.update(panel)
 
@@ -108,8 +109,8 @@ class DocumentsTest(unittest.TestCase):
 
         self.assertEqual(dashboard.max_panel_id(), 0)
 
-        dashboard.rows[0].panels.append(Panel(panel_source("Low id panel"), 5))
-        dashboard.rows[1].panels.append(Panel(panel_source("High id panel"), 15))
+        dashboard.rows[0].panels.append(Panel(panel_source(5, "Low id panel"), 5))
+        dashboard.rows[1].panels.append(Panel(panel_source(15, "High id panel"), 15))
 
         self.assertEqual(dashboard.max_panel_id(), 15)
 
@@ -170,7 +171,7 @@ class DocumentsTest(unittest.TestCase):
 
     def test_panel_update(self):
         panel = Panel(PANEL_SOURCE, 1)
-        new_panel = Panel(panel_source("New panel"), 2)
+        new_panel = Panel(panel_source(2, "New panel"), 2)
 
         panel.update(new_panel)
 

@@ -19,12 +19,12 @@ from test_documents import dashboard_source, row_source, panel_source
 
 DASHBOARD_SOURCE = dashboard_source([
     row_source("A", [
-        panel_source("AA"),
-        panel_source("AB")
+        panel_source(1, "AA"),
+        panel_source(2, "AB")
     ]),
     row_source("B", [
-        panel_source("BA"),
-        panel_source("BB")
+        panel_source(3, "BA"),
+        panel_source(4, "BB")
     ]),
 ])
 
