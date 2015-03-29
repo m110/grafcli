@@ -13,6 +13,20 @@ from grafcli.config import load_config
 load_config(CONFIG_PATH)
 
 from grafcli.resources.remote import RemoteResources
+from grafcli.documents import Dashboard
+
+from test_documents import dashboard_source, row_source, panel_source
+
+DASHBOARD_SOURCE = dashboard_source([
+    row_source("A", [
+        panel_source("AA"),
+        panel_source("AB")
+    ]),
+    row_source("B", [
+        panel_source("BA"),
+        panel_source("BB")
+    ]),
+])
 
 
 class RemoteResourcesTest(unittest.TestCase):
@@ -29,8 +43,18 @@ class RemoteResourcesTest(unittest.TestCase):
         resources = RemoteResources()
 
         self.elastic.list_dashboards.return_value = ['any_dashboard_1', 'any_dashboard_2']
+        self.elastic.get_dashboard.return_value = Dashboard(DASHBOARD_SOURCE, 'any_dashboard_1')
+
         self.assertListEqual(resources.list('any_host'),
                              ['any_dashboard_1', 'any_dashboard_2'])
+
+        self.assertListEqual(resources.list('any_host', 'any_dashboard_1'),
+                             ['1-A', '2-B'])
+
+        self.assertListEqual(resources.list('any_host', 'any_dashboard_1', '1-A'),
+                             ['1-AA', '2-AB'])
+        self.assertListEqual(resources.list('any_host', 'any_dashboard_1', '2-B'),
+                             ['3-BA', '4-BB'])
 
 
 if __name__ == "__main__":
