@@ -19,6 +19,11 @@ To let you easily manage your dashboards using just your keyboard.
 
 Grafcli connects directly to ElasticSearch and modifies dashboards' documents. However, this is all hidden behind an interface you already know well, similar to *nix filesystem.
 
+## Requirements
+
+* [Python 3](http://python.org)
+* [elasticsearch-py](http://github.com/elastic/elasticsearch-py)
+
 # Usage
 
 ## Navigation
@@ -60,7 +65,7 @@ Most of the arguments here are paths to a dashboard, row or panel.
 * `cp <source> <destination>` - copies one element to another. Can be used to copy whole dashboards, rows or single panels.
 * `mv <source> <destination>` - the same as `cp`, but moves (renames) the source.
 * `rm <path>` - removes the element.
-* `get <remote_path>` - saves element as template.
+* `template <path> [name]` - saves element as template.
 * `backup <remote_path>` - saves element as backup.
 
 # Configuration
