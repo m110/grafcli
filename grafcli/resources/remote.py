@@ -1,4 +1,5 @@
-from grafcli.exceptions import InvalidPath
+from grafcli.documents import Dashboard
+from grafcli.exceptions import InvalidPath, DocumentNotFound, InvalidDocument
 from grafcli.config import config
 from grafcli.storage.elastic import elastic
 
@@ -24,7 +25,7 @@ class RemoteResources(object):
             if panel_name in panels:
                 raise InvalidPath("Panel contains no sub-nodes")
             else:
-                raise InvalidPath("There is no such panel: {}".format(panel_name))
+                raise DocumentNotFound("There is no such panel: {}".format(panel_name))
         else:
             return panels
 
@@ -43,14 +44,20 @@ class RemoteResources(object):
         return dashboard.row(row_name).panel(panel_name)
 
     def save(self, document, host, dashboard_name=None, row_name=None, panel_name=None):
-        origin_document = self.get(host, dashboard_name, row_name, panel_name)
-        origin_document.update(document)
+        if dashboard_name:
+            origin_document = self.get(host, dashboard_name, row_name, panel_name)
+            origin_document.update(document)
 
-        dashboard = origin_document
-        while dashboard.parent:
-            dashboard = dashboard.parent
+            dashboard = origin_document
+            while dashboard.parent:
+                dashboard = dashboard.parent
+        elif isinstance(document, Dashboard):
+            dashboard = document
+        else:
+            raise InvalidDocument("Can not save {} as dashboard"
+                                  .format(type(document).__name__))
 
-        elastic(host).save_dashboard(dashboard.id, dashboard.source)
+        elastic(host).save_dashboard(dashboard.id, dashboard)
 
     def remove(self, host, dashboard_name=None, row_name=None, panel_name=None):
         if not dashboard_name:

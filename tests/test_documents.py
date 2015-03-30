@@ -77,7 +77,7 @@ class DocumentsTest(unittest.TestCase):
 
         new_dashboard = Dashboard(DASHBOARD_SOURCE, 'new_dashboard')
         dashboard.update(new_dashboard)
-        self.assertEqual(dashboard.id, 'new_dashboard')
+        self.assertEqual(dashboard.id, 'any_dashboard')
 
         row = Row(row_source("New row"))
         dashboard.update(row)
@@ -129,6 +129,15 @@ class DocumentsTest(unittest.TestCase):
             row.panel('0-any-name')
 
         self.assertEqual(row.max_panel_id(), 2)
+
+    def test_row_with_panel_with_custom_id(self):
+        row = Row(row_source("Any row", [panel_source(99, "Any panel")]))
+        self.assertEqual(row.panel('99-Any-panel').id, 99)
+
+        row.update(Panel(panel_source(10, "New panel")))
+        self.assertEqual(len(row.panels), 2)
+        self.assertEqual(row.panel('100-New-panel').id, 100)
+        self.assertEqual(row.panel('100-New-panel').name, '100-New-panel')
 
     def test_row_update(self):
         dashboard = Dashboard(DASHBOARD_SOURCE, 'any_dashboard')

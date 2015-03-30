@@ -47,11 +47,11 @@ class Document(object, metaclass=ABCMeta):
 class Dashboard(Document):
 
     def __init__(self, source, id):
-        self._load(source, id)
-
-    def _load(self, source, id):
         self._id = id
         self._name = id
+        self._load(source)
+
+    def _load(self, source):
         self._source = source
 
         self._rows = []
@@ -60,7 +60,7 @@ class Dashboard(Document):
 
     def update(self, document):
         if isinstance(document, Dashboard):
-            self._load(document.source.copy(), document.id)
+            self._load(document.source.copy())
         elif isinstance(document, Row):
             self._add_row(document.source)
         else:

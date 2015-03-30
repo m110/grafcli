@@ -37,12 +37,12 @@ class Elastic(object):
 
         return Dashboard(source, dashboard_id)
 
-    def save_dashboard(self, dashboard_id, data):
+    def save_dashboard(self, dashboard_id, dashboard):
         hits = self._search(doc_type=DASHBOARD_TYPE,
                             _source=False,
                             body={'query': {'match': {'_id': dashboard_id}}})
 
-        body = {'dashboard': json.dumps(data)}
+        body = {'dashboard': json.dumps(dashboard.source)}
 
         if hits:
             self._update(doc_type=DASHBOARD_TYPE,
