@@ -33,11 +33,22 @@ DASHBOARD_SOURCE = dashboard_source([
 class RemoteResourcesTest(unittest.TestCase):
 
     def setUp(self):
+        self.dashboard_id = None
+        self.dashboard = None
+
         self.elastic_patcher = patch('grafcli.resources.remote.elastic')
         self.elastic = self.elastic_patcher.start()
         self.elastic.return_value = self.elastic
 
-        self.elastic_save_mock(None)
+        def get_dashboard(_):
+            return Dashboard(DASHBOARD_SOURCE, 'any_dashboard')
+
+        def save_dashboard(dashboard_id, dashboard):
+            self.dashboard_id = dashboard_id
+            self.dashboard = dashboard
+
+        self.elastic.get_dashboard.side_effect = get_dashboard
+        self.elastic.save_dashboard.side_effect = save_dashboard
 
     def tearDown(self):
         self.elastic_patcher.stop()
@@ -45,7 +56,6 @@ class RemoteResourcesTest(unittest.TestCase):
     def test_list(self):
         resources = RemoteResources()
         self.elastic.list_dashboards.return_value = ['any_dashboard_1', 'any_dashboard_2']
-        self.elastic_get_mock(DASHBOARD_SOURCE, 'any_dashboard')
 
         self.assertListEqual(resources.list('any_host'),
                              ['any_dashboard_1', 'any_dashboard_2'])
@@ -66,9 +76,8 @@ class RemoteResourcesTest(unittest.TestCase):
 
     def test_get(self):
         resources = RemoteResources()
-        self.elastic_get_mock(DASHBOARD_SOURCE, 'any_dashboard')
-
         dashboard = resources.get('any_host', 'any_dashboard')
+
         self.assertIsInstance(dashboard, Dashboard)
         self.assertEqual(dashboard.id, 'any_dashboard')
 
@@ -93,60 +102,54 @@ class RemoteResourcesTest(unittest.TestCase):
 
     def test_save_dashboard(self):
         resources = RemoteResources()
-        self.elastic_get_mock(DASHBOARD_SOURCE, 'any_dashboard')
-
         dashboard = Dashboard(dashboard_source(), 'new_dashboard')
 
         # Add new dashboard
-        self.elastic_save_mock(lambda id, doc: (self.assertEqual(id, 'new_dashboard'),
-                                                self.assertEqual(doc.id, 'new_dashboard')))
         resources.save(dashboard, 'any_host')
+        self.assertEqual(self.dashboard_id, 'new_dashboard')
+        self.assertEqual(self.dashboard.id, 'new_dashboard')
 
         # Replace dashboard
-        self.elastic_save_mock(lambda id, doc: (self.assertEqual(id, 'any_dashboard'),
-                                                self.assertEqual(doc.id, 'any_dashboard')))
         resources.save(dashboard, 'any_host', 'any_dashboard')
+        self.assertEqual(self.dashboard_id, 'any_dashboard')
+        self.assertEqual(self.dashboard.id, 'any_dashboard')
 
     def test_save_row(self):
         resources = RemoteResources()
-        self.elastic_get_mock(DASHBOARD_SOURCE, 'any_dashboard')
-
         row = Row(row_source("New row", []))
 
         with self.assertRaises(InvalidDocument):
             resources.save(row, 'any_host')
 
         # Add new row
-        self.elastic_save_mock(lambda id, doc: (self.assertEqual(id, 'any_dashboard'),
-                                                self.assertEqual(len(doc.rows), 3),
-                                                self.assertEqual(doc.row('3-New-row').name, '3-New-row')))
         resources.save(row, 'any_host', 'any_dashboard')
+        self.assertEqual(self.dashboard_id, 'any_dashboard')
+        self.assertEqual(len(self.dashboard.rows), 3)
+        self.assertEqual(self.dashboard.row('3-New-row').name, '3-New-row')
 
         # Replace row
-        self.elastic_save_mock(lambda id, doc: (self.assertEqual(id, 'any_dashboard'),
-                                                self.assertEqual(len(doc.rows), 2),
-                                                self.assertEqual(len(doc.row('1-A').panels), 0)))
         resources.save(row, 'any_host', 'any_dashboard', '1-A')
+        self.assertEqual(self.dashboard_id, 'any_dashboard')
+        self.assertEqual(len(self.dashboard.rows), 2)
+        self.assertEqual(len(self.dashboard.row('1-A').panels), 0)
 
     def test_save_panel(self):
         resources = RemoteResources()
-        self.elastic_get_mock(DASHBOARD_SOURCE, 'any_dashboard')
-
         panel = Panel(panel_source(42, "AC"))
 
         with self.assertRaises(InvalidDocument):
             resources.save(panel, 'any_host')
 
         # Add new panel
-        self.elastic_save_mock(lambda id, doc: (self.assertEqual(id, 'any_dashboard'),
-                                                self.assertEqual(len(doc.row('1-A').panels), 3),
-                                                self.assertEqual(doc.row('1-A').panel('5-AC').name, '5-AC')))
         resources.save(panel, 'any_host', 'any_dashboard', '1-A')
+        self.assertEqual(self.dashboard_id, 'any_dashboard')
+        self.assertEqual(len(self.dashboard.row('1-A').panels), 3)
+        self.assertEqual(self.dashboard.row('1-A').panel('5-AC').name, '5-AC')
 
         # Replace panel
-        self.elastic_save_mock(lambda id, doc: (self.assertEqual(id, 'any_dashboard'),
-                                                self.assertEqual(len(doc.row('1-A').panels), 2)))
         resources.save(panel, 'any_host', 'any_dashboard', '1-A', '1-AA')
+        self.assertEqual(self.dashboard_id, 'any_dashboard')
+        self.assertEqual(len(self.dashboard.row('1-A').panels), 2)
 
     def test_remove_dashboard(self):
         resources = RemoteResources()
@@ -157,11 +160,19 @@ class RemoteResourcesTest(unittest.TestCase):
         resources.remove('any_host', 'any_dashboard')
         self.elastic.remove_dashboard.assert_called_once_with('any_dashboard')
 
-    def elastic_get_mock(self, *args, **kwargs):
-        self.elastic.get_dashboard.side_effect = lambda _: Dashboard(*args, **kwargs)
+    def test_remove_row(self):
+        resources = RemoteResources()
 
-    def elastic_save_mock(self, fun):
-        self.elastic.save_dashboard.side_effect = fun
+        resources.remove('any_host', 'any_dashboard', '1-A')
+        self.assertEqual(self.dashboard_id, 'any_dashboard')
+        self.assertEqual(len(self.dashboard.rows), 1)
+
+    def test_remove_panel(self):
+        resources = RemoteResources()
+
+        resources.remove('any_host', 'any_dashboard', '1-A', '1-AA')
+        self.assertEqual(self.dashboard_id, 'any_dashboard')
+        self.assertEqual(len(self.dashboard.row('1-AA').panels), 1)
 
 
 if __name__ == "__main__":

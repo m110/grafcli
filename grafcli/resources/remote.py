@@ -13,7 +13,7 @@ class RemoteResources(object):
         if not dashboard_name:
             return elastic(host).list_dashboards()
 
-        dashboard = elastic(host).get_dashboard(dashboard_name)
+        dashboard = self.get(host, dashboard_name)
 
         if not row_name:
             return [row.name for row in dashboard.rows]
@@ -64,13 +64,13 @@ class RemoteResources(object):
             raise InvalidPath("Provide the dashboard at least")
 
         if row_name:
-            dashboard = elastic(host).get_dashboard(dashboard_name)
+            dashboard = self.get(host, dashboard_name)
 
             if panel_name:
                 dashboard.row(row_name).remove_child(panel_name)
             else:
                 dashboard.remove_child(row_name)
 
-            elastic(host).save_dashboard(dashboard.id, dashboard.source)
+            elastic(host).save_dashboard(dashboard.id, dashboard)
         else:
             elastic(host).remove_dashboard(dashboard_name)
