@@ -1,21 +1,25 @@
 from grafcli.exceptions import InvalidPath
 from grafcli.paths import split_path
 
-from grafcli.resources.local import LocalResources, LOCAL_RESOURCES
-from grafcli.resources.remote import RemoteResources, REMOTE_RESOURCES
+from grafcli.resources.backups import Backups
+from grafcli.resources.remote import RemoteResources
+from grafcli.resources.templates import Templates
 
 
 class Resources(object):
 
     def __init__(self):
-        self._local_resources = LocalResources()
-        self._remote_resources = RemoteResources()
+        self._resources = {
+            'backups': Backups(),
+            'remote': RemoteResources(),
+            'templates': Templates(),
+        }
 
     def list(self, path):
         """Returns list of sub-nodes for given path."""
         manager, parts = self._parse_path(path)
-        if not parts:
-            return REMOTE_RESOURCES + list(LOCAL_RESOURCES)
+        if not manager and not parts:
+            return sorted(self._resources.keys())
 
         return manager.list(*parts)
 
@@ -49,12 +53,9 @@ class Resources(object):
         if not parts:
             return None, []
 
-        resource = parts[0]
-        if resource in LOCAL_RESOURCES:
-            manager = self._local_resources
-        elif resource in REMOTE_RESOURCES:
-            manager = self._remote_resources
-        else:
+        resource = parts.pop(0)
+        try:
+            manager = self._resources[resource]
+            return manager, parts
+        except KeyError:
             raise InvalidPath("Invalid resource: {}".format(resource))
-
-        return manager, parts

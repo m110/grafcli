@@ -13,13 +13,16 @@ load_config(CONFIG_PATH)
 
 from grafcli.resources import Resources
 from grafcli.exceptions import InvalidPath
+from grafcli.resources.backups import Backups
+from grafcli.resources.remote import RemoteResources
+from grafcli.resources.templates import Templates
 
 
 class ResourcesTest(unittest.TestCase):
 
     def test_list_empty(self):
         r = Resources()
-        self.assertEqual(r.list(None), ['host.example.com', 'backups', 'templates'])
+        self.assertEqual(r.list(None), ['backups', 'remote', 'templates'])
 
     def test_get_empty(self):
         r = Resources()
@@ -29,13 +32,17 @@ class ResourcesTest(unittest.TestCase):
     def test_parse_path(self):
         r = Resources()
 
-        manager, parts = r._parse_path('/templates/a/b/c')
-        self.assertEqual(manager, r._local_resources)
-        self.assertListEqual(parts, ['templates', 'a', 'b', 'c'])
+        manager, parts = r._parse_path('/backups/a/b/c')
+        self.assertIsInstance(manager, Backups)
+        self.assertListEqual(parts, ['a', 'b', 'c'])
 
-        manager, parts = r._parse_path('/host.example.com/a/b/c')
-        self.assertEqual(manager, r._remote_resources)
-        self.assertListEqual(parts, ['host.example.com', 'a', 'b', 'c'])
+        manager, parts = r._parse_path('/templates/a/b/c')
+        self.assertIsInstance(manager, Templates)
+        self.assertListEqual(parts, ['a', 'b', 'c'])
+
+        manager, parts = r._parse_path('/remote/a/b/c')
+        self.assertIsInstance(manager, RemoteResources)
+        self.assertListEqual(parts, ['a', 'b', 'c'])
 
         with self.assertRaises(InvalidPath):
             r._parse_path('/invalid/path')

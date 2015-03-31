@@ -9,7 +9,10 @@ REMOTE_RESOURCES = [host for host in config['hosts']
 
 class RemoteResources(object):
 
-    def list(self, host, dashboard_name=None, row_name=None, panel_name=None):
+    def list(self, host=None, dashboard_name=None, row_name=None, panel_name=None):
+        if not host:
+            return REMOTE_RESOURCES
+
         if not dashboard_name:
             return elastic(host).list_dashboards()
 
@@ -29,7 +32,9 @@ class RemoteResources(object):
         else:
             return panels
 
-    def get(self, host, dashboard_name=None, row_name=None, panel_name=None):
+    def get(self, host=None, dashboard_name=None, row_name=None, panel_name=None):
+        host_required(host)
+
         if not dashboard_name:
             raise InvalidPath("Provide the dashboard at least")
 
@@ -43,7 +48,9 @@ class RemoteResources(object):
 
         return dashboard.row(row_name).panel(panel_name)
 
-    def save(self, document, host, dashboard_name=None, row_name=None, panel_name=None):
+    def save(self, document, host=None, dashboard_name=None, row_name=None, panel_name=None):
+        host_required(host)
+
         if dashboard_name:
             origin_document = self.get(host, dashboard_name, row_name, panel_name)
             origin_document.update(document)
@@ -59,7 +66,9 @@ class RemoteResources(object):
 
         elastic(host).save_dashboard(dashboard.id, dashboard)
 
-    def remove(self, host, dashboard_name=None, row_name=None, panel_name=None):
+    def remove(self, host=None, dashboard_name=None, row_name=None, panel_name=None):
+        host_required(host)
+
         if not dashboard_name:
             raise InvalidPath("Provide the dashboard at least")
 
@@ -74,3 +83,8 @@ class RemoteResources(object):
             elastic(host).save_dashboard(dashboard.id, dashboard)
         else:
             elastic(host).remove_dashboard(dashboard_name)
+
+
+def host_required(host):
+    if not host:
+        raise InvalidPath("Provide remote host name")

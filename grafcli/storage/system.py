@@ -1,19 +1,14 @@
 import os
 import json
 
+from grafcli.config import config
 from grafcli.exceptions import DocumentNotFound
 
-
-def to_file_format(filename):
-    return "{}.json".format(filename)
+DATA_DIR = os.path.expanduser(config['resources'].get('data-dir', ''))
 
 
-def from_file_format(filename):
-    return filename.replace('.json', '')
-
-
-def list_files(path, *paths):
-    full_path = os.path.join(path, *paths)
+def list_files(*paths):
+    full_path = os.path.join(DATA_DIR, *paths)
     if not os.path.isdir(full_path):
         raise DocumentNotFound("No documents found")
 
@@ -22,7 +17,7 @@ def list_files(path, *paths):
 
 
 def read_file(directory, name):
-    full_path = os.path.join(directory, to_file_format(name))
+    full_path = os.path.join(DATA_DIR, directory, to_file_format(name))
     if not os.path.isfile(full_path):
         raise DocumentNotFound("File not found: {}".format(full_path))
 
@@ -31,14 +26,14 @@ def read_file(directory, name):
 
 
 def write_file(directory, name, data):
-    full_path = os.path.join(directory, to_file_format(name))
+    full_path = os.path.join(DATA_DIR, directory, to_file_format(name))
 
     with open(full_path, 'w') as f:
         f.write(json.dumps(data))
 
 
 def remove_file(directory, name):
-    full_path = os.path.join(directory, to_file_format(name))
+    full_path = os.path.join(DATA_DIR, directory, to_file_format(name))
     if not os.path.isfile(full_path):
         raise DocumentNotFound("File not found: {}".format(full_path))
 
@@ -46,4 +41,13 @@ def remove_file(directory, name):
 
 
 def makepath(path):
-    os.makedirs(path, mode=0o755, exist_ok=True)
+    full_path = os.path.join(DATA_DIR, path)
+    os.makedirs(full_path, mode=0o755, exist_ok=True)
+
+
+def to_file_format(filename):
+    return "{}.json".format(filename)
+
+
+def from_file_format(filename):
+    return filename.replace('.json', '')
