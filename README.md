@@ -67,6 +67,8 @@ Most of the arguments here are paths to a dashboard, row or panel.
 * `rm <path>` - removes the element.
 * `template <path> [name]` - saves element as template.
 * `backup <remote_path>` - saves element as backup.
+* `export <path> <system_path>` - saves the JSON-encoded element to file.
+* `import <system_path> <path>` - loads the JSON-encoded element from file.
 
 # Configuration
 
