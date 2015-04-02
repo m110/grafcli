@@ -173,3 +173,15 @@ Some of the common operations.
 ```
 [/templates/dashboards]> cp main_dashboard/1-Top-Row/1-Top-Panel new_dashboard/1-Top-Row/2-Second-Panel
 ```
+
+* Import dashboard from a file.
+
+```
+[/]> import ~/dashboard.json templates/dashboards/dashboard
+```
+
+* Export dashboard to a file.
+
+```
+[/]> export templates/dashboards/dashboard ~/dashboard.json
+```
