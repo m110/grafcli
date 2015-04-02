@@ -11,12 +11,13 @@ connections_pool = {}
 
 
 class Elastic(object):
-    def __init__(self, host, addresses, port, http_auth=None, index=None):
+    def __init__(self, host, addresses, port, use_ssl=False, http_auth=None, index=None):
         self._host = host
         self._default_index = index
 
         self._elastic = Elasticsearch(addresses,
                                       port=port,
+                                      use_ssl=use_ssl,
                                       http_auth=http_auth)
 
     def list_dashboards(self):
@@ -91,12 +92,13 @@ def elastic(host):
 
         addresses = cfg['hosts'].split(',')
         port = int(cfg['port'])
+        use_ssl = cfg.getboolean('ssl')
         if cfg['user'] and cfg['password']:
             http_auth = (cfg['user'], cfg['password'])
         else:
             http_auth = None
         index = cfg['index']
 
-        connections_pool[host] = Elastic(host, addresses, port, http_auth, index)
+        connections_pool[host] = Elastic(host, addresses, port, use_ssl, http_auth, index)
 
     return connections_pool[host]
