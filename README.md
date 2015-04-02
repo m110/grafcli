@@ -86,15 +86,16 @@ data-dir = ~/.grafcli
 
 # List of remote ElasticSearch hosts.
 # The key names do not matter, as long as matching section exists.
-# Set the value to False to disable the host.
+# Set the value to off to disable the host.
 [hosts]
-host.example.com = True
+host.example.com = on
 
 [host.example.com]
 # In case of more hosts, use comma-separated values.
 hosts = host1.example.com,host2.example.com
 port = 9200
 index = grafana-dash
+ssl = off
 # HTTP user and password, if any.
 user =
 password =
