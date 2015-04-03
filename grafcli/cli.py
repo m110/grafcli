@@ -1,4 +1,5 @@
 import os
+import warnings
 import readline
 import traceback
 
@@ -9,6 +10,8 @@ from grafcli.resources import Resources
 from grafcli.completer import Completer
 from grafcli.paths import ROOT_PATH, format_path
 from grafcli.utils import json_pretty
+
+warnings.simplefilter("ignore")
 
 PROMPT = "> "
 
