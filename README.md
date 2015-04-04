@@ -8,6 +8,8 @@ Grafana CLI for fast and easy dashboards management.
 * Dashboards backup and restore.
 * Easy rows and panels moving/copying between dashboards.
 * Editing dashboards/rows/panels in-place.
+* Templates of dashboards, rows and panels.
+* File export/import.
 * Interactive CLI with completions support.
 * ...and more!
 
