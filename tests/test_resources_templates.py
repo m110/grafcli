@@ -22,10 +22,15 @@ from tests.test_documents import dashboard_source, row_source, panel_source
 class TemplatesTest(unittest.TestCase):
 
     def setUp(self):
-        pass
+        self.system_patcher = patch('grafcli.resources.templates.system')
+        self.system_parent_patcher = patch('grafcli.resources.local.system')
+
+        self.system = self.system_patcher.start()
+        self.system_parent = self.system_parent_patcher.start()
 
     def tearDown(self):
-        pass
+        self.system_patcher.stop()
+        self.system_parent_patcher.stop()
 
 
 if __name__ == "__main__":
