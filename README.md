@@ -54,8 +54,8 @@ another_dashboard
 
 In the root directory, you will find three basic directories:
 
-* `backups` - for storing backups of your dashboards (surprised?)
-* `remote` - which lets you access remote hosts
+* `backups` - for storing backups of your dashboards (surprised?).
+* `remote` - which lets you access remote hosts.
 * `templates` - that contains templates of dashboards, rows and panels.
 
 ## Management
@@ -109,11 +109,21 @@ password =
 
 Any command can be passed directly as arguments to grafcli, which will exit just after after executing it. If you run it without arguments, you will get to interactive mode (preferable choice in most cases).
 
-For example:
+Batch mode:
 ```bash
-$ grafcli ls /remote
+$ grafcli ls remote
 host.example.com
 another.example.com
+$ 
+```
+
+Interactive mode:
+```bash
+$ grafcli
+[/]> ls remote
+host.example.com
+another.example.com
+[/]> 
 ```
 
 ## Short names
