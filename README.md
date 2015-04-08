@@ -150,7 +150,7 @@ Some of the common operations.
 * Store dashboard as template (saved to `templates/dashboards/main_dashboard`):
 
 ```
-[/]> get remote/example/main_dashboard
+[/]> template remote/example/main_dashboard
 ```
 
 * Create the exact copy of dashboard's template:
