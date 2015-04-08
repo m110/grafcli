@@ -3,6 +3,8 @@ Grafana CLI for fast and easy dashboards management.
 
 **Note that this is still WIP and some of the features described here may be not implemented at the moment.**
 
+**Currently tested with Grafana 1.x**
+
 ## Featuring:
 
 * Dashboards backup and restore.
