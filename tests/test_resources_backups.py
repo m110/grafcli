@@ -32,6 +32,21 @@ class BackupsTest(unittest.TestCase):
         self.system_patcher.stop()
         self.system_parent_patcher.stop()
 
+    def test_list(self):
+        self.system.list_files.return_value = ['any_dashboard_1', 'any_dashboard_2']
+        backups = Backups()
+
+        self.assertEqual(backups.list(), ['any_dashboard_1', 'any_dashboard_2'])
+
+    def test_get(self):
+        pass
+
+    def test_save(self):
+        pass
+
+    def test_remove(self):
+        pass
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -16,18 +16,7 @@ from grafcli.exceptions import InvalidPath, DocumentNotFound, InvalidDocument
 from grafcli.resources.remote import RemoteResources
 from grafcli.documents import Dashboard, Row, Panel
 
-from tests.test_documents import dashboard_source, row_source, panel_source
-
-DASHBOARD_SOURCE = dashboard_source([
-    row_source("A", [
-        panel_source(1, "AA"),
-        panel_source(2, "AB")
-    ]),
-    row_source("B", [
-        panel_source(3, "BA"),
-        panel_source(4, "BB")
-    ]),
-])
+from tests.test_documents import dashboard_source, row_source, panel_source, mock_dashboard
 
 
 class RemoteResourcesTest(unittest.TestCase):
@@ -41,7 +30,7 @@ class RemoteResourcesTest(unittest.TestCase):
         self.elastic.return_value = self.elastic
 
         def get_dashboard(_):
-            return Dashboard(DASHBOARD_SOURCE, 'any_dashboard')
+            return mock_dashboard('any_dashboard')
 
         def save_dashboard(dashboard_id, dashboard):
             self.dashboard_id = dashboard_id

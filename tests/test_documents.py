@@ -36,17 +36,35 @@ def panel_source(id, title):
         'title': title,
     }
 
-DASHBOARD_SOURCE = dashboard_source([
-    row_source("First row"),
-    row_source("Second row"),
-])
 
-ROW_SOURCE = row_source("Any row", [
-    panel_source(1, "First panel"),
-    panel_source(2, "Second panel"),
-])
+def mock_dashboard(id):
+    source = dashboard_source([
+        row_source("A", [
+            panel_source(1, "AA"),
+            panel_source(2, "AB")
+        ]),
+        row_source("B", [
+            panel_source(3, "BA"),
+            panel_source(4, "BB")
+        ]),
+    ])
 
-PANEL_SOURCE = panel_source(1, "Any panel")
+    return Dashboard(source, id)
+
+
+def mock_row(name="Any row", id=1):
+    source = row_source(name, [
+        panel_source(1, "First panel"),
+        panel_source(2, "Second panel"),
+    ])
+
+    return Row(source, id)
+
+
+def mock_panel(id=1):
+    source = panel_source(id, "Any panel")
+
+    return Panel(source, id)
 
 
 class DocumentsTest(unittest.TestCase):
@@ -59,7 +77,7 @@ class DocumentsTest(unittest.TestCase):
         self.assertEqual(get_id('42-any-name'), 42)
 
     def test_dashboard(self):
-        dashboard = Dashboard(DASHBOARD_SOURCE, 'any_dashboard')
+        dashboard = mock_dashboard('any_dashboard')
 
         self.assertEqual(dashboard.id, 'any_dashboard')
         self.assertEqual(dashboard.name, 'any_dashboard')
@@ -73,9 +91,9 @@ class DocumentsTest(unittest.TestCase):
             dashboard.row('0-any-name')
 
     def test_dashboard_update(self):
-        dashboard = Dashboard(DASHBOARD_SOURCE, 'any_dashboard')
+        dashboard = mock_dashboard('any_dashboard')
 
-        new_dashboard = Dashboard(DASHBOARD_SOURCE, 'new_dashboard')
+        new_dashboard = mock_dashboard('new_dashboard')
         dashboard.update(new_dashboard)
         self.assertEqual(dashboard.id, 'any_dashboard')
 
@@ -84,16 +102,16 @@ class DocumentsTest(unittest.TestCase):
         self.assertEqual(len(dashboard.rows), 3)
         self.assertEqual(dashboard.rows[2].id, 3)
 
-        row_with_panels = Row(ROW_SOURCE)
+        row_with_panels = mock_row()
         dashboard.update(row_with_panels)
-        self.assertEqual(dashboard.max_panel_id(), 2)
+        self.assertEqual(dashboard.max_panel_id(), 6)
 
         panel = Panel(panel_source(1, "Any panel"))
         with self.assertRaises(InvalidDocument):
             dashboard.update(panel)
 
     def test_dashboard_remove_child(self):
-        dashboard = Dashboard(DASHBOARD_SOURCE, 'any_dashboard')
+        dashboard = mock_dashboard('any_dashboard')
 
         dashboard.remove_child("1-First-row")
         self.assertEqual(len(dashboard.rows), 1)
@@ -105,9 +123,9 @@ class DocumentsTest(unittest.TestCase):
             dashboard.remove_child("1-Any-row")
 
     def test_dashboard_max_panel_id(self):
-        dashboard = Dashboard(DASHBOARD_SOURCE, 'any_dashboard')
+        dashboard = mock_dashboard('any_dashboard')
 
-        self.assertEqual(dashboard.max_panel_id(), 0)
+        self.assertEqual(dashboard.max_panel_id(), 4)
 
         dashboard.rows[0].panels.append(Panel(panel_source(5, "Low id panel"), 5))
         dashboard.rows[1].panels.append(Panel(panel_source(15, "High id panel"), 15))
@@ -115,7 +133,7 @@ class DocumentsTest(unittest.TestCase):
         self.assertEqual(dashboard.max_panel_id(), 15)
 
     def test_row(self):
-        row = Row(ROW_SOURCE, 1)
+        row = mock_row()
 
         self.assertEqual(row.id, 1)
         self.assertEqual(row.name, '1-Any-row')
@@ -140,28 +158,26 @@ class DocumentsTest(unittest.TestCase):
         self.assertEqual(row.panel('100-New-panel').name, '100-New-panel')
 
     def test_row_update(self):
-        dashboard = Dashboard(DASHBOARD_SOURCE, 'any_dashboard')
+        dashboard = mock_dashboard('any_dashboard')
         row = dashboard.rows[0]
 
-        new_source = ROW_SOURCE.copy()
-        new_source['title'] = 'New row'
-        new_row = Row(new_source, 2)
+        new_row = mock_row('New row', 2)
 
         row.update(new_row)
         self.assertEqual(row.id, 2)
         self.assertEqual(row.name, '2-New-row')
 
-        panel = Panel(PANEL_SOURCE)
+        panel = mock_panel()
         row.update(panel)
         self.assertEqual(len(row.panels), 3)
-        self.assertEqual(row.panels[2].id, 3)
-        self.assertEqual(row.panels[2].name, '3-Any-panel')
+        self.assertEqual(row.panels[2].id, 7)
+        self.assertEqual(row.panels[2].name, '7-Any-panel')
 
         with self.assertRaises(InvalidDocument):
             row.update(dashboard)
 
     def test_row_remove_child(self):
-        row = Row(ROW_SOURCE, 1)
+        row = mock_row()
 
         row.remove_child("1-First-panel")
         self.assertEqual(len(row.panels), 1)
@@ -173,13 +189,13 @@ class DocumentsTest(unittest.TestCase):
             row.remove_child("1-Any-panel")
 
     def test_panel(self):
-        panel = Panel(PANEL_SOURCE, 1)
+        panel = mock_panel()
 
         self.assertEqual(panel.id, 1)
         self.assertEqual(panel.name, '1-Any-panel')
 
     def test_panel_update(self):
-        panel = Panel(PANEL_SOURCE, 1)
+        panel = mock_panel()
         new_panel = Panel(panel_source(2, "New panel"), 2)
 
         panel.update(new_panel)
@@ -187,16 +203,16 @@ class DocumentsTest(unittest.TestCase):
         self.assertEqual(panel.id, 1)
         self.assertEqual(panel.name, '1-New-panel')
 
-        dashboard = Dashboard(DASHBOARD_SOURCE, 'any_dashboard')
+        dashboard = mock_dashboard('any_dashboard')
         with self.assertRaises(InvalidDocument):
             panel.update(dashboard)
 
-        row = Row(ROW_SOURCE, 1)
+        row = mock_row()
         with self.assertRaises(InvalidDocument):
             panel.update(row)
 
     def test_panel_remove_child(self):
-        panel = Panel(PANEL_SOURCE, 1)
+        panel = mock_panel()
 
         with self.assertRaises(InvalidDocument):
             panel.remove_child("1-any-name")
