@@ -28,6 +28,13 @@ Grafcli connects directly to ElasticSearch and modifies dashboards' documents. H
 * [Python 3](http://python.org)
 * [elasticsearch-py](http://github.com/elastic/elasticsearch-py)
 
+## TODO
+
+* Backends for Grafana 2.0: sqlite, MySQL, PostgreSQL.
+* An option in config to choose backen for a host.
+* Implement all commands.
+* Complete unit tests for documents manipulation.
+
 # Usage
 
 ## Navigation
