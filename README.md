@@ -17,7 +17,9 @@ Grafana CLI for fast and easy dashboards management.
 
 ## Why?
 
-To let you easily manage your dashboards using just your keyboard.
+* Lets you easily manage your dashboards using just your keyboard.
+* Provides convenient way to backup dashboards and restore them.
+* Can be used by any shell script with even more logic added.
 
 ## How?
 
