@@ -1,5 +1,5 @@
 # grafcli
-Grafana CLI for fast and easy dashboards management.
+[Grafana](http://grafana.org) CLI for fast and easy dashboards management.
 
 **Note that this is still WIP and some of the features described here may be not implemented at the moment.**
 
@@ -23,7 +23,7 @@ Grafana CLI for fast and easy dashboards management.
 
 ## How?
 
-Grafcli connects directly to ElasticSearch and modifies dashboards' documents. However, this is all hidden behind an interface you already know well, similar to *nix filesystem.
+Grafcli connects directly to one of Grafana's backends (ElasticSearch, SQLite, MySQL, PostgreSQL)  and modifies dashboards. However, this is all hidden behind an interface you already know well, similar to *nix filesystem.
 
 ## Requirements
 
@@ -32,7 +32,7 @@ Grafcli connects directly to ElasticSearch and modifies dashboards' documents. H
 
 ## TODO
 
-* Backends for Grafana 2.0: sqlite, MySQL, PostgreSQL.
+* Backends for Grafana 2.0: SQLite, MySQL, PostgreSQL.
 * An option in config to choose backen for a host.
 * Implement all commands.
 * Complete unit tests for documents manipulation.
