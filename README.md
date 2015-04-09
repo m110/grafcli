@@ -23,7 +23,7 @@
 
 ## How?
 
-Grafcli connects directly to one of Grafana's backends (ElasticSearch, SQLite, MySQL, PostgreSQL)  and modifies dashboards. However, this is all hidden behind an interface you already know well, similar to *nix filesystem.
+Grafcli connects directly to one of Grafana's backends (Elastic, SQLite, MySQL, PostgreSQL)  and modifies dashboards. However, this is all hidden behind an interface you already know well, similar to *nix filesystem.
 
 ## Requirements
 
@@ -104,6 +104,7 @@ data-dir = ~/.grafcli
 host.example.com = on
 
 [host.example.com]
+type=elastic
 # In case of more hosts, use comma-separated values.
 hosts = host1.example.com,host2.example.com
 port = 9200
