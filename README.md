@@ -102,9 +102,12 @@ data-dir = ~/.grafcli
 # Set the value to off to disable the host.
 [hosts]
 host.example.com = on
+mysql.example.com = on
+postgresql.example.com = on
+sqlite.example.com = off
 
 [host.example.com]
-type=elastic
+type = elastic
 # In case of more hosts, use comma-separated values.
 hosts = host1.example.com,host2.example.com
 port = 9200
@@ -113,6 +116,26 @@ ssl = off
 # HTTP user and password, if any.
 user =
 password =
+
+[mysql.example.com]
+type = mysql
+host = mysql.example.com
+port = 3306
+user = grafana
+password =
+database = grafana
+
+[postgresql.example.com]
+type = postgresql
+host = postgresql.example.com
+port = 5432
+user = grafana
+password =
+database = grafana
+
+[sqlite.example.com]
+type = sqlite
+path = /opt/grafana/data/grafana.db
 ```
 
 # Tips
