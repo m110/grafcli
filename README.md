@@ -97,7 +97,7 @@ history = ~/.grafcli_history
 # Directory where all local data will be stored (including backups).
 data-dir = ~/.grafcli
 
-# List of remote ElasticSearch hosts.
+# List of remote Grafana hosts.
 # The key names do not matter, as long as matching section exists.
 # Set the value to off to disable the host.
 [hosts]
