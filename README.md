@@ -28,7 +28,10 @@ Grafcli connects directly to one of Grafana's backends (Elastic, SQLite, MySQL, 
 ## Requirements
 
 * [Python 3](http://python.org)
-* [elasticsearch-py](http://github.com/elastic/elasticsearch-py)
+* Depending on which storage backends you use:
+    * [elasticsearch-py](http://github.com/elastic/elasticsearch-py)
+    * [psycopg2](http://initd.org/psycopg/)
+    * [MySQL Connector/Python](http://dev.mysql.com/downloads/connector/python/)
 
 ## TODO
 
