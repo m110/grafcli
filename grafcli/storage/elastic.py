@@ -4,13 +4,14 @@ from elasticsearch import Elasticsearch
 from grafcli.config import config
 from grafcli.documents import Dashboard
 from grafcli.exceptions import DocumentNotFound
+from grafcli.storage import Storage
 
 DASHBOARD_TYPE = "dashboard"
 
 connections_pool = {}
 
 
-class Elastic(object):
+class Elastic(Storage):
     def __init__(self, host, addresses, port, use_ssl=False, http_auth=None, index=None):
         self._host = host
         self._default_index = index
@@ -20,13 +21,13 @@ class Elastic(object):
                                       use_ssl=use_ssl,
                                       http_auth=http_auth)
 
-    def list_dashboards(self):
+    def list(self):
         hits = self._search(doc_type=DASHBOARD_TYPE,
                             _source=False)
 
         return [hit['_id'] for hit in hits]
 
-    def get_dashboard(self, dashboard_id):
+    def get(self, dashboard_id):
         hits = self._search(doc_type=DASHBOARD_TYPE,
                             _source=["dashboard"],
                             body={'query': {'match': {'_id': dashboard_id}}})
@@ -38,7 +39,7 @@ class Elastic(object):
 
         return Dashboard(source, dashboard_id)
 
-    def save_dashboard(self, dashboard_id, dashboard):
+    def save(self, dashboard_id, dashboard):
         hits = self._search(doc_type=DASHBOARD_TYPE,
                             _source=False,
                             body={'query': {'match': {'_id': dashboard_id}}})
@@ -54,7 +55,7 @@ class Elastic(object):
                          body=body,
                          id=dashboard_id)
 
-    def remove_dashboard(self, dashboard_id):
+    def remove(self, dashboard_id):
         self._remove(doc_type=DASHBOARD_TYPE,
                      id=dashboard_id)
 

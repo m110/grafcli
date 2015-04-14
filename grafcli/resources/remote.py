@@ -14,7 +14,7 @@ class RemoteResources(object):
             return REMOTE_RESOURCES
 
         if not dashboard_name:
-            return elastic(host).list_dashboards()
+            return elastic(host).list()
 
         dashboard = self.get(host, dashboard_name)
 
@@ -38,7 +38,7 @@ class RemoteResources(object):
         if not dashboard_name:
             raise InvalidPath("Provide the dashboard at least")
 
-        dashboard = elastic(host).get_dashboard(dashboard_name)
+        dashboard = elastic(host).get(dashboard_name)
 
         if not row_name:
             return dashboard
@@ -64,7 +64,7 @@ class RemoteResources(object):
             raise InvalidDocument("Can not save {} as dashboard"
                                   .format(type(document).__name__))
 
-        elastic(host).save_dashboard(dashboard.id, dashboard)
+        elastic(host).save(dashboard.id, dashboard)
 
     def remove(self, host=None, dashboard_name=None, row_name=None, panel_name=None):
         host_required(host)
@@ -80,9 +80,9 @@ class RemoteResources(object):
             else:
                 dashboard.remove_child(row_name)
 
-            elastic(host).save_dashboard(dashboard.id, dashboard)
+            elastic(host).save(dashboard.id, dashboard)
         else:
-            elastic(host).remove_dashboard(dashboard_name)
+            elastic(host).remove(dashboard_name)
 
 
 def host_required(host):
