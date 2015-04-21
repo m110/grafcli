@@ -1,6 +1,7 @@
 import argparse
 from collections import namedtuple
 
+from grafcli.config import config
 from grafcli.exceptions import UnknownCommand
 
 Command = namedtuple("Command", ['name', 'parser'])
@@ -39,8 +40,10 @@ class Args(object):
         rm = self._add_command("rm", "remove resources")
         rm.add_argument("path", nargs="?", default=None, help="resource path")
 
+        editor = self._add_command(config['grafcli']['editor'], "edit resource's content in best editor possible")
+        editor.add_argument("path", nargs="?", help="path of resource to be edited")
+
         self._add_command("mv", "move (rename) resource")
-        self._add_command("vim", "edit resource's content in best editor possible")
 
         file_export = self._add_command("export", "export resource to file")
         file_export.add_argument("path", nargs="?", default=None, help="resource path")

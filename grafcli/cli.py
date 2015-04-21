@@ -1,5 +1,6 @@
 import os
 import json
+import tempfile
 import warnings
 import readline
 import traceback
@@ -37,6 +38,7 @@ class GrafCLI(object):
             'cp': self.cp,
             'rm': self.rm,
             'get': self.get,
+            config['grafcli']['editor']: self.editor,
             'export': self.file_export,
             'import': self.file_import,
             'help': self.help,
@@ -133,6 +135,23 @@ class GrafCLI(object):
     def get(self, resources):
         for res in resources:
             pass
+
+    def editor(self, path):
+        path = format_path(self._current_path, path)
+        document = self._resources.get(path)
+
+        tmp_file = tempfile.mktemp()
+
+        with open(tmp_file, 'w') as file:
+            file.write(json_pretty(document.source))
+
+        command = "{} {}".format(config['grafcli']['editor'], tmp_file)
+        exit_status = os.system(command)
+
+        if not exit_status:
+            self.file_import(tmp_file, path)
+
+        os.unlink(tmp_file)
 
     def file_export(self, path, system_path):
         path = format_path(self._current_path, path)

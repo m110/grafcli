@@ -1,5 +1,6 @@
 import readline
 
+from grafcli.config import config
 from grafcli.paths import SEPARATOR, ROOT_PATH
 
 
@@ -14,6 +15,7 @@ class Completer(object):
             'cp': self.cp,
             'rm': self.ls,
             'get': self.get,
+            config['grafcli']['editor']: self.ls,
         }
 
     def complete(self, text, state):
