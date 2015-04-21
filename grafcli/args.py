@@ -42,6 +42,14 @@ class Args(object):
         self._add_command("mv", "move (rename) resource")
         self._add_command("vim", "edit resource's content in best editor possible")
 
+        file_export = self._add_command("export", "export resource to file")
+        file_export.add_argument("path", nargs="?", default=None, help="resource path")
+        file_export.add_argument("system_path", nargs="?", default=None, help="system path")
+
+        file_import = self._add_command("import", "import resource from file")
+        file_import.add_argument("system_path", nargs="?", default=None, help="system path")
+        file_import.add_argument("path", nargs="?", default=None, help="resource path")
+
         help = self._add_command("help", "show this help",
                                  parser=self._parser, all_commands=self._commands)
         help.add_argument("subject", nargs="?", default=None)

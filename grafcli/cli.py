@@ -1,4 +1,5 @@
 import os
+import json
 import warnings
 import readline
 import traceback
@@ -6,6 +7,7 @@ import traceback
 from grafcli.config import config
 from grafcli.exceptions import UnknownCommand, CLIException
 from grafcli.args import Args
+from grafcli.documents import Document
 from grafcli.resources import Resources
 from grafcli.completer import Completer
 from grafcli.paths import ROOT_PATH, format_path
@@ -35,6 +37,8 @@ class GrafCLI(object):
             'cp': self.cp,
             'rm': self.rm,
             'get': self.get,
+            'export': self.file_export,
+            'import': self.file_import,
             'help': self.help,
             'exit': self.exit,
         }
@@ -129,6 +133,22 @@ class GrafCLI(object):
     def get(self, resources):
         for res in resources:
             pass
+
+    def file_export(self, path, system_path):
+        path = format_path(self._current_path, path)
+        document = self._resources.get(path)
+
+        with open(os.path.expanduser(system_path), 'w') as file:
+            file.write(json_pretty(document.source))
+
+    def file_import(self, system_path, path):
+        with open(os.path.expanduser(system_path), 'r') as file:
+            content = file.read()
+
+        document = Document.from_source(json.loads(content))
+
+        path = format_path(self._current_path, path)
+        self._resources.save(path, document)
 
     def help(self, parser, all_commands, subject):
         if subject:

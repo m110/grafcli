@@ -19,6 +19,17 @@ class Document(object, metaclass=ABCMeta):
     _name = None
     _source = None
 
+    @classmethod
+    def from_source(cls, source):
+        if 'rows' in source:
+            return Dashboard(source, '')
+        elif 'panels' in source:
+            return Row(source)
+        elif 'id' in source:
+            return Panel(source)
+        else:
+            raise InvalidDocument("Could not recognize document type by source")
+
     @abstractmethod
     def update(self, document):
         pass
