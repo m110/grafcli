@@ -117,6 +117,14 @@ class Dashboard(Document):
         self._source['rows'] = [row.source for row in self._rows]
         return self._source
 
+    @property
+    def title(self):
+        return self._source['title']
+
+    @property
+    def slug(self):
+        return '-'.join(self._source['title'].lower().split())
+
 
 class Row(Document):
     def __init__(self, source, id=0, dashboard=None):

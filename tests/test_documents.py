@@ -17,6 +17,7 @@ def dashboard_source(rows=None):
 
     return {
         'rows': rows,
+        'title': 'Any Dashboard title',
     }
 
 
@@ -89,6 +90,9 @@ class DocumentsTest(unittest.TestCase):
             dashboard.row('3-any-name')
         with self.assertRaises(DocumentNotFound):
             dashboard.row('0-any-name')
+
+        self.assertEqual(dashboard.title, 'Any Dashboard title')
+        self.assertEqual(dashboard.slug, 'any-dashboard-title')
 
     def test_dashboard_update(self):
         dashboard = mock_dashboard('any_dashboard')
