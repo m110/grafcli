@@ -1,8 +1,10 @@
+import re
 from abc import ABCMeta, abstractmethod
 import importlib
 
 from grafcli.config import config
 from grafcli.storage import Storage
+from grafcli.documents import Dashboard
 
 
 def try_import(module_name):
@@ -16,6 +18,8 @@ def try_import(module_name):
 sqlite3 = try_import('sqlite3')
 mysql = try_import('mysql.connector')
 psycopg2 = try_import('psycopg2')
+
+SELECT_PATTERN = re.compile(r'^select', re.IGNORECASE)
 
 
 class SQLStorage(Storage, metaclass=ABCMeta):
@@ -34,7 +38,10 @@ class SQLStorage(Storage, metaclass=ABCMeta):
         cursor.execute(query, kwargs)
         self._connection.commit()
 
-        return cursor.fetchall()
+        if SELECT_PATTERN.search(query):
+            return cursor.fetchall()
+
+        return None
 
     def list(self):
         query = """SELECT slug
@@ -46,21 +53,24 @@ class SQLStorage(Storage, metaclass=ABCMeta):
         return [row[0] for row in result]
 
     def get(self, dashboard_id):
-        query = """SELECT id, version, title, data
+        query = """SELECT data
                    FROM dashboard
                    WHERE slug = %(slug)s"""
 
         result = self._execute(query, slug=dashboard_id)
 
-        # TODO return a dashboard
+        return Dashboard(result[0][0], dashboard_id)
 
     def save(self, dashboard_id, dashboard):
         if self.get(dashboard_id):
-            # TODO UPDATE
-            pass
+            query = """UPDATE dashboard
+                       SET data = %(data)s
+                       WHERE sluf = %(slug)s"""
+            self._execute(query, data=dashboard.source, slug=dashboard_id)
         else:
-            # TODO INSERT
-            pass
+            query = """INSERT INTO dashboard (version, slug, title, data, org_id, created, updated)
+                       VALUES (1, %(slug)s, %(title)s, %(data)s, 0, NOW(), NOW())"""
+            self._execute(query, slug=dashboard_id, title=dashboard.title, data=dashboard.source)
 
     def remove(self, dashboard_id):
         query = """DELETE FROM dashboard
