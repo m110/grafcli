@@ -23,6 +23,7 @@ class GrafCLI(object):
 
     def __init__(self):
         self._running = True
+        self._verbose = config.getboolean('grafcli', 'verbose')
         self._args = Args()
         self._resources = Resources()
         self._completer = Completer(self)
@@ -101,6 +102,10 @@ class GrafCLI(object):
 
         return command, kwargs
 
+    def log(self, message, *args, **kwargs):
+        if self._verbose:
+            print(message.format(*args, **kwargs))
+
     def ls(self, path=None):
         path = format_path(self._current_path, path)
 
@@ -128,9 +133,13 @@ class GrafCLI(object):
         document = self._resources.get(source_path)
         self._resources.save(destination_path, document)
 
+        self.log("cp: {} -> {}", source_path, destination_path)
+
     def rm(self, path):
         path = format_path(self._current_path, path)
         self._resources.remove(path)
+
+        self.log("rm: {}", path)
 
     def get(self, resources):
         for res in resources:
@@ -149,25 +158,33 @@ class GrafCLI(object):
         exit_status = os.system(command)
 
         if not exit_status:
+            self.log("Updating: {}".format(path))
             self.file_import(tmp_file, path)
 
         os.unlink(tmp_file)
 
     def file_export(self, path, system_path):
         path = format_path(self._current_path, path)
+        system_path = os.path.expanduser(system_path)
         document = self._resources.get(path)
 
-        with open(os.path.expanduser(system_path), 'w') as file:
+        with open(system_path, 'w') as file:
             file.write(json_pretty(document.source))
 
+        self.log("export: {} -> {}", path, system_path)
+
     def file_import(self, system_path, path):
-        with open(os.path.expanduser(system_path), 'r') as file:
+        system_path = os.path.expanduser(system_path)
+
+        with open(system_path, 'r') as file:
             content = file.read()
 
         document = Document.from_source(json.loads(content))
 
         path = format_path(self._current_path, path)
         self._resources.save(path, document)
+
+        self.log("import: {} -> {}", system_path, path)
 
     def help(self, parser, all_commands, subject):
         if subject:
