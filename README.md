@@ -3,8 +3,6 @@
 
 **Note that this is still WIP and some of the features described here may be not implemented at the moment.**
 
-**Currently tested with Grafana 1.x**
-
 ## Featuring:
 
 * Dashboards backup and restore.
@@ -13,6 +11,7 @@
 * Templates of dashboards, rows and panels.
 * File export/import.
 * Interactive CLI with completions support.
+* Compatibility across Grafana 1 and 2.
 * ...and more!
 
 ## Why?
@@ -94,8 +93,12 @@ Grafcli will attempt to read `./grafcli.conf`, `~/.grafcli.conf` and `/etc/grafc
 Here is the configuration file explained.
 ```ini
 [grafcli]
+# Your favorite editor - this name will act as a command!
+editor = vim
 # Commands history file. Leave empty to disable.
 history = ~/.grafcli_history
+# Additional verbosity, if needed.
+verbose = off
 
 [resources]
 # Directory where all local data will be stored (including backups).
