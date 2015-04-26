@@ -1,7 +1,7 @@
 from grafcli.documents import Dashboard
 from grafcli.exceptions import InvalidPath, DocumentNotFound, InvalidDocument
 from grafcli.config import config
-from grafcli.storage.elastic import elastic
+from grafcli.storage import get_storage
 
 REMOTE_RESOURCES = [host for host in config['hosts']
                     if config.getboolean('hosts', host)]
@@ -9,12 +9,21 @@ REMOTE_RESOURCES = [host for host in config['hosts']
 
 class RemoteResources(object):
 
+    def __init__(self):
+        self._storages = {}
+
+    def _storage(self, host):
+        if host not in self._storages:
+            self._storages[host] = get_storage(host)
+
+        return self._storages[host]
+
     def list(self, host=None, dashboard_name=None, row_name=None, panel_name=None):
         if not host:
             return REMOTE_RESOURCES
 
         if not dashboard_name:
-            return elastic(host).list()
+            return self._storage(host).list()
 
         dashboard = self.get(host, dashboard_name)
 
@@ -38,7 +47,7 @@ class RemoteResources(object):
         if not dashboard_name:
             raise InvalidPath("Provide the dashboard at least")
 
-        dashboard = elastic(host).get(dashboard_name)
+        dashboard = self._storage(host).get(dashboard_name)
 
         if not row_name:
             return dashboard
@@ -64,7 +73,7 @@ class RemoteResources(object):
             raise InvalidDocument("Can not save {} as dashboard"
                                   .format(type(document).__name__))
 
-        elastic(host).save(dashboard.id, dashboard)
+        self._storage(host).save(dashboard.id, dashboard)
 
     def remove(self, host=None, dashboard_name=None, row_name=None, panel_name=None):
         host_required(host)
@@ -80,9 +89,9 @@ class RemoteResources(object):
             else:
                 dashboard.remove_child(row_name)
 
-            elastic(host).save(dashboard.id, dashboard)
+            self._storage(host).save(dashboard.id, dashboard)
         else:
-            elastic(host).remove(dashboard_name)
+            self._storage(host).remove(dashboard_name)
 
 
 def host_required(host):

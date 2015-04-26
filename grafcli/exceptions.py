@@ -10,6 +10,10 @@ class UnknownCommand(CLIException):
     pass
 
 
+class HostConfigError(CLIException):
+    pass
+
+
 class InvalidPath(CLIException):
     pass
 

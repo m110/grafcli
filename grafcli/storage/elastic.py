@@ -8,18 +8,26 @@ from grafcli.storage import Storage
 
 DASHBOARD_TYPE = "dashboard"
 
-connections_pool = {}
 
-
-class Elastic(Storage):
-    def __init__(self, host, addresses, port, use_ssl=False, http_auth=None, index=None):
+class ElasticStorage(Storage):
+    def __init__(self, host):
         self._host = host
-        self._default_index = index
+        self._config = config[host]
+        self._default_index = self._config['index']
 
-        self._elastic = Elasticsearch(addresses,
-                                      port=port,
-                                      use_ssl=use_ssl,
-                                      http_auth=http_auth)
+        addresses = self._config['hosts'].split(',')
+        port = int(self._config['port'])
+
+        use_ssl = self._config.getboolean('ssl')
+        if self._config['user'] and self._config['password']:
+            http_auth = (self._config['user'], self._config['password'])
+        else:
+            http_auth = None
+
+        self._connection = Elasticsearch(addresses,
+                                         port=port,
+                                         use_ssl=use_ssl,
+                                         http_auth=http_auth)
 
     def list(self):
         hits = self._search(doc_type=DASHBOARD_TYPE,
@@ -61,45 +69,21 @@ class Elastic(Storage):
 
     def _search(self, **kwargs):
         self._fill_index(kwargs)
-        result = self._elastic.search(**kwargs)
+        result = self._connection.search(**kwargs)
         return result['hits']['hits']
 
     def _create(self, **kwargs):
         self._fill_index(kwargs)
-        return self._elastic.create(**kwargs)
+        return self._connection.create(**kwargs)
 
     def _update(self, **kwargs):
         self._fill_index(kwargs)
-        return self._elastic.update(**kwargs)
+        return self._connection.update(**kwargs)
 
     def _remove(self, **kwargs):
         self._fill_index(kwargs)
-        return self._elastic.delete(**kwargs)
+        return self._connection.delete(**kwargs)
 
     def _fill_index(self, kwargs):
         if 'index' not in kwargs:
             kwargs['index'] = self._default_index
-
-
-def elastic(host):
-    if host not in connections_pool:
-        if host not in config['hosts']:
-            raise ConnectionError("No such host defined: {}".format(host))
-
-        if not config.getboolean('hosts', host):
-            raise ConnectionError("Host {} is disabled".format(host))
-
-        cfg = config[host]
-
-        addresses = cfg['hosts'].split(',')
-        port = int(cfg['port'])
-        use_ssl = cfg.getboolean('ssl')
-        if cfg['user'] and cfg['password']:
-            http_auth = (cfg['user'], cfg['password'])
-        else:
-            http_auth = None
-        index = cfg['index']
-
-        connections_pool[host] = Elastic(host, addresses, port, use_ssl, http_auth, index)
-
-    return connections_pool[host]

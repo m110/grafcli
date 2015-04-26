@@ -27,6 +27,7 @@ class SQLStorage(Storage, metaclass=ABCMeta):
         self._host = host
         self._config = config[host]
         self._connection = None
+        self._setup()
 
     @abstractmethod
     def _setup(self):
