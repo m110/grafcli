@@ -1,4 +1,5 @@
 import re
+import json
 from abc import ABCMeta, abstractmethod
 import importlib
 
@@ -37,12 +38,12 @@ class SQLStorage(Storage, metaclass=ABCMeta):
         cursor = self._connection.cursor()
 
         cursor.execute(query, kwargs)
-        self._connection.commit()
 
         if SELECT_PATTERN.search(query):
             return cursor.fetchall()
-
-        return None
+        else:
+            self._connection.commit()
+            return None
 
     def list(self):
         query = """SELECT slug
@@ -59,19 +60,20 @@ class SQLStorage(Storage, metaclass=ABCMeta):
                    WHERE slug = %(slug)s"""
 
         result = self._execute(query, slug=dashboard_id)
+        source = json.loads(result[0][0])
 
-        return Dashboard(result[0][0], dashboard_id)
+        return Dashboard(source, dashboard_id)
 
     def save(self, dashboard_id, dashboard):
         if self.get(dashboard_id):
             query = """UPDATE dashboard
                        SET data = %(data)s
-                       WHERE sluf = %(slug)s"""
-            self._execute(query, data=dashboard.source, slug=dashboard_id)
+                       WHERE slug = %(slug)s"""
+            self._execute(query, data=json.dumps(dashboard.source), slug=dashboard_id)
         else:
             query = """INSERT INTO dashboard (version, slug, title, data, org_id, created, updated)
                        VALUES (1, %(slug)s, %(title)s, %(data)s, 0, NOW(), NOW())"""
-            self._execute(query, slug=dashboard_id, title=dashboard.title, data=dashboard.source)
+            self._execute(query, slug=dashboard_id, title=dashboard.title, data=json.dumps(dashboard.source))
 
     def remove(self, dashboard_id):
         query = """DELETE FROM dashboard
