@@ -24,3 +24,7 @@ class InvalidDocument(CLIException):
 
 class DocumentNotFound(CLIException):
     pass
+
+
+class CommandCancelled(CLIException):
+    pass

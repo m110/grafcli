@@ -2,6 +2,7 @@ from grafcli.documents import Dashboard
 from grafcli.exceptions import InvalidPath, DocumentNotFound, InvalidDocument
 from grafcli.config import config
 from grafcli.storage import get_storage
+from grafcli.utils import confirm_prompt
 
 REMOTE_RESOURCES = [host for host in config['hosts']
                     if config.getboolean('hosts', host)]
@@ -63,6 +64,10 @@ class RemoteResources(object):
         if dashboard_name:
             try:
                 origin_document = self.get(host, dashboard_name, row_name, panel_name)
+
+                if type(document) == type(origin_document):
+                    confirm_prompt("Overwrite {}?".format(origin_document.name))
+
                 origin_document.update(document)
 
                 dashboard = origin_document
