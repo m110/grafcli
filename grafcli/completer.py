@@ -13,6 +13,7 @@ class Completer(object):
             'cat': self.ls,
             'cd': self.cd,
             'cp': self.cp,
+            'mv': self.cp,
             'rm': self.ls,
             'get': self.get,
             config['grafcli']['editor']: self.ls,

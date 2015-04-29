@@ -38,6 +38,7 @@ class GrafCLI(object):
             'cat': self.cat,
             'cp': self.cp,
             'rm': self.rm,
+            'mv': self.mv,
             'get': self.get,
             config['grafcli']['editor']: self.editor,
             'export': self.file_export,
@@ -134,6 +135,16 @@ class GrafCLI(object):
         self._resources.save(destination_path, document)
 
         self.log("cp: {} -> {}", source_path, destination_path)
+
+    def mv(self, source, destination):
+        source_path = format_path(self._current_path, source)
+        destination_path = format_path(self._current_path, destination)
+
+        document = self._resources.get(source_path)
+        self._resources.save(destination_path, document)
+        self._resources.remove(source_path)
+
+        self.log("mv: {} -> {}", source_path, destination_path)
 
     def rm(self, path):
         path = format_path(self._current_path, path)

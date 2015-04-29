@@ -37,13 +37,15 @@ class Args(object):
         cp.add_argument("source", nargs="?", default=None)
         cp.add_argument("destination", nargs="?", default=None)
 
+        mv = self._add_command("mv", "move (rename) resource")
+        mv.add_argument("source", nargs="?", default=None)
+        mv.add_argument("destination", nargs="?", default=None)
+
         rm = self._add_command("rm", "remove resources")
         rm.add_argument("path", nargs="?", default=None, help="resource path")
 
         editor = self._add_command(config['grafcli']['editor'], "edit resource's content in best editor possible")
         editor.add_argument("path", nargs="?", help="path of resource to be edited")
-
-        self._add_command("mv", "move (rename) resource")
 
         file_export = self._add_command("export", "export resource to file")
         file_export.add_argument("path", nargs="?", default=None, help="resource path")
