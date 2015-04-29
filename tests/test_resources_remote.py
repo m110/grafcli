@@ -2,7 +2,7 @@
 import os
 import sys
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 LIB_PATH = os.path.dirname(os.path.realpath(__file__)) + '/../'
 CONFIG_PATH = os.path.join(LIB_PATH, 'grafcli.example.conf')
@@ -25,26 +25,27 @@ class RemoteResourcesTest(unittest.TestCase):
         self.dashboard_id = None
         self.dashboard = None
 
-        self.elastic_patcher = patch('grafcli.resources.remote.elastic')
-        self.elastic = self.elastic_patcher.start()
-        self.elastic.return_value = self.elastic
+        self.storage = Mock()
+        self.get_storage_patcher = patch('grafcli.resources.remote.get_storage')
+        get_storage = self.get_storage_patcher.start()
+        get_storage.return_value = self.storage
 
-        def get_dashboard(_):
+        def get(_):
             return mock_dashboard('any_dashboard')
 
-        def save_dashboard(dashboard_id, dashboard):
+        def save(dashboard_id, dashboard):
             self.dashboard_id = dashboard_id
             self.dashboard = dashboard
 
-        self.elastic.get_dashboard.side_effect = get_dashboard
-        self.elastic.save_dashboard.side_effect = save_dashboard
+        self.storage.get.side_effect = get
+        self.storage.save.side_effect = save
 
     def tearDown(self):
-        self.elastic_patcher.stop()
+        self.get_storage_patcher.stop()
 
     def test_list(self):
         resources = RemoteResources()
-        self.elastic.list_dashboards.return_value = ['any_dashboard_1', 'any_dashboard_2']
+        self.storage.list.return_value = ['any_dashboard_1', 'any_dashboard_2']
 
         self.assertListEqual(resources.list('any_host'),
                              ['any_dashboard_1', 'any_dashboard_2'])
@@ -147,7 +148,7 @@ class RemoteResourcesTest(unittest.TestCase):
             resources.remove('any_host')
 
         resources.remove('any_host', 'any_dashboard')
-        self.elastic.remove_dashboard.assert_called_once_with('any_dashboard')
+        self.storage.remove.assert_called_once_with('any_dashboard')
 
     def test_remove_row(self):
         resources = RemoteResources()
