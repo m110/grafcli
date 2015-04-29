@@ -91,13 +91,15 @@ class Templates(LocalResources):
                 top_parent = top_parent.parent
 
             document = top_parent
+            document_name = document.name
         except DocumentNotFound:
             document_class = CATEGORIES[category]
             if not isinstance(document, document_class):
                 raise InvalidDocument("Can not add {} to {}"
                                       .format(type(document).__name__, category))
+            document_name = parts[-1]
 
-        system.write_file(os.path.join(TEMPLATES_DIR, category), document.name, document.source)
+        system.write_file(os.path.join(TEMPLATES_DIR, category), document_name, document.source)
 
     def remove(self, category, *parts):
         document = self.get(category, *parts)
@@ -107,7 +109,7 @@ class Templates(LocalResources):
             parent.remove_child(document.name)
             system.write_file(os.path.join(TEMPLATES_DIR, category), parent.name, parent.source)
         else:
-            system.remove_file(category, document.name)
+            system.remove_file(os.path.join(TEMPLATES_DIR, category), document.name)
 
 
 def category_check(category):
