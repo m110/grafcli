@@ -108,6 +108,9 @@ class Dashboard(Document):
         else:
             return 0
 
+    def set_id(self, id):
+        self._id = id
+
     @property
     def rows(self):
         return self._rows

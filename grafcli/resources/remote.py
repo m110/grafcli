@@ -61,15 +61,23 @@ class RemoteResources(object):
         host_required(host)
 
         if dashboard_name:
-            origin_document = self.get(host, dashboard_name, row_name, panel_name)
-            origin_document.update(document)
+            try:
+                origin_document = self.get(host, dashboard_name, row_name, panel_name)
+                origin_document.update(document)
 
-            dashboard = origin_document
-            while dashboard.parent:
-                dashboard = dashboard.parent
-        elif isinstance(document, Dashboard):
-            dashboard = document
+                dashboard = origin_document
+                while dashboard.parent:
+                    dashboard = dashboard.parent
+            except DocumentNotFound:
+                if not isinstance(document, Dashboard):
+                    raise
+
+                dashboard = document
+                dashboard.set_id(dashboard_name)
         else:
+            dashboard = document
+
+        if not isinstance(dashboard, Dashboard):
             raise InvalidDocument("Can not save {} as dashboard"
                                   .format(type(document).__name__))
 

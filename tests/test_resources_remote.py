@@ -104,6 +104,12 @@ class RemoteResourcesTest(unittest.TestCase):
         self.assertEqual(self.dashboard_id, 'any_dashboard')
         self.assertEqual(self.dashboard.id, 'any_dashboard')
 
+        # Add new dashboard with custom name
+        self.storage.get.side_effect = DocumentNotFound
+        resources.save(dashboard, 'any_host', 'custom_dashboard')
+        self.assertEqual(self.dashboard_id, 'custom_dashboard')
+        self.assertEqual(self.dashboard.id, 'custom_dashboard')
+
     def test_save_row(self):
         resources = RemoteResources()
         row = Row(row_source("New row", []))
@@ -123,6 +129,11 @@ class RemoteResourcesTest(unittest.TestCase):
         self.assertEqual(len(self.dashboard.rows), 2)
         self.assertEqual(len(self.dashboard.row('1-A').panels), 0)
 
+        # Add new row with custom name
+        self.storage.get.side_effect = DocumentNotFound
+        with self.assertRaises(DocumentNotFound):
+            resources.save(row, 'any_host', 'any_dashboard', '100-New-row')
+
     def test_save_panel(self):
         resources = RemoteResources()
         panel = Panel(panel_source(42, "AC"))
@@ -140,6 +151,11 @@ class RemoteResourcesTest(unittest.TestCase):
         resources.save(panel, 'any_host', 'any_dashboard', '1-A', '1-AA')
         self.assertEqual(self.dashboard_id, 'any_dashboard')
         self.assertEqual(len(self.dashboard.row('1-A').panels), 2)
+
+        # Add new panel with custom name
+        self.storage.get.side_effect = DocumentNotFound
+        with self.assertRaises(DocumentNotFound):
+            resources.save(panel, 'any_host', 'any_dashboard', '1-A', '100-New-panel')
 
     def test_remove_dashboard(self):
         resources = RemoteResources()
