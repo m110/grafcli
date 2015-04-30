@@ -34,10 +34,9 @@ Grafcli connects directly to one of Grafana's backends (Elastic, SQLite, MySQL, 
 
 ## TODO
 
-* Backends for Grafana 2.0: SQLite, MySQL, PostgreSQL.
-* Universal storages interface.
-* An option in config to choose backen for a host.
-* Implement all commands.
+* Implement commands: get, backup.
+* Improve confirmation prompt.
+* Improve backups and templates interface.
 * Complete unit tests for documents manipulation.
 
 # Usage
