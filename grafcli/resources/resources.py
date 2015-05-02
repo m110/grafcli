@@ -1,23 +1,32 @@
-from grafcli.exceptions import InvalidPath
+from grafcli.exceptions import InvalidPath, MissingHostName
 from grafcli.paths import split_path
 
-from grafcli.resources.backups import Backups
+from grafcli.config import config
 from grafcli.resources.remote import RemoteResources
 from grafcli.resources.templates import Templates
+from grafcli.resources.local import LocalResources
+
+LOCAL_DIR = 'backups'
+REMOTE_HOSTS = [host for host in config['hosts']
+                if config.getboolean('hosts', host)]
 
 
 class Resources(object):
 
     def __init__(self):
         self._resources = {
-            'backups': Backups(),
-            'remote': RemoteResources(),
+            'backups': LocalResources(LOCAL_DIR),
+            'remote': {},
             'templates': Templates(),
         }
 
     def list(self, path):
         """Returns list of sub-nodes for given path."""
-        manager, parts = self._parse_path(path)
+        try:
+            manager, parts = self._parse_path(path)
+        except MissingHostName:
+            return REMOTE_HOSTS
+
         if not manager and not parts:
             return sorted(self._resources.keys())
 
@@ -54,8 +63,19 @@ class Resources(object):
             return None, []
 
         resource = parts.pop(0)
-        try:
-            manager = self._resources[resource]
-            return manager, parts
-        except KeyError:
-            raise InvalidPath("Invalid resource: {}".format(resource))
+        if resource == 'remote':
+            if not parts:
+                raise MissingHostName("Provide remote host name")
+
+            host = parts.pop(0)
+            if host not in self._resources['remote']:
+                self._resources['remote'][host] = RemoteResources(host)
+
+            manager = self._resources['remote'][host]
+        else:
+            try:
+                manager = self._resources[resource]
+            except KeyError:
+                raise InvalidPath("Invalid resource: {}".format(resource))
+
+        return manager, parts

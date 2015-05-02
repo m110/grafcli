@@ -12,7 +12,7 @@ STORAGE_TYPES = {
 }
 
 
-def get_storage(host):
+def get_remote_storage(host):
     if host not in config['hosts']:
         raise HostConfigError("No such host defined: {}".format(host))
 

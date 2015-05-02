@@ -2,9 +2,30 @@ import os
 import json
 
 from grafcli.config import config
+from grafcli.documents import Dashboard
 from grafcli.exceptions import DocumentNotFound
+from grafcli.storage import Storage
 
 DATA_DIR = os.path.expanduser(config['resources'].get('data-dir', ''))
+
+
+class SystemStorage(Storage):
+    def __init__(self, base_dir):
+        self._base_dir = base_dir
+        makepath(self._base_dir)
+
+    def list(self):
+        return list_files(self._base_dir)
+
+    def get(self, dashboard_id):
+        source = read_file(self._base_dir, dashboard_id)
+        return Dashboard(source, dashboard_id)
+
+    def save(self, dashboard_id, dashboard):
+        write_file(self._base_dir, dashboard_id, dashboard.source)
+
+    def remove(self, dashboard_id):
+        remove_file(self._base_dir, dashboard_id)
 
 
 def list_files(*paths):

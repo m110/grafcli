@@ -14,6 +14,10 @@ class HostConfigError(CLIException):
     pass
 
 
+class MissingHostName(CLIException):
+    pass
+
+
 class InvalidPath(CLIException):
     pass
 
