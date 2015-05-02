@@ -34,10 +34,8 @@ Grafcli connects directly to one of Grafana's backends (Elastic, SQLite, MySQL, 
 
 ## TODO
 
-* Implement commands: get, backup.
+* Implement commands: backup.
 * Improve confirmation prompt.
-* Improve backups and templates interface.
-* Complete unit tests for documents manipulation.
 
 # Usage
 
