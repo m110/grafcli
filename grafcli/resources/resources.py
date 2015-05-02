@@ -43,9 +43,6 @@ class Resources(object):
     def save(self, path, document):
         """Returns resource data."""
         manager, parts = self._parse_path(path)
-        if not parts:
-            raise InvalidPath("No path supplied")
-
         return manager.save(document, *parts)
 
     def remove(self, path):
