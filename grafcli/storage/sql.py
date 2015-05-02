@@ -4,6 +4,7 @@ from abc import ABCMeta, abstractmethod
 import importlib
 
 from grafcli.config import config
+from grafcli.exceptions import DocumentNotFound
 from grafcli.storage import Storage
 from grafcli.documents import Dashboard
 
@@ -60,17 +61,21 @@ class SQLStorage(Storage, metaclass=ABCMeta):
                    WHERE slug = %(slug)s"""
 
         result = self._execute(query, slug=dashboard_id)
+        if not result:
+            raise DocumentNotFound("There is no such dashboard: {}".format(dashboard_id))
+
         source = json.loads(result[0][0])
 
         return Dashboard(source, dashboard_id)
 
     def save(self, dashboard_id, dashboard):
-        if self.get(dashboard_id):
+        try:
+            self.get(dashboard_id)
             query = """UPDATE dashboard
                        SET data = %(data)s
                        WHERE slug = %(slug)s"""
             self._execute(query, data=json.dumps(dashboard.source), slug=dashboard_id)
-        else:
+        except DocumentNotFound:
             query = """INSERT INTO dashboard (version, slug, title, data, org_id, created, updated)
                        VALUES (1, %(slug)s, %(title)s, %(data)s, 0, NOW(), NOW())"""
             self._execute(query, slug=dashboard_id, title=dashboard.title, data=json.dumps(dashboard.source))

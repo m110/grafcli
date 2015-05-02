@@ -18,8 +18,11 @@ class SystemStorage(Storage):
         return list_files(self._base_dir)
 
     def get(self, dashboard_id):
-        source = read_file(self._base_dir, dashboard_id)
-        return Dashboard(source, dashboard_id)
+        try:
+            source = read_file(self._base_dir, dashboard_id)
+            return Dashboard(source, dashboard_id)
+        except DocumentNotFound:
+            raise DocumentNotFound("There is no such dashboard: {}".format(dashboard_id))
 
     def save(self, dashboard_id, dashboard):
         write_file(self._base_dir, dashboard_id, dashboard.source)

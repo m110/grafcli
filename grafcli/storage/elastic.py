@@ -48,17 +48,14 @@ class ElasticStorage(Storage):
         return Dashboard(source, dashboard_id)
 
     def save(self, dashboard_id, dashboard):
-        hits = self._search(doc_type=DASHBOARD_TYPE,
-                            _source=False,
-                            body={'query': {'match': {'_id': dashboard_id}}})
-
         body = {'dashboard': json.dumps(dashboard.source)}
 
-        if hits:
+        try:
+            self.get(dashboard_id)
             self._update(doc_type=DASHBOARD_TYPE,
                          body={'doc': body},
                          id=dashboard_id)
-        else:
+        except DocumentNotFound:
             self._create(doc_type=DASHBOARD_TYPE,
                          body=body,
                          id=dashboard_id)
