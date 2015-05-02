@@ -13,7 +13,7 @@ from grafcli.config import load_config
 load_config(CONFIG_PATH)
 
 from grafcli.exceptions import InvalidPath, DocumentNotFound, InvalidDocument
-from grafcli.resources.templates import Templates
+from grafcli.resources.templates import DashboardsTemplates, RowsTemplates, PanelTemplates
 from grafcli.documents import Dashboard, Row, Panel
 
 from tests.test_documents import dashboard_source, row_source, panel_source

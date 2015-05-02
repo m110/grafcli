@@ -18,6 +18,10 @@ class MissingHostName(CLIException):
     pass
 
 
+class MissingTemplateCategory(CLIException):
+    pass
+
+
 class InvalidPath(CLIException):
     pass
 

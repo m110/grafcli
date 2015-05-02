@@ -8,7 +8,7 @@ import traceback
 from grafcli.config import config
 from grafcli.exceptions import UnknownCommand, CLIException
 from grafcli.args import Args
-from grafcli.documents import Document
+from grafcli.documents import Document, Dashboard, Row, Panel
 from grafcli.resources import Resources
 from grafcli.completer import Completer
 from grafcli.paths import ROOT_PATH, format_path
@@ -39,7 +39,7 @@ class GrafCLI(object):
             'cp': self.cp,
             'rm': self.rm,
             'mv': self.mv,
-            'get': self.get,
+            'template': self.template,
             config['grafcli']['editor']: self.editor,
             'export': self.file_export,
             'import': self.file_import,
@@ -152,9 +152,24 @@ class GrafCLI(object):
 
         self.log("rm: {}", path)
 
-    def get(self, resources):
-        for res in resources:
-            pass
+    def template(self, path):
+        path = format_path(self._current_path, path)
+        document = self._resources.get(path)
+
+        if isinstance(document, Dashboard):
+            template = 'dashboards'
+        elif isinstance(document, Row):
+            template = 'rows'
+        elif isinstance(document, Panel):
+            template = 'panels'
+        else:
+            raise CLIException("Unknown document type: {}".format(
+                               document.__class__.__name__))
+
+        template_path = "/templates/{}".format(template)
+        self._resources.save(template_path, document)
+
+        self.log("template: {} -> {}", path, template_path)
 
     def editor(self, path):
         path = format_path(self._current_path, path)

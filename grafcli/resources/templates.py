@@ -1,117 +1,108 @@
 import os
+from abc import ABCMeta
 
-from grafcli.exceptions import InvalidPath, InvalidDocument, DocumentNotFound
-from grafcli.documents import Dashboard, Row, Panel
+from grafcli.exceptions import InvalidDocument
+from grafcli.documents import Dashboard, Row
 from grafcli.resources.local import LocalResources
-from grafcli.storage import system
 
 DASHBOARDS = 'dashboards'
 ROWS = 'rows'
 PANELS = 'panels'
+
+CATEGORIES = (DASHBOARDS, ROWS, PANELS)
 
 TEMPLATES_DIR = 'templates'
 DASHBOARDS_DIR = os.path.join(TEMPLATES_DIR, DASHBOARDS)
 ROWS_DIR = os.path.join(TEMPLATES_DIR, ROWS)
 PANELS_DIR = os.path.join(TEMPLATES_DIR, PANELS)
 
-CATEGORIES = {
-    DASHBOARDS: Dashboard,
-    ROWS: Row,
-    PANELS: Panel,
-}
+DEFAULT = 'default'
+DEFAULT_ROW = '1-default'
 
 
-class Templates(LocalResources):
+class CommonTemplates(object, metaclass=ABCMeta):
+    _base_dir = None
 
     def __init__(self):
-        for path in (TEMPLATES_DIR, DASHBOARDS_DIR, ROWS_DIR, PANELS_DIR):
-            system.makepath(path)
-
-    def list(self, category=None, *parts):
-        if not category:
-            return CATEGORIES.keys()
-
-        category_check(category)
-
-        if not parts:
-            return system.list_files(TEMPLATES_DIR, category)
-
-        if category == DASHBOARDS:
-            return self._list(DASHBOARDS_DIR, *parts)
-        elif category == ROWS:
-            return self._list_row(*parts)
-        elif category == PANELS:
-            raise InvalidPath("Panels contain no sub-nodes")
-
-    def _list_row(self, row_name=None, panel_name=None):
-        if panel_name:
-            raise InvalidPath("Panels contain no sub-nodes")
-
-        source = system.read_file(ROWS_DIR, row_name)
-        row = Row(source)
-
-        return [panel.name for panel in row.panels]
-
-    def get(self, category=None, *parts):
-        if not category:
-            raise InvalidPath("Provide template category")
-
-        category_check(category)
-
-        if not parts:
-            raise InvalidPath("Can not get directory")
-
-        if category == DASHBOARDS:
-            return self._get(DASHBOARDS_DIR, *parts)
-        elif category == ROWS:
-            return self._get_row(*parts)
-        elif category == PANELS:
-            return self._get_panel(*parts)
-
-    def _get_row(self, row_name=None, panel_name=None):
-        source = system.read_file(ROWS_DIR, row_name)
-        row = Row(source)
-
-        if panel_name:
-            return row.panel(panel_name)
-        else:
-            return row
-
-    def _get_panel(self, panel_name=None):
-        source = system.read_file(PANELS_DIR, panel_name)
-        return Panel(source)
-
-    def save(self, document, category, *parts):
-        try:
-            origin_document = self.get(category, *parts)
-            origin_document.update(document)
-
-            top_parent = origin_document
-            while top_parent.parent:
-                top_parent = top_parent.parent
-
-            document = top_parent
-            document_name = document.name
-        except DocumentNotFound:
-            document_class = CATEGORIES[category]
-            if not isinstance(document, document_class):
-                raise InvalidDocument("Can not add {} to {}"
-                                      .format(type(document).__name__, category))
-            document_name = parts[-1]
-
-        system.write_file(os.path.join(TEMPLATES_DIR, category), document_name, document.source)
-
-    def remove(self, category, *parts):
-        document = self.get(category, *parts)
-
-        parent = document.parent
-        if parent:
-            parent.remove_child(document.name)
-            system.write_file(os.path.join(TEMPLATES_DIR, category), parent.name, parent.source)
-        else:
-            system.remove_file(os.path.join(TEMPLATES_DIR, category), document.name)
+        self._resources = LocalResources(self._base_dir)
 
 
-def category_check(category):
-    if category not in CATEGORIES:
-        raise InvalidPath("Invalid template category: {}".format(category))
+class DashboardsTemplates(CommonTemplates):
+    _base_dir = DASHBOARDS_DIR
+
+    def get(self, dashboard_name=None, row_name=None, panel_name=None):
+        return self._resources.get(dashboard_name, row_name, panel_name)
+
+    def remove(self, dashboard_name=None, row_name=None, panel_name=None):
+        return self._resources.remove(dashboard_name, row_name, panel_name)
+
+    def list(self, dashboard_name=None, row_name=None, panel_name=None):
+        return self._resources.list(dashboard_name, row_name, panel_name)
+
+    def save(self, document, dashboard_name=None, row_name=None, panel_name=None):
+        return self._resources.save(document, dashboard_name, row_name, panel_name)
+
+
+class RowsTemplates(CommonTemplates):
+    _base_dir = ROWS_DIR
+
+    def __init__(self):
+        super().__init__()
+
+        if DEFAULT not in self._resources.list():
+            source = {
+                'rows': [],
+                'title': DEFAULT,
+            }
+            dashboard = Dashboard(source, DEFAULT)
+            self._resources.save(dashboard, DEFAULT)
+
+    def list(self, row_name=None, panel_name=None):
+        return self._resources.list(DEFAULT, row_name, panel_name)
+
+    def get(self, row_name=None, panel_name=None):
+        return self._resources.get(DEFAULT, row_name, panel_name)
+
+    def save(self, document, row_name=None, panel_name=None):
+        if isinstance(document, Dashboard):
+            raise InvalidDocument("Can not add Dashboard as row template")
+
+        return self._resources.save(document, DEFAULT, row_name, panel_name)
+
+    def remove(self, row_name=None, panel_name=None):
+        return self._resources.remove(DEFAULT, row_name, panel_name)
+
+
+class PanelTemplates(CommonTemplates):
+    _base_dir = ROWS_DIR
+
+    def __init__(self):
+        super().__init__()
+
+        if DEFAULT not in self._resources.list():
+            source = {
+                'rows': [
+                    {
+                        'panels': [],
+                        'title': DEFAULT,
+                    }
+                ],
+                'title': DEFAULT,
+                }
+            dashboard = Dashboard(source, DEFAULT)
+            self._resources.save(dashboard, DEFAULT)
+
+    def list(self, panel_name=None):
+        return self._resources.list(DEFAULT, DEFAULT_ROW, panel_name)
+
+    def get(self, panel_name=None):
+        return self._resources.get(DEFAULT, DEFAULT_ROW, panel_name)
+
+    def save(self, document, panel_name=None):
+        if isinstance(document, Row):
+            raise InvalidDocument("Can not add Row as panel template")
+
+        return self._resources.save(document, DEFAULT, DEFAULT_ROW, panel_name)
+
+    def remove(self, panel_name=None):
+        return self._resources.remove(DEFAULT, DEFAULT_ROW, panel_name)

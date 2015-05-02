@@ -1,9 +1,9 @@
-from grafcli.exceptions import InvalidPath, MissingHostName
+from grafcli.exceptions import InvalidPath, MissingHostName, MissingTemplateCategory
 from grafcli.paths import split_path
 
 from grafcli.config import config
 from grafcli.resources.remote import RemoteResources
-from grafcli.resources.templates import Templates
+from grafcli.resources.templates import DashboardsTemplates, RowsTemplates, PanelTemplates, CATEGORIES
 from grafcli.resources.local import LocalResources
 
 LOCAL_DIR = 'backups'
@@ -17,7 +17,11 @@ class Resources(object):
         self._resources = {
             'backups': LocalResources(LOCAL_DIR),
             'remote': {},
-            'templates': Templates(),
+            'templates': {
+                'dashboards': DashboardsTemplates(),
+                'rows': RowsTemplates(),
+                'panels': PanelTemplates(),
+            },
         }
 
     def list(self, path):
@@ -26,6 +30,8 @@ class Resources(object):
             manager, parts = self._parse_path(path)
         except MissingHostName:
             return REMOTE_HOSTS
+        except MissingTemplateCategory:
+            return CATEGORIES
 
         if not manager and not parts:
             return sorted(self._resources.keys())
@@ -69,6 +75,15 @@ class Resources(object):
                 self._resources['remote'][host] = RemoteResources(host)
 
             manager = self._resources['remote'][host]
+        elif resource == 'templates':
+            if not parts:
+                raise MissingTemplateCategory("Provide template category")
+
+            category = parts.pop(0)
+            if category not in self._resources['templates']:
+                raise InvalidPath("Invalid template category: {}".format(category))
+
+            manager = self._resources['templates'][category]
         else:
             try:
                 manager = self._resources[resource]

@@ -15,7 +15,7 @@ class Completer(object):
             'cp': self.cp,
             'mv': self.cp,
             'rm': self.ls,
-            'get': self.get,
+            'template': self.ls,
             config['grafcli']['editor']: self.ls,
         }
 
@@ -58,6 +58,3 @@ class Completer(object):
     def cp(self, source, destination):
         path = destination if destination else source
         return self.ls(path)
-
-    def get(self, **kwargs):
-        return self._cli.ls().split()

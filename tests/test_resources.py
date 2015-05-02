@@ -15,7 +15,7 @@ load_config(CONFIG_PATH)
 from grafcli.resources import Resources
 from grafcli.exceptions import InvalidPath
 from grafcli.resources.local import LocalResources
-from grafcli.resources.templates import Templates
+from grafcli.resources.templates import DashboardsTemplates, RowsTemplates, PanelTemplates
 
 
 class ResourcesTest(unittest.TestCase):
@@ -32,6 +32,7 @@ class ResourcesTest(unittest.TestCase):
 
         self.assertEqual(r.list(None), ['backups', 'remote', 'templates'])
         self.assertEqual(r.list('remote'), ['host.example.com'])
+        self.assertEqual(r.list('templates'), ('dashboards', 'rows', 'panels'))
 
     def test_get_empty(self):
         r = Resources()
@@ -45,9 +46,9 @@ class ResourcesTest(unittest.TestCase):
         self.assertIsInstance(manager, LocalResources)
         self.assertListEqual(parts, ['a', 'b', 'c'])
 
-        manager, parts = r._parse_path('/templates/a/b/c')
-        self.assertIsInstance(manager, Templates)
-        self.assertListEqual(parts, ['a', 'b', 'c'])
+        manager, parts = r._parse_path('/templates/dashboards/a/b')
+        self.assertIsInstance(manager, DashboardsTemplates)
+        self.assertListEqual(parts, ['a', 'b'])
 
         manager, parts = r._parse_path('/remote/host.example.com/a/b')
         self.remote_resources.assert_called_once_with('host.example.com')

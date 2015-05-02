@@ -30,9 +30,6 @@ class Args(object):
         cat = self._add_command("cat", "display resource's content")
         cat.add_argument("path", nargs="?", help="path of resource to be displayed")
 
-        get = self._add_command("get", "save local copy of remote resource")
-        get.add_argument("resources", nargs="*", help="resources to get")
-
         cp = self._add_command("cp", "copy resource")
         cp.add_argument("source", nargs="?", default=None)
         cp.add_argument("destination", nargs="?", default=None)
@@ -43,6 +40,9 @@ class Args(object):
 
         rm = self._add_command("rm", "remove resources")
         rm.add_argument("path", nargs="?", default=None, help="resource path")
+
+        template = self._add_command("template", "save resource as a template")
+        template.add_argument("path", nargs="?", default=None, help="resource path")
 
         editor = self._add_command(config['grafcli']['editor'], "edit resource's content in best editor possible")
         editor.add_argument("path", nargs="?", help="path of resource to be edited")

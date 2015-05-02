@@ -1,11 +1,9 @@
-from abc import ABCMeta
-
 from grafcli.documents import Dashboard
 from grafcli.exceptions import InvalidPath, DocumentNotFound, InvalidDocument
 from grafcli.utils import confirm_prompt
 
 
-class CommonResources(object, metaclass=ABCMeta):
+class CommonResources(object):
     _storage = None
 
     def list(self, dashboard_name=None, row_name=None, panel_name=None):
