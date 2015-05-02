@@ -1,5 +1,6 @@
 import json
 
+from grafcli.config import config
 from grafcli.exceptions import CommandCancelled
 
 
@@ -11,6 +12,9 @@ def json_pretty(data):
 
 
 def confirm_prompt(question):
+    if config['grafcli'].getboolean('force'):
+        return
+
     answer = input("{} [y/n]: ".format(question))
 
     if answer not in ('y', 'Y', 'yes', 'YES'):

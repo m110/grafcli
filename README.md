@@ -98,6 +98,8 @@ editor = vim
 history = ~/.grafcli_history
 # Additional verbosity, if needed.
 verbose = off
+# Answer 'yes' to all overwrite prompts.
+force = on
 
 [resources]
 # Directory where all local data will be stored (including backups).
