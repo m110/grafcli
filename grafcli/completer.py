@@ -16,6 +16,10 @@ class Completer(object):
             'mv': self.cp,
             'rm': self.ls,
             'template': self.ls,
+            'backup': self.ls,
+            'restore': self.ls,
+            'export': self.ls,
+            'import': self.ls,
             config['grafcli']['editor']: self.ls,
         }
 

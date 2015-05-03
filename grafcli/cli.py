@@ -1,18 +1,21 @@
 import os
 import json
+import shutil
+import tarfile
 import tempfile
 import warnings
 import readline
 import traceback
 
 from grafcli.config import config
-from grafcli.exceptions import UnknownCommand, CLIException
+from grafcli.exceptions import UnknownCommand, CLIException, CommandCancelled
 from grafcli.args import Args
 from grafcli.documents import Document, Dashboard, Row, Panel
 from grafcli.resources import Resources
 from grafcli.completer import Completer
 from grafcli.paths import ROOT_PATH, format_path
 from grafcli.utils import json_pretty
+from grafcli.storage.system import to_file_format, from_file_format
 
 warnings.simplefilter("ignore")
 
@@ -41,6 +44,8 @@ class GrafCLI(object):
             'mv': self.mv,
             'template': self.template,
             config['grafcli']['editor']: self.editor,
+            'backup': self.backup,
+            'restore': self.restore,
             'export': self.file_export,
             'import': self.file_import,
             'help': self.help,
@@ -189,6 +194,46 @@ class GrafCLI(object):
 
         os.unlink(tmp_file)
 
+    def backup(self, path, system_path):
+        path = format_path(self._current_path, path)
+        system_path = os.path.expanduser(system_path)
+
+        documents = self._resources.list(path)
+        if not documents:
+            raise CLIException("Nothing to backup")
+
+        tmp_dir = tempfile.mkdtemp()
+        archive = tarfile.open(name=system_path, mode="w:gz")
+
+        for doc_name in documents:
+            file_name = to_file_format(doc_name)
+            file_path = os.path.join(tmp_dir, file_name)
+            doc_path = os.path.join(path, doc_name)
+
+            self.file_export(doc_path, file_path)
+            archive.add(file_path, arcname=file_name)
+
+        archive.close()
+        shutil.rmtree(tmp_dir)
+
+    def restore(self, system_path, path):
+        system_path = os.path.expanduser(system_path)
+        path = format_path(self._current_path, path)
+
+        tmp_dir = tempfile.mkdtemp()
+        with tarfile.open(name=system_path, mode="r:gz") as archive:
+            archive.extractall(path=tmp_dir)
+
+        for name in os.listdir(tmp_dir):
+            try:
+                file_path = os.path.join(tmp_dir, name)
+                doc_path = os.path.join(path, from_file_format(name))
+                self.file_import(file_path, doc_path)
+            except CommandCancelled:
+                pass
+
+        shutil.rmtree(tmp_dir)
+
     def file_export(self, path, system_path):
         path = format_path(self._current_path, path)
         system_path = os.path.expanduser(system_path)
@@ -201,13 +246,12 @@ class GrafCLI(object):
 
     def file_import(self, system_path, path):
         system_path = os.path.expanduser(system_path)
+        path = format_path(self._current_path, path)
 
         with open(system_path, 'r') as file:
             content = file.read()
 
         document = Document.from_source(json.loads(content))
-
-        path = format_path(self._current_path, path)
         self._resources.save(path, document)
 
         self.log("import: {} -> {}", system_path, path)

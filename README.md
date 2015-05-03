@@ -34,8 +34,9 @@ Grafcli connects directly to one of Grafana's backends (Elastic, SQLite, MySQL, 
 
 ## TODO
 
-* Implement commands: backup.
 * Improve confirmation prompt.
+* Improve completions.
+* Implement asterisk (*) handling.
 
 # Usage
 
@@ -78,8 +79,9 @@ Most of the arguments here are paths to a dashboard, row or panel.
 * `cp <source> <destination>` - copies one element to another. Can be used to copy whole dashboards, rows or single panels.
 * `mv <source> <destination>` - the same as `cp`, but moves (renames) the source.
 * `rm <path>` - removes the element.
-* `template <path> [name]` - saves element as template.
-* `backup <remote_path>` - saves element as backup.
+* `template <path>` - saves element as template.
+* `backup <remote_host> <system_path>` - saves backup of all dashboards from remote host as .tgz archive.
+* `restore <system_path> <remote_host>` - restores saved backup.
 * `export <path> <system_path>` - saves the JSON-encoded element to file.
 * `import <system_path> <path>` - loads the JSON-encoded element from file.
 
@@ -234,6 +236,18 @@ Some of the common operations.
 
 ```
 [/templates/dashboards]> cp main_dashboard/1-Top-Row/1-Top-Panel new_dashboard/1-Top-Row/2-Second-Panel
+```
+
+* Backup all dashboards.
+
+```
+[/] backup remote/example ~/backup.tgz
+```
+
+* Restore a backup.
+
+```
+[/] restore ~/backup.tgz remote/example
 ```
 
 * Import dashboard from a file.

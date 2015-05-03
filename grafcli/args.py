@@ -47,6 +47,14 @@ class Args(object):
         editor = self._add_command(config['grafcli']['editor'], "edit resource's content in best editor possible")
         editor.add_argument("path", nargs="?", help="path of resource to be edited")
 
+        backup = self._add_command("backup", "backup all dashboards from remote host")
+        backup.add_argument("path", nargs="?", default=None, help="remote host path")
+        backup.add_argument("system_path", nargs="?", default=None, help="system path for .tgz file")
+
+        restore = self._add_command("restore", "restore saved backup")
+        restore.add_argument("system_path", nargs="?", default=None, help="system path for .tgz file")
+        restore.add_argument("path", nargs="?", default=None, help="remote host path")
+
         file_export = self._add_command("export", "export resource to file")
         file_export.add_argument("path", nargs="?", default=None, help="resource path")
         file_export.add_argument("system_path", nargs="?", default=None, help="system path")
