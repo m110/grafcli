@@ -7,6 +7,7 @@ from grafcli.exceptions import DocumentNotFound
 from grafcli.storage import Storage
 
 DASHBOARD_TYPE = "dashboard"
+SEARCH_LIMIT = 100
 
 
 class ElasticStorage(Storage):
@@ -66,7 +67,7 @@ class ElasticStorage(Storage):
 
     def _search(self, **kwargs):
         self._fill_index(kwargs)
-        result = self._connection.search(**kwargs)
+        result = self._connection.search(size=SEARCH_LIMIT, **kwargs)
         return result['hits']['hits']
 
     def _create(self, **kwargs):
