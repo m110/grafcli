@@ -1,7 +1,7 @@
 # grafcli
 [Grafana](http://grafana.org) CLI for fast and easy dashboards management.
 
-**Note that this is still WIP and some of the features described here may be not implemented at the moment.**
+**Note that this is still alpha software.**
 
 ## Featuring:
 
@@ -31,6 +31,17 @@ Grafcli connects directly to one of Grafana's backends (Elastic, SQLite, MySQL, 
     * [elasticsearch-py](http://github.com/elastic/elasticsearch-py)
     * [psycopg2](http://initd.org/psycopg/)
     * [MySQL Connector/Python](http://dev.mysql.com/downloads/connector/python/)
+
+## Installation
+
+Get the source and run:
+
+```
+python3 setup.py install
+cp /etc/grafcli/grafcli.example.conf /etc/grafcli/grafcli.conf
+```
+
+Then define your hosts in the config file (see below for details).
 
 ## TODO
 
