@@ -43,6 +43,8 @@ cp /etc/grafcli/grafcli.example.conf /etc/grafcli/grafcli.conf
 
 Then define your hosts in the config file (see below for details).
 
+You will need at least one of the backend libraries listed above.
+
 ## TODO
 
 * Improve confirmation prompt.
@@ -86,7 +88,7 @@ In the root directory, you will find three basic directories:
 Most of the arguments here are paths to a dashboard, row or panel.
 
 * `cat <path>` - display JSON of given element.
-* `$EDITOR <path>` - edit the JSON of given element in-place and update it afterwards.
+* `$EDITOR <path>` - edit the JSON of given element in-place and update it afterwards. Editor name can be set in the config file.
 * `cp <source> <destination>` - copies one element to another. Can be used to copy whole dashboards, rows or single panels.
 * `mv <source> <destination>` - the same as `cp`, but moves (renames) the source.
 * `rm <path>` - removes the element.
@@ -169,7 +171,7 @@ path = /opt/grafana/data/grafana.db
 
 ## Batch mode
 
-Any command can be passed directly as arguments to grafcli, which will exit just after after executing it. If you run it without arguments, you will get to interactive mode (preferable choice in most cases).
+Any command can be passed directly as arguments to grafcli, which will exit just after executing it. If you run it without arguments, you will get to interactive mode (preferable choice in most cases).
 
 Batch mode:
 ```bash
