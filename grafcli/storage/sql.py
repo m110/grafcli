@@ -1,3 +1,4 @@
+import os
 import re
 import json
 from abc import ABCMeta, abstractmethod
@@ -89,7 +90,13 @@ class SQLStorage(Storage, metaclass=ABCMeta):
 
 class SQLiteStorage(SQLStorage):
     def _setup(self):
-        self._connection = sqlite3.connect(self._config['path'])
+        path = os.path.expanduser(self._config['path'])
+        self._connection = sqlite3.connect(path)
+
+    def _execute(self, query, **kwargs):
+        query = query.replace('%s', '?')
+        query = re.sub(r'%\((\w+)\)s', r':\1', query)
+        return super()._execute(query, **kwargs)
 
 
 class MySQLStorage(SQLStorage):
