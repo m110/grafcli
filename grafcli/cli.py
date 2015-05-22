@@ -54,6 +54,8 @@ class GrafCLI(object):
 
     def run(self):
         """Loops and executes commands in interactive mode."""
+        delims = readline.get_completer_delims()
+        readline.set_completer_delims(delims.replace('-', ''))
         readline.parse_and_bind("tab: complete")
         readline.set_completer(self._completer.complete)
 
