@@ -1,13 +1,4 @@
-class CLIException(Exception):
-    pass
-
-
-class ConfigNotFound(Exception):
-    pass
-
-
-class UnknownCommand(CLIException):
-    pass
+from climb.exceptions import CLIException
 
 
 class HostConfigError(CLIException):

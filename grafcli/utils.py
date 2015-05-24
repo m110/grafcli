@@ -1,6 +1,6 @@
 import json
+from climb.config import config
 
-from grafcli.config import config
 from grafcli.exceptions import CommandCancelled
 
 

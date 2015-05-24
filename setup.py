@@ -2,14 +2,15 @@
 from setuptools import setup, find_packages
 
 setup(name='grafcli',
-      version='0.2.0',
+      version='0.3.0',
       description='Grafana CLI management tool',
       author='Milosz Smolka',
       author_email='m110@m110.pl',
       url='https://github.com/m110/grafcli',
       packages=find_packages(exclude=['tests']),
       scripts=['scripts/grafcli'],
-      data_files=[('/etc/grafcli', ['grafcli.example.conf'])],
+      data_files=[('/etc/grafcli', ['grafcli.conf.example'])],
+      requires=['climb'],
       classifiers=[
           'Development Status :: 3 - Alpha',
           'Environment :: Console',

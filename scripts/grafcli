@@ -1,19 +1,26 @@
 #!/usr/bin/python3
 import sys
+from climb.exceptions import CLIException
 
-from grafcli.config import load_config
-load_config()
-
-from grafcli.cli import GrafCLI
+from grafcli.core import GrafCLI
 
 
 def main():
     cli = GrafCLI()
 
     if len(sys.argv) > 1:
-        return cli.execute(sys.argv[1:])
+        try:
+            result = cli.execute(*sys.argv[1:])
+            if result:
+                print(result)
+
+            return 0
+        except CLIException as exc:
+            print(exc)
+            return 1
     else:
-        return cli.run()
+        cli.run()
+        return 0
 
 
 if __name__ == "__main__":

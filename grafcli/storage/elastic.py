@@ -1,13 +1,16 @@
 import json
+import warnings
+from climb.config import config
 from elasticsearch import Elasticsearch
 
-from grafcli.config import config
 from grafcli.documents import Dashboard
 from grafcli.exceptions import DocumentNotFound
 from grafcli.storage import Storage
 
 DASHBOARD_TYPE = "dashboard"
 SEARCH_LIMIT = 100
+
+warnings.simplefilter("ignore")
 
 
 class ElasticStorage(Storage):

@@ -1,4 +1,5 @@
-from grafcli.config import config
+from climb.config import config
+
 from grafcli.exceptions import HostConfigError
 from grafcli.storage.storage import Storage
 from grafcli.storage.elastic import ElasticStorage

@@ -27,6 +27,7 @@ Grafcli connects directly to one of Grafana's backends (Elastic, SQLite, MySQL, 
 ## Requirements
 
 * [Python 3](http://python.org)
+* [climb](https://github.com/m110/climb)
 * Depending on which storage backends you use:
     * [elasticsearch-py](http://github.com/elastic/elasticsearch-py)
     * [psycopg2](http://initd.org/psycopg/)
@@ -38,10 +39,12 @@ Get the source and run:
 
 ```
 python3 setup.py install
-cp /etc/grafcli/grafcli.example.conf /etc/grafcli/grafcli.conf
 ```
 
 Then define your hosts in the config file (see below for details).
+```
+cp /etc/grafcli/grafcli.conf.example /etc/grafcli/grafcli.conf
+```
 
 You will need at least one of the backend libraries listed above.
 

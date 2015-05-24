@@ -5,12 +5,12 @@ import unittest
 from unittest.mock import Mock
 
 LIB_PATH = os.path.dirname(os.path.realpath(__file__)) + '/../'
-CONFIG_PATH = os.path.join(LIB_PATH, 'grafcli.example.conf')
+CONFIG_PATH = os.path.join(LIB_PATH, 'grafcli.conf.example')
 
 sys.path.append(LIB_PATH)
 
-from grafcli.config import load_config
-load_config(CONFIG_PATH)
+from climb.config import load_config_file
+load_config_file(CONFIG_PATH)
 
 from grafcli.exceptions import InvalidPath, DocumentNotFound, InvalidDocument
 from grafcli.resources.common import CommonResources

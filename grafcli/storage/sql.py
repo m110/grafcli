@@ -1,10 +1,10 @@
 import os
 import re
 import json
-from abc import ABCMeta, abstractmethod
 import importlib
+from abc import ABCMeta, abstractmethod
+from climb.config import config
 
-from grafcli.config import config
 from grafcli.exceptions import DocumentNotFound
 from grafcli.storage import Storage
 from grafcli.documents import Dashboard

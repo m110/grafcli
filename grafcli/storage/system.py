@@ -1,12 +1,13 @@
 import os
 import json
+from climb.config import config
 
-from grafcli.config import config
 from grafcli.documents import Dashboard
 from grafcli.exceptions import DocumentNotFound
 from grafcli.storage import Storage
 
-DATA_DIR = os.path.expanduser(config['resources'].get('data-dir', ''))
+def data_dir():
+    return os.path.expanduser(config['resources'].get('data-dir', ''))
 
 
 class SystemStorage(Storage):
@@ -32,7 +33,7 @@ class SystemStorage(Storage):
 
 
 def list_files(*paths):
-    full_path = os.path.join(DATA_DIR, *paths)
+    full_path = os.path.join(data_dir(), *paths)
     if not os.path.isdir(full_path):
         raise DocumentNotFound("No documents found")
 
@@ -41,7 +42,7 @@ def list_files(*paths):
 
 
 def read_file(directory, name):
-    full_path = os.path.join(DATA_DIR, directory, to_file_format(name))
+    full_path = os.path.join(data_dir(), directory, to_file_format(name))
     if not os.path.isfile(full_path):
         raise DocumentNotFound("File not found: {}".format(full_path))
 
@@ -50,14 +51,14 @@ def read_file(directory, name):
 
 
 def write_file(directory, name, data):
-    full_path = os.path.join(DATA_DIR, directory, to_file_format(name))
+    full_path = os.path.join(data_dir(), directory, to_file_format(name))
 
     with open(full_path, 'w') as f:
         f.write(json.dumps(data))
 
 
 def remove_file(directory, name):
-    full_path = os.path.join(DATA_DIR, directory, to_file_format(name))
+    full_path = os.path.join(data_dir(), directory, to_file_format(name))
     if not os.path.isfile(full_path):
         raise DocumentNotFound("File not found: {}".format(full_path))
 
@@ -65,7 +66,7 @@ def remove_file(directory, name):
 
 
 def makepath(path):
-    full_path = os.path.join(DATA_DIR, path)
+    full_path = os.path.join(data_dir(), path)
     os.makedirs(full_path, mode=0o755, exist_ok=True)
 
 

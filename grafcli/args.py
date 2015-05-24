@@ -1,26 +1,10 @@
-import argparse
-from collections import namedtuple
-
-from grafcli.config import config
-from grafcli.exceptions import UnknownCommand
-
-Command = namedtuple("Command", ['name', 'parser'])
+from climb.args import Args
+from climb.config import config
 
 
-class ArgsParser(argparse.ArgumentParser):
+class GrafArgs(Args):
 
-    def error(self, message):
-        raise UnknownCommand(self.format_help().strip())
-
-
-class Args(object):
-
-    def __init__(self):
-        self._commands = []
-
-        self._parser = ArgsParser(add_help=False)
-        self._commands_parser = self._parser.add_subparsers(help="command")
-
+    def _load_commands(self):
         ls = self._add_command("ls", "list resources")
         ls.add_argument("path", nargs="?", default=None,  help="resource path (defaults to current)")
 
@@ -46,6 +30,7 @@ class Args(object):
 
         editor = self._add_command(config['grafcli']['editor'], "edit resource's content in best editor possible")
         editor.add_argument("path", nargs="?", help="path of resource to be edited")
+        editor.set_defaults(command='editor')
 
         backup = self._add_command("backup", "backup all dashboards from remote host")
         backup.add_argument("path", nargs="?", default=None, help="remote host path")
@@ -62,28 +47,3 @@ class Args(object):
         file_import = self._add_command("import", "import resource from file")
         file_import.add_argument("system_path", nargs="?", default=None, help="system path")
         file_import.add_argument("path", nargs="?", default=None, help="resource path")
-
-        help = self._add_command("help", "show this help",
-                                 parser=self._parser, all_commands=self._commands)
-        help.add_argument("subject", nargs="?", default=None)
-
-        self._add_command("exit", "exit console")
-
-        # Store all subparsers for improved help messages and completion support
-        actions = [action for action in self._parser._actions
-                   if isinstance(action, argparse._SubParsersAction)]
-        self._commands.extend([Command(choice, subparser)
-                               for action in actions
-                               for choice, subparser in action.choices.items()])
-
-    def _add_command(self, name, help, **kwargs):
-        command = self._commands_parser.add_parser(name, help=help, add_help=False)
-        command.set_defaults(command=name, **kwargs)
-        return command
-
-    def parse(self, args):
-        return self._parser.parse_args(args)
-
-    @property
-    def commands(self):
-        return self._commands

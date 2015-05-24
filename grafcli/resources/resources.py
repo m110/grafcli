@@ -1,14 +1,12 @@
-from grafcli.exceptions import InvalidPath, MissingHostName, MissingTemplateCategory
-from grafcli.paths import split_path
+from climb.config import config
+from climb.paths import split_path
 
-from grafcli.config import config
+from grafcli.exceptions import InvalidPath, MissingHostName, MissingTemplateCategory
 from grafcli.resources.remote import RemoteResources
 from grafcli.resources.templates import DashboardsTemplates, RowsTemplates, PanelTemplates, CATEGORIES
 from grafcli.resources.local import LocalResources
 
 LOCAL_DIR = 'backups'
-REMOTE_HOSTS = [host for host in config['hosts']
-                if config.getboolean('hosts', host)]
 
 
 class Resources(object):
@@ -29,7 +27,8 @@ class Resources(object):
         try:
             manager, parts = self._parse_path(path)
         except MissingHostName:
-            return REMOTE_HOSTS
+            return [host for host in config['hosts']
+                    if config.getboolean('hosts', host)]
         except MissingTemplateCategory:
             return CATEGORIES
 
