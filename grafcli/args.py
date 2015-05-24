@@ -43,7 +43,9 @@ class GrafArgs(Args):
         file_export = self._add_command("export", "export resource to file")
         file_export.add_argument("path", nargs="?", default=None, help="resource path")
         file_export.add_argument("system_path", nargs="?", default=None, help="system path")
+        file_export.set_defaults(command='file_export')
 
         file_import = self._add_command("import", "import resource from file")
         file_import.add_argument("system_path", nargs="?", default=None, help="system path")
         file_import.add_argument("path", nargs="?", default=None, help="resource path")
+        file_import.set_defaults(command='file_import')
