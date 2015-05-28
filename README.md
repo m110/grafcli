@@ -35,7 +35,11 @@ Grafcli connects directly to one of Grafana's backends (Elastic, SQLite, MySQL, 
 
 ## Installation
 
-Get the source and run:
+```
+pip3 install grafcli
+```
+
+or get the source and run:
 
 ```
 python3 setup.py install
