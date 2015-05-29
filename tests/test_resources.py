@@ -34,6 +34,9 @@ class ResourcesTest(unittest.TestCase):
         self.assertEqual(r.list('remote'), ['host.example.com'])
         self.assertEqual(r.list('templates'), ('dashboards', 'rows', 'panels'))
 
+        with self.assertRaises(InvalidPath):
+            r.list('invalid_path')
+
     def test_get_empty(self):
         r = Resources()
         with self.assertRaises(InvalidPath):
