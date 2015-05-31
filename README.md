@@ -104,6 +104,7 @@ Most of the arguments here are paths to a dashboard, row or panel.
 * `restore <system_path> <remote_host>` - restores saved backup.
 * `export <path> <system_path>` - saves the JSON-encoded element to file.
 * `import <system_path> <path>` - loads the JSON-encoded element from file.
+* `pos <path> <index>` - change position of row in a dashboard or panel in a row.
 
 # Configuration
 
