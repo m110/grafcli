@@ -32,6 +32,10 @@ class GrafArgs(Args):
         editor.add_argument("path", nargs="?", help="path of resource to be edited")
         editor.set_defaults(command='editor')
 
+        pos = self._add_command("pos", "set position of row in a dashboard or panel in a row")
+        pos.add_argument("path", nargs="?", help="path of row or panel")
+        pos.add_argument("position", nargs="?", help="absolute or relative position to be set")
+
         backup = self._add_command("backup", "backup all dashboards from remote host")
         backup.add_argument("path", nargs="?", default=None, help="remote host path")
         backup.add_argument("system_path", nargs="?", default=None, help="system path for .tgz file")

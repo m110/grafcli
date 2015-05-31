@@ -6,7 +6,7 @@ import tempfile
 from climb.config import config
 from climb.commands import Commands, command
 from climb.exceptions import CLIException
-from climb.paths import format_path, ROOT_PATH
+from climb.paths import format_path, split_path, ROOT_PATH
 
 from grafcli.documents import Document, Dashboard, Row, Panel
 from grafcli.exceptions import CommandCancelled
@@ -110,6 +110,19 @@ class GrafCommands(Commands):
             self.file_import(tmp_file, path)
 
         os.unlink(tmp_file)
+
+    @command
+    def pos(self, path, position):
+        path = format_path(self._cli.current_path, path)
+        parts = split_path(path)
+
+        parent_path = '/'.join(parts[:-1])
+        child = parts[-1]
+
+        parent = self._resources.get(parent_path)
+        parent.move_child(child, position)
+
+        self._resources.save(parent_path, parent)
 
     @command
     def backup(self, path, system_path):

@@ -68,6 +68,13 @@ def mock_panel(id=1):
     return Panel(source, id)
 
 
+def rows(dashboard):
+    return [row.name for row in dashboard.rows]
+
+def panels(row):
+    return [panel.name for panel in row.panels]
+
+
 class DocumentsTest(unittest.TestCase):
 
     def test_get_id(self):
@@ -125,6 +132,27 @@ class DocumentsTest(unittest.TestCase):
 
         with self.assertRaises(DocumentNotFound):
             dashboard.remove_child("1-Any-row")
+
+    def test_dashboard_move_child(self):
+        dashboard = mock_dashboard('any_dashboard')
+        row = Row(row_source("C"))
+        dashboard.update(row)
+        row = Row(row_source("D"))
+        dashboard.update(row)
+
+        self.assertListEqual(rows(dashboard), ["1-A", "2-B", "3-C", "4-D"])
+
+        dashboard.move_child("4-D", '1')
+        self.assertListEqual(rows(dashboard), ["1-D", "2-A", "3-B", "4-C"])
+
+        dashboard.move_child("1-D", '+1')
+        self.assertListEqual(rows(dashboard), ["1-A", "2-D", "3-B", "4-C"])
+
+        dashboard.move_child("3-B", '-2')
+        self.assertListEqual(rows(dashboard), ["1-B", "2-A", "3-D", "4-C"])
+
+        dashboard.move_child("2-A", '4')
+        self.assertListEqual(rows(dashboard), ["1-B", "2-D", "3-C", "4-A"])
 
     def test_dashboard_max_panel_id(self):
         dashboard = mock_dashboard('any_dashboard')
@@ -191,6 +219,29 @@ class DocumentsTest(unittest.TestCase):
 
         with self.assertRaises(DocumentNotFound):
             row.remove_child("1-Any-panel")
+
+    def test_row_move_child(self):
+        row = Row(row_source("Any row"))
+        new_panels = [Panel(panel_source(1, 'A')),
+                      Panel(panel_source(2, 'B')),
+                      Panel(panel_source(3, 'C')),
+                      Panel(panel_source(4, 'D'))]
+        for panel in new_panels:
+            row.update(panel)
+
+        self.assertListEqual(panels(row), ["1-A", "2-B", "3-C", "4-D"])
+
+        row.move_child("4-D", '1')
+        self.assertListEqual(panels(row), ["4-D", "1-A", "2-B", "3-C"])
+
+        row.move_child("4-D", '+1')
+        self.assertListEqual(panels(row), ["1-A", "4-D", "2-B", "3-C"])
+
+        row.move_child("2-B", '-2')
+        self.assertListEqual(panels(row), ["2-B", "1-A", "4-D", "3-C"])
+
+        row.move_child("1-A", '4')
+        self.assertListEqual(panels(row), ["2-B", "4-D", "3-C", "1-A"])
 
     def test_panel(self):
         panel = mock_panel()

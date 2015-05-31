@@ -14,6 +14,17 @@ def get_id(name):
     return int(match.group(1))
 
 
+def relative_index(index, position):
+    if position.startswith('+'):
+        index += int(position[1:])
+    elif position.startswith('-'):
+        index -= int(position[1:])
+    else:
+        index = int(position)-1
+
+    return index
+
+
 class Document(object, metaclass=ABCMeta):
     _id = None
     _name = None
@@ -36,6 +47,10 @@ class Document(object, metaclass=ABCMeta):
 
     @abstractmethod
     def remove_child(self, name):
+        pass
+
+    @abstractmethod
+    def move_child(self, name, position):
         pass
 
     @property
@@ -84,11 +99,24 @@ class Dashboard(Document):
         id = self._get_row_id(name)
         del self._rows[id-1]
 
+    def move_child(self, name, position):
+        child = self.row(name)
+        index = relative_index(self._rows.index(child), position)
+
+        self._rows.remove(child)
+        self._rows.insert(index, child)
+
+        self._refresh_rows_id()
+
     def _add_row(self, source):
         max_id = len(self._rows)
         row = Row(source, max_id+1, self)
         self._rows.append(row)
         return row
+
+    def _refresh_rows_id(self):
+        for i, row in enumerate(self._rows):
+            row.set_id(i+1)
 
     def row(self, name):
         id = self._get_row_id(name)
@@ -136,13 +164,8 @@ class Row(Document):
 
     def _load(self, source, id):
         self._id = id
-
-        if id:
-            self._name = "{}-{}".format(self._id, source['title'].replace(' ', '-'))
-        else:
-            self._name = source['title'].replace(' ', '-')
-
         self._source = source
+        self._set_name(id)
 
         self._panels = []
         for panel in source['panels']:
@@ -161,6 +184,26 @@ class Row(Document):
 
     def remove_child(self, name):
         self._panels.remove(self.panel(name))
+
+    def move_child(self, name, position):
+        child = self.panel(name)
+        index = relative_index(self._panels.index(child), position)
+
+        self._panels.remove(child)
+        self._panels.insert(index, child)
+
+    def set_id(self, id):
+        self._id = id
+        self._source['id'] = id
+        self._set_name(id)
+
+    def _set_name(self, id):
+        title = self._source['title'].replace(' ', '-')
+
+        if id:
+            self._name = "{}-{}".format(self._id, title)
+        else:
+            self._name = title
 
     def _add_panel(self, source, keep_id):
         if keep_id:
@@ -244,4 +287,7 @@ class Panel(Document):
         return self._row
 
     def remove_child(self, name):
+        raise InvalidDocument("Panel has no child nodes")
+
+    def move_child(self, name, position):
         raise InvalidDocument("Panel has no child nodes")
