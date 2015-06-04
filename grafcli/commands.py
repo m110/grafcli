@@ -4,7 +4,7 @@ import shutil
 import tarfile
 import tempfile
 from climb.config import config
-from climb.commands import Commands, command
+from climb.commands import Commands, command, completers
 from climb.exceptions import CLIException
 from climb.paths import format_path, split_path, ROOT_PATH
 
@@ -22,6 +22,7 @@ class GrafCommands(Commands):
         self._resources = Resources()
 
     @command
+    @completers('path')
     def ls(self, path=None):
         path = format_path(self._cli.current_path, path)
 
@@ -30,6 +31,7 @@ class GrafCommands(Commands):
         return "\n".join(sorted(result))
 
     @command
+    @completers('path')
     def cd(self, path=None):
         path = format_path(self._cli.current_path, path, default=ROOT_PATH)
 
@@ -38,6 +40,7 @@ class GrafCommands(Commands):
         self._cli.set_current_path(path)
 
     @command
+    @completers('path')
     def cat(self, path):
         path = format_path(self._cli.current_path, path)
 
@@ -45,6 +48,7 @@ class GrafCommands(Commands):
         return json_pretty(document.source)
 
     @command
+    @completers('path', 'path')
     def cp(self, source, destination):
         source_path = format_path(self._cli.current_path, source)
         destination_path = format_path(self._cli.current_path, destination)
@@ -55,6 +59,7 @@ class GrafCommands(Commands):
         self._cli.log("cp: {} -> {}", source_path, destination_path)
 
     @command
+    @completers('path', 'path')
     def mv(self, source, destination):
         source_path = format_path(self._cli.current_path, source)
         destination_path = format_path(self._cli.current_path, destination)
@@ -66,6 +71,7 @@ class GrafCommands(Commands):
         self._cli.log("mv: {} -> {}", source_path, destination_path)
 
     @command
+    @completers('path')
     def rm(self, path):
         path = format_path(self._cli.current_path, path)
         self._resources.remove(path)
@@ -73,6 +79,7 @@ class GrafCommands(Commands):
         self._cli.log("rm: {}", path)
 
     @command
+    @completers('path')
     def template(self, path):
         path = format_path(self._cli.current_path, path)
         document = self._resources.get(path)
@@ -93,6 +100,7 @@ class GrafCommands(Commands):
         self._cli.log("template: {} -> {}", path, template_path)
 
     @command
+    @completers('path')
     def editor(self, path):
         path = format_path(self._cli.current_path, path)
         document = self._resources.get(path)
@@ -112,6 +120,7 @@ class GrafCommands(Commands):
         os.unlink(tmp_file)
 
     @command
+    @completers('path')
     def pos(self, path, position):
         path = format_path(self._cli.current_path, path)
         parts = split_path(path)
@@ -125,6 +134,7 @@ class GrafCommands(Commands):
         self._resources.save(parent_path, parent)
 
     @command
+    @completers('path', 'system_path')
     def backup(self, path, system_path):
         path = format_path(self._cli.current_path, path)
         system_path = os.path.expanduser(system_path)
@@ -148,6 +158,7 @@ class GrafCommands(Commands):
         shutil.rmtree(tmp_dir)
 
     @command
+    @completers('system_path', 'path')
     def restore(self, system_path, path):
         system_path = os.path.expanduser(system_path)
         path = format_path(self._cli.current_path, path)
@@ -167,6 +178,7 @@ class GrafCommands(Commands):
         shutil.rmtree(tmp_dir)
 
     @command
+    @completers('path', 'system_path')
     def file_export(self, path, system_path):
         path = format_path(self._cli.current_path, path)
         system_path = os.path.expanduser(system_path)
@@ -178,6 +190,7 @@ class GrafCommands(Commands):
         self._cli.log("export: {} -> {}", path, system_path)
 
     @command
+    @completers('system_path', 'path')
     def file_import(self, system_path, path):
         system_path = os.path.expanduser(system_path)
         path = format_path(self._cli.current_path, path)
