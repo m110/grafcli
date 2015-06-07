@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(name='grafcli',
-      version='0.3.2',
+      version='0.3.3',
       description='Grafana CLI management tool',
       author='Milosz Smolka',
       author_email='m110@m110.pl',
@@ -10,7 +10,7 @@ setup(name='grafcli',
       packages=find_packages(exclude=['tests']),
       scripts=['scripts/grafcli'],
       data_files=[('/etc/grafcli', ['grafcli.conf.example'])],
-      install_requires=['climb>=0.3.0'],
+      install_requires=['climb>=0.3.1'],
       classifiers=[
           'Development Status :: 3 - Alpha',
           'Environment :: Console',

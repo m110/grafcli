@@ -15,11 +15,11 @@ class GrafArgs(Args):
         cat.add_argument("path", nargs="?", help="path of resource to be displayed")
 
         cp = self._add_command("cp", "copy resource")
-        cp.add_argument("source", nargs="?", default=None)
+        cp.add_argument("source", nargs="*")
         cp.add_argument("destination", nargs="?", default=None)
 
         mv = self._add_command("mv", "move (rename) resource")
-        mv.add_argument("source", nargs="?", default=None)
+        mv.add_argument("source", nargs="*")
         mv.add_argument("destination", nargs="?", default=None)
 
         rm = self._add_command("rm", "remove resources")

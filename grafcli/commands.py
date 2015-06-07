@@ -48,27 +48,38 @@ class GrafCommands(Commands):
         return json_pretty(document.source)
 
     @command
-    @completers('path', 'path')
+    @completers('path')
     def cp(self, source, destination):
-        source_path = format_path(self._cli.current_path, source)
+        if len(source) < 2:
+            raise CLIException("No destination provided")
+
+        destination = source.pop(-1)
         destination_path = format_path(self._cli.current_path, destination)
 
-        document = self._resources.get(source_path)
-        self._resources.save(destination_path, document)
+        for path in source:
+            source_path = format_path(self._cli.current_path, path)
 
-        self._cli.log("cp: {} -> {}", source_path, destination_path)
+            document = self._resources.get(source_path)
+            self._resources.save(destination_path, document)
+
+            self._cli.log("cp: {} -> {}", source_path, destination_path)
 
     @command
-    @completers('path', 'path')
+    @completers('path')
     def mv(self, source, destination):
-        source_path = format_path(self._cli.current_path, source)
+        if len(source) < 2:
+            raise CLIException("No destination provided")
+
+        destination = source.pop(-1)
         destination_path = format_path(self._cli.current_path, destination)
 
-        document = self._resources.get(source_path)
-        self._resources.save(destination_path, document)
-        self._resources.remove(source_path)
+        for path in source:
+            source_path = format_path(self._cli.current_path, path)
+            document = self._resources.get(source_path)
+            self._resources.save(destination_path, document)
+            self._resources.remove(source_path)
 
-        self._cli.log("mv: {} -> {}", source_path, destination_path)
+            self._cli.log("mv: {} -> {}", source_path, destination_path)
 
     @command
     @completers('path')
