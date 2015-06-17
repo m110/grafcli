@@ -4,6 +4,9 @@ from abc import ABCMeta, abstractmethod
 from grafcli.exceptions import InvalidPath, InvalidDocument, DocumentNotFound
 
 ID_PATTERN = re.compile(r'^(\d+)-?')
+SLUG_CHARS_PATTERN = re.compile(r'[^a-zA-Z1-9_]')
+SLUG_HYPHEN_PATTERN = re.compile(r'-+')
+
 
 
 def get_id(name):
@@ -12,6 +15,12 @@ def get_id(name):
         raise InvalidPath("Name should start with ID")
 
     return int(match.group(1))
+
+
+def slug(name):
+    name = SLUG_CHARS_PATTERN.sub(r'-', name)
+    name = SLUG_HYPHEN_PATTERN.sub(r'-', name)
+    return '-'.join(name.lower().split())
 
 
 def relative_index(index, position):
@@ -154,7 +163,7 @@ class Dashboard(Document):
 
     @property
     def slug(self):
-        return '-'.join(self._source['title'].lower().split())
+        return slug(self._source['title'])
 
 
 class Row(Document):

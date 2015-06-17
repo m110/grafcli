@@ -8,7 +8,7 @@ LIB_PATH = os.path.dirname(os.path.realpath(__file__)) + '/../'
 sys.path.append(LIB_PATH)
 
 from grafcli.exceptions import InvalidPath, InvalidDocument, DocumentNotFound
-from grafcli.documents import Dashboard, Row, Panel, get_id
+from grafcli.documents import Dashboard, Row, Panel, get_id, slug
 
 
 def dashboard_source(rows=None):
@@ -83,6 +83,17 @@ class DocumentsTest(unittest.TestCase):
 
         self.assertEqual(get_id('1-any-name'), 1)
         self.assertEqual(get_id('42-any-name'), 42)
+
+    def test_slug(self):
+        tests = [
+            ("a b c d", "a-b-c-d"),
+            ("a-b--c---d", "a-b-c-d"),
+            ("A_B_C D", "a_b_c-d"),
+            ("a @# $% b", "a-b"),
+        ]
+
+        for test, expected in tests:
+            self.assertEqual(slug(test), expected)
 
     def test_dashboard(self):
         dashboard = mock_dashboard('any_dashboard')

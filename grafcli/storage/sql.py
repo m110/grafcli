@@ -73,12 +73,16 @@ class SQLStorage(Storage, metaclass=ABCMeta):
         try:
             self.get(dashboard_id)
             query = """UPDATE dashboard
-                       SET data = %(data)s
+                       SET data = %(data)s, title = %(title)s, slug = %(new_slug)s
                        WHERE slug = %(slug)s"""
-            self._execute(query, data=json.dumps(dashboard.source), slug=dashboard_id)
+            self._execute(query,
+                          data=json.dumps(dashboard.source),
+                          title=dashboard.title,
+                          new_slug=dashboard.slug,
+                          slug=dashboard_id)
         except DocumentNotFound:
             query = """INSERT INTO dashboard (version, slug, title, data, org_id, created, updated)
-                       VALUES (1, %(slug)s, %(title)s, %(data)s, 0, NOW(), NOW())"""
+                       VALUES (1, %(slug)s, %(title)s, %(data)s, 1, NOW(), NOW())"""
             self._execute(query, slug=dashboard_id, title=dashboard.title, data=json.dumps(dashboard.source))
 
     def remove(self, dashboard_id):
