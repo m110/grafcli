@@ -106,6 +106,7 @@ class MySQLStorage(SQLStorage):
                                          user=self._config['user'],
                                          password=self._config['password'],
                                          database=self._config['database'])
+        self._connection.autocommit = True
 
 
 class PostgreSQLStorage(SQLStorage):
