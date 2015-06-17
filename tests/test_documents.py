@@ -89,7 +89,7 @@ class DocumentsTest(unittest.TestCase):
             ("a b c d", "a-b-c-d"),
             ("a-b--c---d", "a-b-c-d"),
             ("A_B_C D", "a_b_c-d"),
-            ("a @# $% b", "a-b"),
+            ("a @# $% b %", "a-b"),
         ]
 
         for test, expected in tests:
@@ -119,7 +119,7 @@ class DocumentsTest(unittest.TestCase):
         dashboard.update(new_dashboard)
         self.assertEqual(dashboard.id, 'any_dashboard')
 
-        row = Row(row_source("New row"))
+        row = Row(row_source("new row"))
         dashboard.update(row)
         self.assertEqual(len(dashboard.rows), 3)
         self.assertEqual(dashboard.rows[2].id, 3)
@@ -128,21 +128,21 @@ class DocumentsTest(unittest.TestCase):
         dashboard.update(row_with_panels)
         self.assertEqual(dashboard.max_panel_id(), 6)
 
-        panel = Panel(panel_source(1, "Any panel"))
+        panel = Panel(panel_source(1, "any panel"))
         with self.assertRaises(InvalidDocument):
             dashboard.update(panel)
 
     def test_dashboard_remove_child(self):
         dashboard = mock_dashboard('any_dashboard')
 
-        dashboard.remove_child("1-First-row")
+        dashboard.remove_child("1-first-row")
         self.assertEqual(len(dashboard.rows), 1)
 
-        dashboard.remove_child("1-Second-row")
+        dashboard.remove_child("1-second-row")
         self.assertEqual(len(dashboard.rows), 0)
 
         with self.assertRaises(DocumentNotFound):
-            dashboard.remove_child("1-Any-row")
+            dashboard.remove_child("1-any-row")
 
     def test_dashboard_move_child(self):
         dashboard = mock_dashboard('any_dashboard')
@@ -151,19 +151,19 @@ class DocumentsTest(unittest.TestCase):
         row = Row(row_source("D"))
         dashboard.update(row)
 
-        self.assertListEqual(rows(dashboard), ["1-A", "2-B", "3-C", "4-D"])
+        self.assertListEqual(rows(dashboard), ["1-a", "2-b", "3-c", "4-d"])
 
-        dashboard.move_child("4-D", '1')
-        self.assertListEqual(rows(dashboard), ["1-D", "2-A", "3-B", "4-C"])
+        dashboard.move_child("4-d", '1')
+        self.assertListEqual(rows(dashboard), ["1-d", "2-a", "3-b", "4-c"])
 
-        dashboard.move_child("1-D", '+1')
-        self.assertListEqual(rows(dashboard), ["1-A", "2-D", "3-B", "4-C"])
+        dashboard.move_child("1-d", '+1')
+        self.assertListEqual(rows(dashboard), ["1-a", "2-d", "3-b", "4-c"])
 
-        dashboard.move_child("3-B", '-2')
-        self.assertListEqual(rows(dashboard), ["1-B", "2-A", "3-D", "4-C"])
+        dashboard.move_child("3-b", '-2')
+        self.assertListEqual(rows(dashboard), ["1-b", "2-a", "3-d", "4-c"])
 
-        dashboard.move_child("2-A", '4')
-        self.assertListEqual(rows(dashboard), ["1-B", "2-D", "3-C", "4-A"])
+        dashboard.move_child("2-a", '4')
+        self.assertListEqual(rows(dashboard), ["1-b", "2-d", "3-c", "4-a"])
 
     def test_dashboard_max_panel_id(self):
         dashboard = mock_dashboard('any_dashboard')
@@ -179,7 +179,7 @@ class DocumentsTest(unittest.TestCase):
         row = mock_row()
 
         self.assertEqual(row.id, 1)
-        self.assertEqual(row.name, '1-Any-row')
+        self.assertEqual(row.name, '1-any-row')
         self.assertEqual(len(row.panels), 2)
 
         self.assertEqual(row.panel('1-any-name').id, 1)
@@ -193,12 +193,12 @@ class DocumentsTest(unittest.TestCase):
 
     def test_row_with_panel_with_custom_id(self):
         row = Row(row_source("Any row", [panel_source(99, "Any panel")]))
-        self.assertEqual(row.panel('99-Any-panel').id, 99)
+        self.assertEqual(row.panel('99-any-panel').id, 99)
 
         row.update(Panel(panel_source(10, "New panel")))
         self.assertEqual(len(row.panels), 2)
-        self.assertEqual(row.panel('100-New-panel').id, 100)
-        self.assertEqual(row.panel('100-New-panel').name, '100-New-panel')
+        self.assertEqual(row.panel('100-new-panel').id, 100)
+        self.assertEqual(row.panel('100-new-panel').name, '100-new-panel')
 
     def test_row_update(self):
         dashboard = mock_dashboard('any_dashboard')
@@ -208,13 +208,13 @@ class DocumentsTest(unittest.TestCase):
 
         row.update(new_row)
         self.assertEqual(row.id, 2)
-        self.assertEqual(row.name, '2-New-row')
+        self.assertEqual(row.name, '2-new-row')
 
         panel = mock_panel()
         row.update(panel)
         self.assertEqual(len(row.panels), 3)
         self.assertEqual(row.panels[2].id, 7)
-        self.assertEqual(row.panels[2].name, '7-Any-panel')
+        self.assertEqual(row.panels[2].name, '7-any-panel')
 
         with self.assertRaises(InvalidDocument):
             row.update(dashboard)
@@ -229,7 +229,7 @@ class DocumentsTest(unittest.TestCase):
         self.assertEqual(len(row.panels), 0)
 
         with self.assertRaises(DocumentNotFound):
-            row.remove_child("1-Any-panel")
+            row.remove_child("1-any-panel")
 
     def test_row_move_child(self):
         row = Row(row_source("Any row"))
@@ -240,25 +240,25 @@ class DocumentsTest(unittest.TestCase):
         for panel in new_panels:
             row.update(panel)
 
-        self.assertListEqual(panels(row), ["1-A", "2-B", "3-C", "4-D"])
+        self.assertListEqual(panels(row), ["1-a", "2-b", "3-c", "4-d"])
 
-        row.move_child("4-D", '1')
-        self.assertListEqual(panels(row), ["4-D", "1-A", "2-B", "3-C"])
+        row.move_child("4-d", '1')
+        self.assertListEqual(panels(row), ["4-d", "1-a", "2-b", "3-c"])
 
-        row.move_child("4-D", '+1')
-        self.assertListEqual(panels(row), ["1-A", "4-D", "2-B", "3-C"])
+        row.move_child("4-d", '+1')
+        self.assertListEqual(panels(row), ["1-a", "4-d", "2-b", "3-c"])
 
-        row.move_child("2-B", '-2')
-        self.assertListEqual(panels(row), ["2-B", "1-A", "4-D", "3-C"])
+        row.move_child("2-b", '-2')
+        self.assertListEqual(panels(row), ["2-b", "1-a", "4-d", "3-c"])
 
-        row.move_child("1-A", '4')
-        self.assertListEqual(panels(row), ["2-B", "4-D", "3-C", "1-A"])
+        row.move_child("1-a", '4')
+        self.assertListEqual(panels(row), ["2-b", "4-d", "3-c", "1-a"])
 
     def test_panel(self):
         panel = mock_panel()
 
         self.assertEqual(panel.id, 1)
-        self.assertEqual(panel.name, '1-Any-panel')
+        self.assertEqual(panel.name, '1-any-panel')
 
     def test_panel_update(self):
         panel = mock_panel()
@@ -267,7 +267,7 @@ class DocumentsTest(unittest.TestCase):
         panel.update(new_panel)
 
         self.assertEqual(panel.id, 1)
-        self.assertEqual(panel.name, '1-New-panel')
+        self.assertEqual(panel.name, '1-new-panel')
 
         dashboard = mock_dashboard('any_dashboard')
         with self.assertRaises(InvalidDocument):

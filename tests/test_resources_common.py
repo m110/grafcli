@@ -47,18 +47,18 @@ class CommonResourcesTest(unittest.TestCase):
                              ['any_dashboard_1', 'any_dashboard_2'])
 
         self.assertListEqual(res.list('any_dashboard'),
-                             ['1-A', '2-B'])
+                             ['1-a', '2-b'])
 
-        self.assertListEqual(res.list('any_dashboard', '1-A'),
-                             ['1-AA', '2-AB'])
+        self.assertListEqual(res.list('any_dashboard', '1-a'),
+                             ['1-aa', '2-ab'])
         self.assertListEqual(res.list('any_dashboard', '2-B'),
-                             ['3-BA', '4-BB'])
+                             ['3-ba', '4-bb'])
 
         with self.assertRaises(DocumentNotFound):
-            res.list('any_dashboard', '3-C')
+            res.list('any_dashboard', '3-c')
 
         with self.assertRaises(InvalidPath):
-            res.list('any_dashboard', '1-A', '1-AA')
+            res.list('any_dashboard', '1-a', '1-aa')
 
     def test_get(self):
         res = DummyResources()
@@ -67,24 +67,24 @@ class CommonResourcesTest(unittest.TestCase):
         self.assertIsInstance(dashboard, Dashboard)
         self.assertEqual(dashboard.id, 'any_dashboard')
 
-        row = res.get('any_dashboard', '1-A')
+        row = res.get('any_dashboard', '1-a')
         self.assertIsInstance(row, Row)
         self.assertEqual(row.id, 1)
-        self.assertEqual(row.name, '1-A')
+        self.assertEqual(row.name, '1-a')
 
-        panel = res.get('any_dashboard', '1-A', '1-AA')
+        panel = res.get('any_dashboard', '1-a', '1-aa')
         self.assertIsInstance(panel, Panel)
         self.assertEqual(panel.id, 1)
-        self.assertEqual(panel.name, '1-AA')
+        self.assertEqual(panel.name, '1-aa')
 
         with self.assertRaises(InvalidPath):
             res.get()
 
         with self.assertRaises(DocumentNotFound):
-            res.get('any_dashboard', '3-C')
+            res.get('any_dashboard', '3-c')
 
         with self.assertRaises(DocumentNotFound):
-            res.get('any_dashboard', '1-A', '3-AC')
+            res.get('any_dashboard', '1-a', '3-ac')
 
     def test_save_dashboard(self):
         res = DummyResources()
@@ -117,41 +117,41 @@ class CommonResourcesTest(unittest.TestCase):
         res.save(row, 'any_dashboard')
         self.assertEqual(res._storage.dashboard_id, 'any_dashboard')
         self.assertEqual(len(res._storage.dashboard.rows), 3)
-        self.assertEqual(res._storage.dashboard.row('3-New-row').name, '3-New-row')
+        self.assertEqual(res._storage.dashboard.row('3-new-row').name, '3-new-row')
 
         # Replace row
-        res.save(row, 'any_dashboard', '1-A')
+        res.save(row, 'any_dashboard', '1-a')
         self.assertEqual(res._storage.dashboard_id, 'any_dashboard')
         self.assertEqual(len(res._storage.dashboard.rows), 2)
-        self.assertEqual(len(res._storage.dashboard.row('1-A').panels), 0)
+        self.assertEqual(len(res._storage.dashboard.row('1-a').panels), 0)
 
         # Add new row with custom name
         res._storage.get.side_effect = DocumentNotFound
         with self.assertRaises(DocumentNotFound):
-            res.save(row, 'any_dashboard', '100-New-row')
+            res.save(row, 'any_dashboard', '100-new-row')
 
     def test_save_panel(self):
         res = DummyResources()
-        panel = Panel(panel_source(42, "AC"))
+        panel = Panel(panel_source(42, "ac"))
 
         with self.assertRaises(InvalidDocument):
             res.save(panel)
 
         # Add new panel
-        res.save(panel, 'any_dashboard', '1-A')
+        res.save(panel, 'any_dashboard', '1-a')
         self.assertEqual(res._storage.dashboard_id, 'any_dashboard')
-        self.assertEqual(len(res._storage.dashboard.row('1-A').panels), 3)
-        self.assertEqual(res._storage.dashboard.row('1-A').panel('5-AC').name, '5-AC')
+        self.assertEqual(len(res._storage.dashboard.row('1-a').panels), 3)
+        self.assertEqual(res._storage.dashboard.row('1-a').panel('5-ac').name, '5-ac')
 
         # Replace panel
-        res.save(panel, 'any_dashboard', '1-A', '1-AA')
+        res.save(panel, 'any_dashboard', '1-a', '1-aa')
         self.assertEqual(res._storage.dashboard_id, 'any_dashboard')
-        self.assertEqual(len(res._storage.dashboard.row('1-A').panels), 2)
+        self.assertEqual(len(res._storage.dashboard.row('1-a').panels), 2)
 
         # Add new panel with custom name
         res._storage.get.side_effect = DocumentNotFound
         with self.assertRaises(DocumentNotFound):
-            res.save(panel, 'any_dashboard', '1-A', '100-New-panel')
+            res.save(panel, 'any_dashboard', '1-a', '100-new-panel')
 
     def test_remove_dashboard(self):
         res = DummyResources()
@@ -165,16 +165,16 @@ class CommonResourcesTest(unittest.TestCase):
     def test_remove_row(self):
         res = DummyResources()
 
-        res.remove('any_dashboard', '1-A')
+        res.remove('any_dashboard', '1-a')
         self.assertEqual(res._storage.dashboard_id, 'any_dashboard')
         self.assertEqual(len(res._storage.dashboard.rows), 1)
 
     def test_remove_panel(self):
         res = DummyResources()
 
-        res.remove('any_dashboard', '1-A', '1-AA')
+        res.remove('any_dashboard', '1-a', '1-aa')
         self.assertEqual(res._storage.dashboard_id, 'any_dashboard')
-        self.assertEqual(len(res._storage.dashboard.row('1-AA').panels), 1)
+        self.assertEqual(len(res._storage.dashboard.row('1-aa').panels), 1)
 
 
 if __name__ == "__main__":

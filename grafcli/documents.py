@@ -20,6 +20,7 @@ def get_id(name):
 def slug(name):
     name = SLUG_CHARS_PATTERN.sub(r'-', name)
     name = SLUG_HYPHEN_PATTERN.sub(r'-', name)
+    name = name.strip('-')
     return '-'.join(name.lower().split())
 
 
@@ -77,6 +78,14 @@ class Document(object, metaclass=ABCMeta):
     @property
     def parent(self):
         return None
+
+    @property
+    def title(self):
+        return self._source['title']
+
+    @property
+    def slug(self):
+        return slug(self.title)
 
 
 class Dashboard(Document):
@@ -157,14 +166,6 @@ class Dashboard(Document):
         self._source['rows'] = [row.source for row in self._rows]
         return self._source
 
-    @property
-    def title(self):
-        return self._source['title']
-
-    @property
-    def slug(self):
-        return slug(self._source['title'])
-
 
 class Row(Document):
     def __init__(self, source, id=0, dashboard=None):
@@ -207,7 +208,7 @@ class Row(Document):
         self._set_name(id)
 
     def _set_name(self, id):
-        title = self._source['title'].replace(' ', '-')
+        title = slug(self.title)
 
         if id:
             self._name = "{}-{}".format(self._id, title)
@@ -276,8 +277,8 @@ class Panel(Document):
 
     def _load(self, source):
         source['id'] = self._id
-        self._name = "{}-{}".format(self._id, source['title'].replace(' ', '-'))
         self._source = source
+        self._name = "{}-{}".format(self._id, slug(self.title))
 
     def set_id(self, id):
         self._id = id

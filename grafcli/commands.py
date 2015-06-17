@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import shutil
 import tarfile
@@ -49,7 +50,7 @@ class GrafCommands(Commands):
 
     @command
     @completers('path')
-    def cp(self, source, destination):
+    def cp(self, source, destination, match_slug=False):
         if len(source) < 2:
             raise CLIException("No destination provided")
 
@@ -60,13 +61,16 @@ class GrafCommands(Commands):
             source_path = format_path(self._cli.current_path, path)
 
             document = self._resources.get(source_path)
+            if match_slug:
+                destination_path = self._match_slug(document, destination_path)
+
             self._resources.save(destination_path, document)
 
             self._cli.log("cp: {} -> {}", source_path, destination_path)
 
     @command
     @completers('path')
-    def mv(self, source, destination):
+    def mv(self, source, destination, match_slug=False):
         if len(source) < 2:
             raise CLIException("No destination provided")
 
@@ -76,6 +80,10 @@ class GrafCommands(Commands):
         for path in source:
             source_path = format_path(self._cli.current_path, path)
             document = self._resources.get(source_path)
+
+            if match_slug:
+                destination_path = self._match_slug(document, destination_path)
+
             self._resources.save(destination_path, document)
             self._resources.remove(source_path)
 
@@ -202,7 +210,7 @@ class GrafCommands(Commands):
 
     @command
     @completers('system_path', 'path')
-    def file_import(self, system_path, path):
+    def file_import(self, system_path, path, match_slug=False):
         system_path = os.path.expanduser(system_path)
         path = format_path(self._cli.current_path, path)
 
@@ -210,6 +218,25 @@ class GrafCommands(Commands):
             content = file.read()
 
         document = Document.from_source(json.loads(content))
+
+        if match_slug:
+            path = self._match_slug(document, path)
+
         self._resources.save(path, document)
 
         self._cli.log("import: {} -> {}", system_path, path)
+
+    def _match_slug(self, document, destination):
+        pattern = re.compile(r'^\d+-{}$'.format(document.slug))
+
+        children = self._resources.list(destination)
+        matches = [child for child in children
+                   if pattern.search(child)]
+
+        if not matches:
+            return destination
+
+        if len(matches) > 2:
+            raise CLIException("Too many matching slugs, be more specific")
+
+        return "{}/{}".format(destination, matches[0])

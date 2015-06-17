@@ -15,10 +15,12 @@ class GrafArgs(Args):
         cat.add_argument("path", nargs="?", help="path of resource to be displayed")
 
         cp = self._add_command("cp", "copy resource")
+        cp.add_argument("-m", action="store_true", default=False, help="match slug name and update if exists", dest="match_slug")
         cp.add_argument("source", nargs="*")
         cp.add_argument("destination", nargs="?", default=None)
 
         mv = self._add_command("mv", "move (rename) resource")
+        mv.add_argument("-m", action="store_true", default=False, help="match slug name and update if exists", dest="match_slug")
         mv.add_argument("source", nargs="*")
         mv.add_argument("destination", nargs="?", default=None)
 
@@ -50,6 +52,7 @@ class GrafArgs(Args):
         file_export.set_defaults(command='file_export')
 
         file_import = self._add_command("import", "import resource from file")
+        file_import.add_argument("-m", action="store_true", default=False, help="match slug name and update if exists", dest="match_slug")
         file_import.add_argument("system_path", nargs="?", default=None, help="system path")
         file_import.add_argument("path", nargs="?", default=None, help="resource path")
         file_import.set_defaults(command='file_import')
