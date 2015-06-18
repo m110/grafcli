@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod
 from grafcli.exceptions import InvalidPath, InvalidDocument, DocumentNotFound
 
 ID_PATTERN = re.compile(r'^(\d+)-?')
-SLUG_CHARS_PATTERN = re.compile(r'[^a-zA-Z1-9_]')
+SLUG_CHARS_PATTERN = re.compile(r'[^a-zA-Z0-9_]')
 SLUG_HYPHEN_PATTERN = re.compile(r'-+')
 
 

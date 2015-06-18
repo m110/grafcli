@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(name='grafcli',
-      version='0.4.1',
+      version='0.4.2',
       description='Grafana CLI management tool',
       author='Milosz Smolka',
       author_email='m110@m110.pl',

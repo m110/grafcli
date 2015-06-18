@@ -90,6 +90,8 @@ class DocumentsTest(unittest.TestCase):
             ("a-b--c---d", "a-b-c-d"),
             ("A_B_C D", "a_b_c-d"),
             ("a @# $% b %", "a-b"),
+            ("a 10%", "a-10"),
+            ("a 10 b 20%", "a-10-b-20"),
         ]
 
         for test, expected in tests:
