@@ -26,6 +26,8 @@ SELECT_PATTERN = re.compile(r'^select', re.IGNORECASE)
 
 
 class SQLStorage(Storage, metaclass=ABCMeta):
+    NOW = "NOW()"
+
     def __init__(self, host):
         self._host = host
         self._config = config[host]
@@ -82,7 +84,7 @@ class SQLStorage(Storage, metaclass=ABCMeta):
                           slug=dashboard_id)
         except DocumentNotFound:
             query = """INSERT INTO dashboard (version, slug, title, data, org_id, created, updated)
-                       VALUES (1, %(slug)s, %(title)s, %(data)s, 1, NOW(), NOW())"""
+                       VALUES (1, %(slug)s, %(title)s, %(data)s, 1, {now}, {now})""".format(now=self.NOW)
             self._execute(query, slug=dashboard_id, title=dashboard.title, data=json.dumps(dashboard.source))
 
     def remove(self, dashboard_id):
@@ -93,6 +95,8 @@ class SQLStorage(Storage, metaclass=ABCMeta):
 
 
 class SQLiteStorage(SQLStorage):
+    NOW = "DATETIME('now')"
+
     def _setup(self):
         path = os.path.expanduser(self._config['path'])
         self._connection = sqlite3.connect(path)
