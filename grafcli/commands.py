@@ -155,6 +155,12 @@ class GrafCommands(Commands):
     @command
     @completers('path', 'system_path')
     def backup(self, path, system_path):
+        if not path:
+            raise CLIException("No path provided")
+
+        if not system_path:
+            raise CLIException("No system path provided")
+
         path = format_path(self._cli.current_path, path)
         system_path = os.path.expanduser(system_path)
 
