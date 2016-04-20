@@ -67,7 +67,11 @@ class SQLStorage(Storage, metaclass=ABCMeta):
         if not result:
             raise DocumentNotFound("There is no such dashboard: {}".format(dashboard_id))
 
-        source = json.loads(result[0][0])
+        source = result[0][0]
+        if isinstance(source, bytes):
+            source = source.decode('utf-8')
+
+        source = json.loads(source)
 
         return Dashboard(source, dashboard_id)
 
