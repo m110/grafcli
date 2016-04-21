@@ -1,0 +1,4 @@
+climb
+elasticsearch
+psycopg2
+mysql-connector-python
