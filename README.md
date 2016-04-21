@@ -1,4 +1,7 @@
 # grafcli
+
+[![Build Status](https://travis-ci.org/m110/grafcli.svg?branch=master)](https://travis-ci.org/m110/grafcli)
+
 [Grafana](http://grafana.org) CLI for fast and easy dashboards management.
 
 **Note that this is still alpha software.**
