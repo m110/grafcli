@@ -11,4 +11,4 @@ RUN pip3 install grafcli
 VOLUME ["/etc/grafcli/"]
 VOLUME ["/db"]
 
-ENTRYPOINT grafcli
+ENTRYPOINT ["grafcli"]
