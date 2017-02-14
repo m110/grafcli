@@ -4,7 +4,11 @@
 
 [Grafana](http://grafana.org) CLI for fast and easy dashboards management.
 
-**Note that this is still alpha software.**
+**Please note** that grafcli has been tested for a while, but it still can have some minor defects. All help by contributions and suggestions is welcomed! Remember to back up your dashboards first.
+
+Also note that grafcli was created when grafana itself lacked some features, like exports or API. Although it's still nice to have some of those in form of a CLI application.
+
+Credit goes to b3niup for the original idea - https://github.com/b3niup
 
 ## Featuring:
 
@@ -14,7 +18,7 @@
 * Templates of dashboards, rows and panels.
 * File export/import.
 * Interactive CLI with completions support.
-* Compatibility across Grafana 1 and 2.
+* Compatibility across older Grafana versions.
 * ...and more!
 
 ## Why?
@@ -25,13 +29,13 @@
 
 ## How?
 
-Grafcli connects directly to one of Grafana's backends (Elastic, SQLite, MySQL, PostgreSQL)  and modifies dashboards. However, this is all hidden behind an interface you already know well, similar to *nix filesystem.
+Grafcli connects directly to one of Grafana's backends (Elastic, SQLite, MySQL, PostgreSQL) and modifies the dashboards. This is all hidden behind an interface you already know well, similar to *nix filesystem.
 
 ## Requirements
 
 * [Python 3](http://python.org)
 * [climb](https://github.com/m110/climb)
-* Depending on which storage backends you use:
+* Depending on which storage backends you use, you need to install as well:
     * [elasticsearch-py](http://github.com/elastic/elasticsearch-py)
     * [psycopg2](http://initd.org/psycopg/)
     * [MySQL Connector/Python](http://dev.mysql.com/downloads/connector/python/)
@@ -53,7 +57,7 @@ Then define your hosts in the config file (see below for details).
 cp /etc/grafcli/grafcli.conf.example /etc/grafcli/grafcli.conf
 ```
 
-You will need at least one of the backend libraries listed above.
+You will need at least one of the backend libraries listed above (except sqlite3, which comes with Python).
 
 ## TODO
 
@@ -203,9 +207,9 @@ another.example.com
 
 ## Short names
 
-All rows and panels names start with a number and it may seem that typing all that stuff gets boring soon. However, there are completions available (triggered by `TAB` key) to help you with that. What is more, it is enough to provide just the number of the row or panel, so take advantage of that!
+All rows and panels names start with a number and it may seem that typing all that stuff gets boring soon. There are completions available (triggered by the `TAB` key) to help you with that.
 
-So instead of typing:
+It is enough to provide just the number of the row or panel. So instead of typing:
 ```
 [/]> cp /templates/dashboards/dashboard/1-Top-Row/1-Top-Panel /remote/example/dashboard/1-Top-Row
 ```
