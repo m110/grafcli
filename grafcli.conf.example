@@ -8,13 +8,8 @@ force = on
 data-dir = ~/.grafcli
 
 [hosts]
-host.example.com = on
+localhost = on
 
-[host.example.com]
-type = elastic
-hosts = host1.example.com,host2.example.com
-port = 9200
-index = grafana-dash
-ssl = on
-user =
-password =
+[localhost]
+type = sqlite
+path = /var/lib/grafana/grafana.db
