@@ -1,22 +1,14 @@
+import json
 import os
 import re
-import json
-import importlib
 from abc import ABCMeta, abstractmethod
+
 from climb.config import config
 
+from grafcli.documents import Dashboard
 from grafcli.exceptions import DocumentNotFound
 from grafcli.storage import Storage
-from grafcli.documents import Dashboard
-
-
-def try_import(module_name):
-    try:
-        module = importlib.import_module(module_name)
-    except ImportError:
-        module = None
-
-    return module
+from grafcli.utils import try_import
 
 sqlite3 = try_import('sqlite3')
 mysql = try_import('mysql.connector')

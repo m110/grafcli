@@ -1,3 +1,4 @@
+import importlib
 import json
 from climb.config import config
 
@@ -19,3 +20,10 @@ def confirm_prompt(question):
 
     if answer not in ('y', 'Y', 'yes', 'YES'):
         raise CommandCancelled("Cancelled.")
+
+
+def try_import(module_name):
+    try:
+        return importlib.import_module(module_name)
+    except ImportError:
+        return None

@@ -8,7 +8,6 @@ SLUG_CHARS_PATTERN = re.compile(r'[^a-zA-Z0-9_]')
 SLUG_HYPHEN_PATTERN = re.compile(r'-+')
 
 
-
 def get_id(name):
     match = ID_PATTERN.search(name)
     if not match:
