@@ -8,7 +8,7 @@
 
 Also note that grafcli was created when grafana itself lacked some features, like exports or API. Although it's still nice to have some of those in form of a CLI application.
 
-Credit goes to b3niup for the original idea - https://github.com/b3niup
+Credit goes to [b3niup](https://github.com/b3niup) for the original idea!
 
 ## Featuring:
 
@@ -37,8 +37,11 @@ Grafcli connects directly to one of Grafana's backends (Elastic, SQLite, MySQL, 
 * [climb](https://github.com/m110/climb)
 * Depending on which storage backends you use, you need to install as well:
     * [elasticsearch-py](http://github.com/elastic/elasticsearch-py)
+        * `pip install elasticsearch`
     * [psycopg2](http://initd.org/psycopg/)
+        * `pip install psycopg2`
     * [MySQL Connector/Python](http://dev.mysql.com/downloads/connector/python/)
+        * `pip install mysql-connector-python-rf`
 
 ## Installation
 
