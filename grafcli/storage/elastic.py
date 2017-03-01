@@ -7,7 +7,7 @@ from grafcli.exceptions import DocumentNotFound
 from grafcli.storage import Storage
 from grafcli.utils import try_import
 
-Elasticsearch = try_import('elasticsearch.Elasticsearch')
+Elasticsearch = getattr(try_import('elasticsearch'), 'Elasticsearch', None)
 
 DASHBOARD_TYPE = "dashboard"
 SEARCH_LIMIT = 100
