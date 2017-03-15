@@ -3,6 +3,9 @@ from abc import ABCMeta, abstractmethod
 
 class Storage(object, metaclass=ABCMeta):
 
+    def __init__(self, host):
+        pass
+
     @abstractmethod
     def list(self):
         pass

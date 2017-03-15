@@ -29,13 +29,15 @@ Credit goes to [b3niup](https://github.com/b3niup) for the original idea!
 
 ## How?
 
-Grafcli connects directly to one of Grafana's backends (Elastic, SQLite, MySQL, PostgreSQL) and modifies the dashboards. This is all hidden behind an interface you already know well, similar to *nix filesystem.
+Grafcli connects to Grafana HTTP API or directly to one of the backends (Elastic, SQLite, MySQL, PostgreSQL) and modifies the dashboards. This is all hidden behind an interface you already know well, similar to *nix filesystem.
 
 ## Requirements
 
 * [Python 3](http://python.org)
 * [climb](https://github.com/m110/climb)
 * Depending on which storage backends you use, you need to install as well:
+    * [requests](http://docs.python-requests.org/en/master/)
+        * `pip install requests`
     * [elasticsearch-py](http://github.com/elastic/elasticsearch-py)
         * `pip install elasticsearch`
     * [psycopg2](http://initd.org/psycopg/)
@@ -155,6 +157,17 @@ password =
 ```
 
 You can use other backends as well.
+
+HTTP API:
+```ini
+[api.example.com]
+type = api
+url = http://localhost:3000/api
+# Use either user and password or just the token
+user =
+password =
+token =
+```
 
 MySQL:
 ```ini

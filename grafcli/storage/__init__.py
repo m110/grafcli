@@ -4,12 +4,15 @@ from grafcli.exceptions import HostConfigError
 from grafcli.storage.storage import Storage
 from grafcli.storage.elastic import ElasticStorage
 from grafcli.storage.sql import MySQLStorage, PostgreSQLStorage, SQLiteStorage
+from grafcli.storage.api import APIStorage
+
 
 STORAGE_TYPES = {
     'elastic': ElasticStorage,
     'mysql': MySQLStorage,
     'postgresql': PostgreSQLStorage,
     'sqlite': SQLiteStorage,
+    'api': APIStorage,
 }
 
 
