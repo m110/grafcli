@@ -17,7 +17,7 @@ class APIStorage(Storage):
         auth = None
         headers = {}
 
-        if self._config['token']:
+        if self._config.get('token'):
             headers['Authorization'] = 'Bearer {}'.format(self._config['token'])
         else:
             auth = (self._config['user'], self._config['password'])
