@@ -7,7 +7,7 @@ services:
 
 install:
   - docker build -t grafcli-dev -f tests/integration/Dockerfile .
-  - docker run -p 3000:3000 --name grafana grafana/grafana
+  - docker run -d -p 3000:3000 --name grafana grafana/grafana
 
 script:
   - docker run -v $TRAVIS_BUILD_DIR:/app grafcli-dev unittests
