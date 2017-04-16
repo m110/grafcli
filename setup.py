@@ -2,7 +2,7 @@
 from subprocess import check_output
 from setuptools import setup, find_packages
 
-git_version = check_output(["git", "describe", "--tags"]).strip()
+git_version = check_output(["git", "describe", "--tags"]).strip().decode()
 
 setup(name='grafcli',
       version=git_version,
