@@ -1,8 +1,11 @@
 #!/usr/bin/python3
+from subprocess import check_output
 from setuptools import setup, find_packages
 
+git_version = check_output(["git", "describe", "--tags"]).strip()
+
 setup(name='grafcli',
-      version='0.5.2',
+      version=git_version,
       description='Grafana CLI management tool',
       author='Milosz Smolka',
       author_email='m110@m110.pl',
