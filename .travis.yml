@@ -12,3 +12,11 @@ install:
 script:
   - docker run -v $TRAVIS_BUILD_DIR:/app grafcli-dev unittests
   - docker run --link grafana -v $TRAVIS_BUILD_DIR:/app grafcli-dev integration
+
+deploy:
+  provider: pypi
+  user: m110
+  password:
+    secure: DwxMfZ/m6BljD2HbaSGdoWS0LUAhXlIMPcHrWsqgIK/raKUrxBw0DuFSvj1TnovPcKbUqUuBpNpezAL2zdUOLsF4ecnX7ZscqEWhE5qIAu2w1sFL7oCivFm92JSHBYwv4mabMqYU/lKFFjQ2IIOwBEQhM7Wmk9rw2rL0vD/U6tpEHD/6uYUPKOGNutukEobPdQRce5vISKCQI4e5ZGQUx9BHB1UCLRtClb7iteHLuyDF5cpRbnzES3ASpmnch0nm4tmdEbQI53LiIafZaOazUz7rfs9XbGcVCwLRsoE01wGma0E4Ra1r2VzV+rSHvoXYTYQifY/7H6giJaOJtA6BpV7bW1jUTqdFcEa7136uxQqDvQP+sKC3/FLVWlVIwpBODOzEkxpHe2x+QvHmVR99nbXJ5cxnChtk+ixU+hxwLO/VhDuAfJZDHbu/FS8GP2aPnQmBIKsWW3QZtp0pA5iuOacMpjLqorw0BRX/0BJ58iIlzpEL1O1uyJ4bV014ssX34pus6yNqtb4QEktWIlpf0/P9P8hEf1kQdu9fwMnba4LBqJjmQ4PCjHIqKCOhomfkUW/Avrw9y9LlCTrCuLlluFLItDcaMB5p/3Tp5p/UXy0f8MakoJZU0aV4uszje7yWkgydR4GFUsDQnRcUvTP4TP/A8SD7Bvyc3nx0396LBr4=
+  on:
+    tags: true
