@@ -38,6 +38,9 @@ class APIStorage(Storage):
         return Dashboard(source['dashboard'], dashboard_id)
 
     def save(self, dashboard_id, dashboard):
+        if not dashboard_id:
+            dashboard_id = dashboard.slug
+
         data = {
             "dashboard": dashboard.source,
         }
@@ -48,6 +51,7 @@ class APIStorage(Storage):
         except requests.HTTPError as exc:
             if exc.response.status_code != 404:
                 raise
+            data["dashboard"]["id"] = None
 
         self._call('POST', 'dashboards/db', data)
 
