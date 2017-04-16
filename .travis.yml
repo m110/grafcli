@@ -1,10 +1,14 @@
 language: python
 python:
-  - "3.3"
-  - "3.4"
   - "3.5"
 
-install:
-  - pip install -r requirements.txt --egg
+services:
+  - docker
 
-script: python -m unittest discover
+install:
+  - docker build -t grafcli-dev -f tests/integration/Dockerfile .
+  - docker run -p 3000:3000 --name grafana grafana/grafana
+
+script:
+  - docker run -v $TRAVIS_BUILD_DIR:/app grafcli-dev unittests
+  - docker run --link grafana -v $TRAVIS_BUILD_DIR:/app grafcli-dev integration

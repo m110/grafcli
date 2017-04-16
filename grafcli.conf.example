@@ -11,5 +11,7 @@ data-dir = ~/.grafcli
 localhost = on
 
 [localhost]
-type = sqlite
-path = /var/lib/grafana/grafana.db
+type = api
+url = http://grafana:3000/api
+user = admin
+password = admin
