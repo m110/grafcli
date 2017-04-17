@@ -124,7 +124,7 @@ class GrafCommands(Commands):
         path = format_path(self._cli.current_path, path)
         document = self._resources.get(path)
 
-        tmp_file = tempfile.mktemp()
+        tmp_file = tempfile.mktemp(suffix=".json")
 
         with open(tmp_file, 'w') as file:
             file.write(json_pretty(document.source))
