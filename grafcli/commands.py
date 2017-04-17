@@ -141,6 +141,12 @@ class GrafCommands(Commands):
     @command
     @completers('path')
     def pos(self, path, position):
+        if not path:
+            raise CLIException("No path provided")
+
+        if not position:
+            raise CLIException("No position provided")
+
         path = format_path(self._cli.current_path, path)
         parts = split_path(path)
 
