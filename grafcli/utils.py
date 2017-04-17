@@ -1,15 +1,21 @@
-import importlib
 import json
+import importlib
+from pygments import highlight, lexers, formatters
 from climb.config import config
 
 from grafcli.exceptions import CommandCancelled
 
 
-def json_pretty(data):
-    return json.dumps(data,
-                      sort_keys=True,
-                      indent=4,
-                      separators=(',', ': '))
+def json_pretty(data, colorize=False):
+    pretty = json.dumps(data,
+                        sort_keys=True,
+                        indent=4,
+                        separators=(',', ': '))
+
+    if colorize:
+        pretty = highlight(pretty, lexers.JsonLexer(), formatters.TerminalFormatter())
+
+    return pretty.strip()
 
 
 def confirm_prompt(question):

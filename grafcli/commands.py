@@ -46,7 +46,7 @@ class GrafCommands(Commands):
         path = format_path(self._cli.current_path, path)
 
         document = self._resources.get(path)
-        return json_pretty(document.source)
+        return json_pretty(document.source, colorize=config['grafcli'].getboolean('colorize'))
 
     @command
     @completers('path')

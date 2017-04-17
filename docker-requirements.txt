@@ -1,4 +1,5 @@
 climb
+pygments
 elasticsearch
 #psycopg2
 mysql-connector-python-rf

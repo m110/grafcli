@@ -35,6 +35,7 @@ Grafcli connects to Grafana HTTP API or directly to one of the backends (Elastic
 
 * [Python 3](http://python.org)
 * [climb](https://github.com/m110/climb)
+* [pygments](http://pygments.org/)
 * Depending on which storage backends you use, you need to install as well:
     * [requests](http://docs.python-requests.org/en/master/)
         * `pip install requests`
