@@ -15,8 +15,11 @@ class SystemStorage(Storage):
         self._base_dir = base_dir
         makepath(self._base_dir)
 
-    def list(self):
-        return list_files(self._base_dir)
+    def list(self, path=None):
+        list_path = self._base_dir
+        if path:
+            list_path = os.path.join(self._base_dir, path)
+        return list_files(list_path)
 
     def get(self, dashboard_id):
         try:
