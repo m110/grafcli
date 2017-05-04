@@ -213,7 +213,7 @@ class GrafCommands(Commands):
         """ Perform a bulk export 
             - path_wildcard is typically going to be of the form 
               remote/abc/* or remote/abc/xyz*dash*
-              where Unix filename matching is performed on the wildcard
+              where Unix filename matching is performed against the doc_name
             - system_path may be of the form of a local directory
               name, an absolute path to a director, or, if ommitted
               data-dir/exports/abc will be created and used.
@@ -235,11 +235,10 @@ class GrafCommands(Commands):
 
         os.makedirs(system_path, exist_ok=True)
         documents = self._resources.list(SEPARATOR.join(path_parts[0:2]))
-        for doc_name in documents:
-            file_name = to_file_format(doc_name)
-            if not fnmatch.fnmatch(file_name, wildcard):
+        for doc_name in documents:            
+            if not fnmatch.fnmatch(doc_name, wildcard):
                 continue
-            file_path = os.path.join(system_path, file_name)
+            file_path = os.path.join(system_path, to_file_format(doc_name))
             get_path = os.path.join(location, host, doc_name)
             doc = self._resources.get(get_path)
             with open(file_path, 'w') as file:
@@ -272,7 +271,7 @@ class GrafCommands(Commands):
         """ Perform a bulk import
             - system_path_wildcard may be of the form 
               /home/abc/exports/xyz/* or exports/xyz/*things*
-              where Unix filename matching is performed on the wildcard
+              where Unix filename matching is performed on the dashboard name
             - path is typically going to be of the form
               remote/abc
         """
@@ -301,16 +300,15 @@ class GrafCommands(Commands):
         dst_path = format_path(self._cli.current_path, path)
         dashboards = self._resources.list_path(abs_system_path)
         for dashboard_name in dashboards:
-            file_name = to_file_format(dashboard_name)
-            if not fnmatch.fnmatch(file_name, wildcard):
+            if not fnmatch.fnmatch(dashboard_name, wildcard):
                 continue
-            file_path = os.path.join(abs_system_path, file_name)
 
+            file_path = os.path.join(abs_system_path, to_file_format(dashboard_name))
             with open(file_path, 'r') as file:
                 content = file.read()
             document = Document.from_source(json.loads(content))
             self._resources.save(dst_path, document)
-            self._cli.log("import: {} -> {}", file_path, dst_path)
+            self._cli.log("import: {} -> {}/{}", file_path, dst_path, dashboard_name)
 
     @command
     @completers('system_path', 'path')
