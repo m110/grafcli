@@ -4,6 +4,7 @@ history = ~/.grafcli_history
 verbose = off
 force = on
 colorize = on
+nullify_dbid = off
 
 [resources]
 data-dir = ~/.grafcli
