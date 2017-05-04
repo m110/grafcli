@@ -1,3 +1,4 @@
+import os
 from climb.config import config
 from climb.paths import split_path
 
@@ -6,14 +7,15 @@ from grafcli.resources.remote import RemoteResources
 from grafcli.resources.templates import DashboardsTemplates, RowsTemplates, PanelTemplates, CATEGORIES
 from grafcli.resources.local import LocalResources
 
-LOCAL_DIR = 'backups'
-
+BACKUP_DIR = 'backups'
+EXPORT_DIR = 'exports'
 
 class Resources(object):
 
     def __init__(self):
         self._resources = {
-            'backups': LocalResources(LOCAL_DIR),
+            'backups': LocalResources(BACKUP_DIR),
+            'exports': LocalResources(EXPORT_DIR),
             'remote': {},
             'templates': {
                 'dashboards': DashboardsTemplates(),
@@ -21,6 +23,21 @@ class Resources(object):
                 'panels': PanelTemplates(),
             },
         }
+
+    def local_system_path(self, resource=None, path=None):
+        """ Lookup the expanded local system path for some
+            resource and/or path
+        """
+        p = os.path.join(config['resources']['data-dir'])
+        if resource:
+            if resource not in self._resources:
+                raise InvalidPath("Invalid resource {}".format(resource))
+            p = os.path.join(config['resources']['data-dir'],
+                             self._resources[resource].local_dir)
+        if path is not None:
+            p = os.path.join(p, path)
+
+        return os.path.expanduser(p)
 
     def list(self, path):
         """Returns list of sub-nodes for given path."""
@@ -36,6 +53,12 @@ class Resources(object):
             return sorted(self._resources.keys())
 
         return manager.list(*parts)
+
+    def list_path(self, path):
+        """Use LocalResources to list files 
+           in a SystemStorage path
+        """
+        return LocalResources("").list_path(path)
 
     def get(self, path):
         """Returns resource data."""
