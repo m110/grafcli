@@ -30,7 +30,7 @@ class ResourcesTest(unittest.TestCase):
     def test_list(self):
         r = Resources()
 
-        self.assertEqual(r.list(None), ['backups', 'remote', 'templates'])
+        self.assertEqual(r.list(None), ['backups', 'exports', 'remote', 'templates'])
         self.assertEqual(r.list('remote'), ['localhost'])
         self.assertEqual(r.list('templates'), ('dashboards', 'rows', 'panels'))
 
