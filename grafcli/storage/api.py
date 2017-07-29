@@ -4,6 +4,7 @@ from climb.config import config
 
 from grafcli.storage import Storage
 from grafcli.documents import Dashboard
+from grafcli.exceptions import DocumentNotFound
 
 
 class APIStorage(Storage):
@@ -34,7 +35,13 @@ class APIStorage(Storage):
                 for row in self._call('GET', 'search')]
 
     def get(self, dashboard_id):
-        source = self._call('GET', 'dashboards/db/{}'.format(dashboard_id))
+        try:
+            source = self._call('GET', 'dashboards/db/{}'.format(dashboard_id))
+        except requests.HTTPError as exc:
+            if exc.response.status_code == 404:
+                raise DocumentNotFound("There is no such dashboard: {}".format(dashboard_id))
+
+            raise
         return Dashboard(source['dashboard'], dashboard_id)
 
     def save(self, dashboard_id, dashboard):
