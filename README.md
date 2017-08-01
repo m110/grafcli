@@ -134,6 +134,10 @@ history = ~/.grafcli_history
 verbose = off
 # Answer 'yes' to all overwrite prompts.
 force = on
+# Forcibly nullify the dashboard ID when importing a dashboard
+# that was exported from some other host. Enable this if you
+# wish to move dashboards between hosts using export/import.
+nullify_dbid = off
 
 [resources]
 # Directory where all local data will be stored (including backups).
@@ -306,3 +310,53 @@ Some of the common operations.
 ```
 [/]> export templates/dashboards/dashboard ~/dashboard.json
 ```
+
+## Basic Wildcard Support for Remote Resources
+
+Caveats/Notes
+* The following is only supported when the `export` source or or `import` destination is a `remote` resource.
+* The grafcli `ls` command is not able to navigate the `exports` hierarchy beyond the first level.
+* All wildcards operate on the doc name/dashboard name (aka slug) not the actual filename, hence the .json part is not considered
+
+The `export` and `import` command have support for Bash style wildcards (e.g. ? and *) within the names of dashboards to export and import. The command be run from the CLI or from batch mode (take care when passing absolute paths with * in them from the shell, you may need to use "" around the path)
+
+The `export` command may be used to bulk export every dashboard or a selection of dashboards from some host xyz, and then place them either into a locally specified directory, an absolute directory path, or a newly created subdirectory of the `data-dir` named `exports/xyz`. Example usage follows:
+
+* Export all dashboards from host xyz, placing them into ./xyz_exports
+
+```
+[/]> export remote/xyz/* xyz_exports
+```
+
+* Export all dashboards matching the name `db*exporter*` from host xyz, placing them into `/home/someone/somewhere/exports`
+
+```
+[/]> export remote/xyz/*exporter* /home/someone/somewhere/exports
+```
+
+* Export all dashboards matching the name `thing?` from host xyz, (auto)placing them into `<data-dir>/exports/xyz` (this is a convenience shortcut)
+
+```
+[/]> export remote/xyz/thing?
+```
+
+The `import` command supports the reverse operation, where we may wish to import (upload) a selection of dashboards to some other host. In this case, it is essential that the configuration item `nullify_dbid` is set to `on` in order to prevent errors when importing.
+
+* Import all dashboards previously exported from host xyz, to host abc.
+
+```
+[/]> import exports/xyz/* remote/abc
+```
+
+* Import all dashboards matching the name `*hdfs*` previously exported from host xyz, to host abc.
+
+```
+[/]> import exports/xyz/*hdfs* remote/abc
+```
+
+* Import all dashboards matching the name `thing-?` from a direct ~ location, to host abc
+
+```
+[/]> import ~/dashboards/production/thing-? remote/abc
+```
+

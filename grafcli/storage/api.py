@@ -60,6 +60,12 @@ class APIStorage(Storage):
                 raise
             data["dashboard"]["id"] = None
 
+        if config['grafcli'].getboolean("nullify_dbid"):
+            # No matter whether the db exists, nullify the ID to prevent 
+            # 404 not found when moving a dashboard from some host xyz 
+            # to host abc (else the below post will 404)
+            data["dashboard"]["id"] = None
+
         self._call('POST', 'dashboards/db', data)
 
     def remove(self, dashboard_id):
