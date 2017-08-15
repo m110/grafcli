@@ -1,5 +1,6 @@
 [grafcli]
 editor = vim
+mergetool = vimdiff
 history = ~/.grafcli_history
 verbose = off
 force = on

@@ -109,6 +109,7 @@ Most of the arguments here are paths to a dashboard, row or panel.
 
 * `cat <path>` - display JSON of given element.
 * `$EDITOR <path>` - edit the JSON of given element in-place and update it afterwards. Editor name can be set in the config file.
+* `merge <paths>` - merge documents together. Merge tool can be set in the config file.
 * `cp <source> <destination>` - copies one element to another. Can be used to copy whole dashboards, rows or single panels.
 * `mv <source> <destination>` - the same as `cp`, but moves (renames) the source.
 * `rm <path>` - removes the element.

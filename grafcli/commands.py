@@ -140,6 +140,34 @@ class GrafCommands(Commands):
 
     @command
     @completers('path')
+    def merge(self, paths):
+        if len(paths) < 2:
+            raise CLIException("Provide at least two paths")
+
+        tmp_files = []
+
+        for path in paths:
+            formatted_path = format_path(self._cli.current_path, path)
+            document = self._resources.get(formatted_path)
+
+            tmp_file = tempfile.mktemp(suffix=".json")
+            tmp_files.append((formatted_path, tmp_file))
+
+            with open(tmp_file, 'w') as file:
+                file.write(json_pretty(document.source))
+
+        cmd = "{} {}".format(config['grafcli'].get('mergetool', 'vimdiff'), ' '.join([v[1] for v in tmp_files]))
+        exit_status = os.system(cmd)
+
+        for path, tmp_file in tmp_files:
+            if not exit_status:
+                self._cli.log("Updating: {}".format(path))
+                self.file_import(tmp_file, path)
+
+            os.unlink(tmp_file)
+
+    @command
+    @completers('path')
     def pos(self, path, position):
         if not path:
             raise CLIException("No path provided")
