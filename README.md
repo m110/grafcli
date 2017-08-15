@@ -129,6 +129,8 @@ Here is the configuration file explained.
 [grafcli]
 # Your favorite editor - this name will act as a command!
 editor = vim
+# Executable used as merge tool. Paths will be passed as arguments.
+mergetool = vimdiff
 # Commands history file. Leave empty to disable.
 history = ~/.grafcli_history
 # Additional verbosity, if needed.
