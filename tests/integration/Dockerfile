@@ -1,5 +1,8 @@
 FROM docker.io/pandada8/alpine-python:3-tiny
 
+ADD tests/integration/entrypoint.sh /entrypoint.sh
+ADD tests/integration/wait-for-it.sh /wait-for-it.sh
+
 RUN sed -i s/6/cdn/ /etc/apk/repositories && apk add --update --progress make bats
 ADD requirements.txt /app/requirements.txt 
 RUN pip3 install --upgrade pip
@@ -12,4 +15,4 @@ RUN ln -s /app/scripts/grafcli /usr/local/bin/grafcli
 ENV PYTHONPATH=/app
 
 WORKDIR /app
-ENTRYPOINT ["make"]
+ENTRYPOINT /entrypoint.sh

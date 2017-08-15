@@ -306,3 +306,21 @@ Some of the common operations.
 ```
 [/]> export templates/dashboards/dashboard ~/dashboard.json
 ```
+
+# Development
+
+## Running tests
+
+Unit tests can be run by:
+
+```
+make unittests
+```
+
+To run integration tests:
+
+```
+make integration
+```
+
+The first run of integration tests can take a bit longer, since images will be built and downloaded.
