@@ -9,7 +9,7 @@ install:
   - docker build -t grafcli-dev -f tests/integration/Dockerfile .
 
 script:
-  - docker run -v $TRAVIS_BUILD_DIR:/app grafcli-dev unittests
+  - docker run -v $TRAVIS_BUILD_DIR:/app --entrypoint make grafcli-dev unittests
   - make integration
 
 deploy:
