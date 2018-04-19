@@ -42,7 +42,7 @@ class APIStorage(Storage):
                 raise DocumentNotFound("There is no such dashboard: {}".format(dashboard_id))
 
             raise
-        return Dashboard(source['dashboard'], dashboard_id)
+        return Dashboard.new(source['dashboard'], dashboard_id)
 
     def save(self, dashboard_id, dashboard):
         if not dashboard_id:

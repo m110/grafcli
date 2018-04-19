@@ -41,8 +41,8 @@ class Document(object, metaclass=ABCMeta):
 
     @classmethod
     def from_source(cls, source):
-        if 'rows' in source:
-            return Dashboard(source, '')
+        if 'rows' in source or 'uid' in source:
+            return Dashboard.new(source, '')
         elif 'panels' in source:
             return Row(source)
         elif 'id' in source:
@@ -88,6 +88,16 @@ class Document(object, metaclass=ABCMeta):
 
 
 class Dashboard(Document):
+
+    @classmethod
+    def new(cls, source, id):
+        if 'panels' in source:
+            return PanelsDashboard(source, id)
+        else:
+            return RowsDashboard(source, id)
+
+
+class RowsDashboard(Dashboard):
 
     def __init__(self, source, id):
         self._id = id
@@ -164,6 +174,91 @@ class Dashboard(Document):
     def source(self):
         self._source['rows'] = [row.source for row in self._rows]
         return self._source
+
+    @property
+    def has_rows(self):
+        return True
+
+
+class PanelsDashboard(Dashboard):
+
+    def __init__(self, source, id):
+        self._id = id
+        self._name = id
+        self._load(source)
+
+    def _load(self, source):
+        self._source = source
+
+        self._panels = []
+        for panel in source['panels']:
+            self._add_panel(panel)
+
+    def update(self, document):
+        if isinstance(document, Dashboard):
+            self._load(document.source.copy())
+        elif isinstance(document, Panel):
+            self._add_panel(document.source)
+        else:
+            raise InvalidDocument("Can not update {} with {}"
+                                  .format(self.__class__.__name__,
+                                          document.__class__.__name__))
+
+    def remove_child(self, name):
+        id = self._get_panel_id(name)
+        del self._panels[id-1]
+
+    def move_child(self, name, position):
+        child = self._panels[self._get_panel_id(name)-1]
+        index = relative_index(self._panels.index(child), position)
+
+        self._panels.remove(child)
+        self._panels.insert(index, child)
+
+        self._refresh_panels_id()
+
+    def _add_panel(self, source):
+        max_id = len(self._panels)
+        panel = Panel(source, max_id+1, self)
+        self._panels.append(panel)
+        return panel
+
+    def _refresh_panels_id(self):
+        for i, panel in enumerate(self._panels):
+            panel.set_id(i+1)
+
+    def panel(self, name):
+        id = self._get_panel_id(name)
+        return self._panels[id-1]
+
+    def _get_panel_id(self, name):
+        id = get_id(name)
+        if id <= 0 or len(self._panels) < id:
+            raise DocumentNotFound("There is no panel at index {}".format(id))
+
+        return id
+
+    def max_panel_id(self):
+        if self.panels:
+            return max([panel.id for panel in self.panels])
+        else:
+            return 0
+
+    def set_id(self, id):
+        self._id = id
+
+    @property
+    def panels(self):
+        return self._panels
+
+    @property
+    def source(self):
+        self._source['panels'] = [panel.source for panel in self._panels]
+        return self._source
+
+    @property
+    def has_rows(self):
+        return False
 
 
 class Row(Document):

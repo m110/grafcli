@@ -4,6 +4,8 @@ services:
     image: grafana/grafana
     networks:
       - shared
+    ports:
+      - 3000:3000
   grafcli-dev:
     build:
       context: .

@@ -54,7 +54,7 @@ class RowsTemplates(CommonTemplates):
                 'rows': [],
                 'title': DEFAULT,
             }
-            dashboard = Dashboard(source, DEFAULT)
+            dashboard = Dashboard.new(source, DEFAULT)
             self._resources.save(dashboard, DEFAULT)
 
     def list(self, row_name=None, panel_name=None):
@@ -89,7 +89,7 @@ class PanelTemplates(CommonTemplates):
                 ],
                 'title': DEFAULT,
                 }
-            dashboard = Dashboard(source, DEFAULT)
+            dashboard = Dashboard.new(source, DEFAULT)
             self._resources.save(dashboard, DEFAULT)
 
     def list(self, panel_name=None):

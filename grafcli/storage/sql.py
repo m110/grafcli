@@ -65,7 +65,7 @@ class SQLStorage(Storage, metaclass=ABCMeta):
 
         source = json.loads(source)
 
-        return Dashboard(source, dashboard_id)
+        return Dashboard.new(source, dashboard_id)
 
     def save(self, dashboard_id, dashboard):
         try:

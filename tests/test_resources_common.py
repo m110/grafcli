@@ -88,7 +88,7 @@ class CommonResourcesTest(unittest.TestCase):
 
     def test_save_dashboard(self):
         res = DummyResources()
-        dashboard = Dashboard(dashboard_source(), 'new_dashboard')
+        dashboard = Dashboard.new(dashboard_source(), 'new_dashboard')
 
         # Add new dashboard
         res.save(dashboard)

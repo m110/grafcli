@@ -21,7 +21,7 @@ class SystemStorage(Storage):
     def get(self, dashboard_id):
         try:
             source = read_file(self._base_dir, dashboard_id)
-            return Dashboard(source, dashboard_id)
+            return Dashboard.new(source, dashboard_id)
         except DocumentNotFound:
             raise DocumentNotFound("There is no such dashboard: {}".format(dashboard_id))
 

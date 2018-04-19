@@ -50,7 +50,7 @@ def mock_dashboard(id):
         ]),
     ])
 
-    return Dashboard(source, id)
+    return Dashboard.new(source, id)
 
 
 def mock_row(name="Any row", id=1):

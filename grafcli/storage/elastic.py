@@ -51,7 +51,7 @@ class ElasticStorage(Storage):
 
         source = json.loads(hits[0]['_source']['dashboard'])
 
-        return Dashboard(source, dashboard_id)
+        return Dashboard.new(source, dashboard_id)
 
     def save(self, dashboard_id, dashboard):
         body = {'dashboard': json.dumps(dashboard.source)}
