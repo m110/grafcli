@@ -170,6 +170,7 @@ url = http://localhost:3000/api
 # Use either user and password or just the token
 user =
 password =
+# token can also be stored in the GRAFANA_API_TOKEN environment variable
 token =
 ```
 
