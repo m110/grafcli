@@ -18,7 +18,10 @@ class APIStorage(Storage):
         auth = None
         headers = {}
 
-        if self._config.get('token'):
+        api_token = os.getenv('GRAFANA_API_TOKEN');
+        if api_token:
+            headers['Authorization'] = 'Bearer {}'.format(api_token)
+        elif self._config.get('token'):
             headers['Authorization'] = 'Bearer {}'.format(self._config['token'])
         else:
             auth = (self._config['user'], self._config['password'])
