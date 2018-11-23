@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import os
 from subprocess import check_output
 from setuptools import setup, find_packages
