@@ -1,4 +1,4 @@
-FROM docker.io/pandada8/alpine-python:3-tiny
+FROM python:3.7-alpine
 
 ADD tests/integration/entrypoint.sh /entrypoint.sh
 ADD tests/integration/wait-for-it.sh /wait-for-it.sh
