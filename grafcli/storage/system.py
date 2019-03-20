@@ -6,6 +6,7 @@ from grafcli.documents import Dashboard
 from grafcli.exceptions import DocumentNotFound
 from grafcli.storage import Storage
 
+
 def data_dir():
     return os.path.expanduser(config['resources'].get('data-dir', ''))
 

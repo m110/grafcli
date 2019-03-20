@@ -140,7 +140,6 @@ host.example.com = on
 
 ```ini
 [host.example.com]
-type = api
 url = http://localhost:3000/api
 # Use either user and password or just the token
 user =
