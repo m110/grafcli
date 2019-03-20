@@ -29,22 +29,14 @@ Credit goes to [b3niup](https://github.com/b3niup) for the original idea!
 
 ## How?
 
-Grafcli connects to Grafana HTTP API or directly to one of the backends (Elastic, SQLite, MySQL, PostgreSQL) and modifies the dashboards. This is all hidden behind an interface you already know well, similar to *nix filesystem.
+Grafcli connects to Grafana HTTP API and modifies the dashboards. This is all hidden behind an interface you already know well, similar to *nix filesystem.
 
 ## Requirements
 
 * [Python 3](http://python.org)
 * [climb](https://github.com/m110/climb)
 * [pygments](http://pygments.org/)
-* Depending on which storage backends you use, you need to install as well:
-    * [requests](http://docs.python-requests.org/en/master/)
-        * `pip install requests`
-    * [elasticsearch-py](http://github.com/elastic/elasticsearch-py)
-        * `pip install elasticsearch`
-    * [psycopg2](http://initd.org/psycopg/)
-        * `pip install psycopg2`
-    * [MySQL Connector/Python](http://dev.mysql.com/downloads/connector/python/)
-        * `pip install mysql-connector-python-rf`
+* [requests](http://docs.python-requests.org/en/master/)
 
 ## Installation
 
@@ -62,8 +54,6 @@ Then define your hosts in the config file (see below for details).
 ```
 cp /etc/grafcli/grafcli.conf.example /etc/grafcli/grafcli.conf
 ```
-
-You will need at least one of the backend libraries listed above (except sqlite3, which comes with Python).
 
 ## TODO
 
@@ -148,58 +138,14 @@ data-dir = ~/.grafcli
 [hosts]
 host.example.com = on
 
-[host.example.com]
-type = elastic
-# In case of more hosts, use comma-separated values.
-hosts = host1.example.com,host2.example.com
-port = 9200
-index = grafana-dash
-ssl = off
-# HTTP user and password, if any.
-user =
-password =
-```
-
-You can use other backends as well.
-
-HTTP API:
 ```ini
-[api.example.com]
+[host.example.com]
 type = api
 url = http://localhost:3000/api
 # Use either user and password or just the token
 user =
 password =
 token =
-```
-
-MySQL:
-```ini
-[mysql.example.com]
-type = mysql
-host = mysql.example.com
-port = 3306
-user = grafana
-password =
-database = grafana
-```
-
-PostgreSQL:
-```ini
-[postgresql.example.com]
-type = postgresql
-host = postgresql.example.com
-port = 5432
-user = grafana
-password =
-database = grafana
-```
-
-SQLite:
-```ini
-[sqlite.example.com]
-type = sqlite
-path = /opt/grafana/data/grafana.db
 ```
 
 # Tips
