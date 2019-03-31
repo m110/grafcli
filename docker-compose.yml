@@ -2,19 +2,5 @@ version: '3'
 services:
   grafana:
     image: grafana/grafana
-    networks:
-      - shared
     ports:
       - 3000:3000
-  grafcli-dev:
-    build:
-      context: .
-      dockerfile: tests/integration/Dockerfile
-    networks:
-      - shared
-    volumes:
-      - .:/app
-    command: run_integration
-networks:
-  shared:
-    driver: bridge

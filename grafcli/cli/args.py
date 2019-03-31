@@ -1,8 +1,8 @@
-from climb.args import Args
+import climb.args
 from climb.config import config
 
 
-class GrafArgs(Args):
+class Args(climb.args.Args):
 
     def _load_commands(self):
         ls = self._add_command("ls", "list resources")
@@ -26,9 +26,6 @@ class GrafArgs(Args):
 
         rm = self._add_command("rm", "remove resources")
         rm.add_argument("path", nargs="?", default=None, help="resource path")
-
-        template = self._add_command("template", "save resource as a template")
-        template.add_argument("path", nargs="?", default=None, help="resource path")
 
         editor = self._add_command(config['grafcli']['editor'], "edit resource's content in best editor possible")
         editor.add_argument("path", nargs="?", help="path of resource to be edited")

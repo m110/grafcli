@@ -2,7 +2,7 @@ import os
 import json
 from climb.config import config
 
-from grafcli.documents import Dashboard
+from grafcli.app.documents import Dashboard
 from grafcli.exceptions import DocumentNotFound
 from grafcli.storage import Storage
 
@@ -12,24 +12,37 @@ def data_dir():
 
 
 class SystemStorage(Storage):
+
     def __init__(self, base_dir):
         self._base_dir = base_dir
         makepath(self._base_dir)
 
-    def list(self):
+    def list_folders(self):
+        pass
+
+    def create_folder(self, folder_name):
+        pass
+
+    def delete_folder(self, folder_id):
+        pass
+
+    def list_dashboards(self, folder_id):
         return list_files(self._base_dir)
 
-    def get(self, dashboard_id):
+    def get_dashboard(self, dashboard_id):
         try:
             source = read_file(self._base_dir, dashboard_id)
-            return Dashboard.new(source, dashboard_id)
+            return Dashboard(source, dashboard_id)
         except DocumentNotFound:
             raise DocumentNotFound("There is no such dashboard: {}".format(dashboard_id))
 
-    def save(self, dashboard_id, dashboard):
+    def save_dashboard(self, dashboard_id, dashboard):
         write_file(self._base_dir, dashboard_id, dashboard.source)
 
-    def remove(self, dashboard_id):
+    def move_dashboard(self, dashboard_id, folder_id):
+        pass
+
+    def delete_dashboard(self, dashboard_id):
         remove_file(self._base_dir, dashboard_id)
 
 

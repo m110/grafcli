@@ -3,21 +3,34 @@ from abc import ABCMeta, abstractmethod
 
 class Storage(object, metaclass=ABCMeta):
 
-    def __init__(self, host):
+    @abstractmethod
+    def list_folders(self):
         pass
 
     @abstractmethod
-    def list(self):
+    def create_folder(self, folder_name):
         pass
 
     @abstractmethod
-    def get(self, dashboard_id):
+    def delete_folder(self, folder_id):
         pass
 
     @abstractmethod
-    def save(self, dashboard_id, dashboard):
+    def list_dashboards(self, folder_id):
         pass
 
     @abstractmethod
-    def remove(self, dashboard_id):
+    def get_dashboard(self, dashboard_id):
+        pass
+
+    @abstractmethod
+    def save_dashboard(self, dashboard_id, dashboard):
+        pass
+
+    @abstractmethod
+    def move_dashboard(self, dashboard_id, folder_id):
+        pass
+
+    @abstractmethod
+    def delete_dashboard(self, dashboard_id):
         pass

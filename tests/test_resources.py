@@ -12,16 +12,14 @@ sys.path.append(LIB_PATH)
 from climb.config import load_config_file
 load_config_file(CONFIG_PATH)
 
-from grafcli.resources import Resources
+from grafcli.app import Resources
 from grafcli.exceptions import InvalidPath
-from grafcli.resources.local import LocalResources
-from grafcli.resources.templates import DashboardsTemplates, RowsTemplates, PanelTemplates
 
 
 class ResourcesTest(unittest.TestCase):
 
     def setUp(self):
-        self.remote_patcher = patch('grafcli.resources.resources.RemoteResources')
+        self.remote_patcher = patch('grafcli.app.app.RemoteResources')
         self.remote_resources = self.remote_patcher.start()
 
     def tearDown(self):
@@ -30,9 +28,8 @@ class ResourcesTest(unittest.TestCase):
     def test_list(self):
         r = Resources()
 
-        self.assertEqual(r.list(None), ['backups', 'remote', 'templates'])
+        self.assertEqual(r.list(None), ['local', 'remote'])
         self.assertEqual(r.list('remote'), ['localhost'])
-        self.assertEqual(r.list('templates'), ('dashboards', 'rows', 'panels'))
 
         with self.assertRaises(InvalidPath):
             r.list('invalid_path')
@@ -45,20 +42,16 @@ class ResourcesTest(unittest.TestCase):
     def test_parse_path(self):
         r = Resources()
 
-        manager, parts = r._parse_path('/backups/a/b/c')
-        self.assertIsInstance(manager, LocalResources)
+        manager, parts = r._get_handler('/local/a/b/c')
+        self.assertIsInstance(manager, Resources)
         self.assertListEqual(parts, ['a', 'b', 'c'])
 
-        manager, parts = r._parse_path('/templates/dashboards/a/b')
-        self.assertIsInstance(manager, DashboardsTemplates)
-        self.assertListEqual(parts, ['a', 'b'])
-
-        manager, parts = r._parse_path('/remote/host.example.com/a/b')
+        manager, parts = r._get_handler('/remote/host.example.com/a/b')
         self.remote_resources.assert_called_once_with('host.example.com')
         self.assertListEqual(parts, ['a', 'b'])
 
         with self.assertRaises(InvalidPath):
-            r._parse_path('/invalid/path')
+            r._get_handler('/invalid/path')
 
 
 if __name__ == "__main__":

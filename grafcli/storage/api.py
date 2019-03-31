@@ -1,9 +1,11 @@
-import os
+import re
 import requests
 from climb.config import config
+from urllib.parse import urlparse
+from grafana_api.grafana_face import GrafanaFace
 
 from grafcli.storage import Storage
-from grafcli.documents import Dashboard
+from grafcli.app.documents import Dashboard
 from grafcli.exceptions import DocumentNotFound
 
 
@@ -13,28 +15,35 @@ class APIStorage(Storage):
         super().__init__(host)
         self._config = config[host]
 
-    def _call(self, method, url, data=None):
-        full_url = os.path.join(self._config['url'], url)
-        auth = None
-        headers = {}
-
         if self._config.get('token'):
-            headers['Authorization'] = 'Bearer {}'.format(self._config['token'])
+            auth = self._config['token']
         else:
             auth = (self._config['user'], self._config['password'])
 
-        response = requests.request(method, full_url,
-                                    headers=headers,
-                                    auth=auth,
-                                    json=data)
-        response.raise_for_status()
-        return response.json()
+        url = urlparse(self._config['url'])
+        prefix = re.sub(r'^/api', '', url.path)
 
-    def list(self):
-        return [row['uri'].split('/')[-1]
-                for row in self._call('GET', 'search')]
+        self._client = GrafanaFace(auth,
+                                   host=url.hostname,
+                                   port=url.port,
+                                   url_path_prefix=prefix,
+                                   protocol=url.scheme)
 
-    def get(self, dashboard_id):
+    def list_folders(self):
+        folders = self._client.folder.get_all_folders()
+        return ["0-general"] + ["{}-{}".format(f["id"], f["title"]) for f in folders]
+
+    def create_folder(self, folder_name):
+        pass
+
+    def delete_folder(self, folder_id):
+        pass
+
+    def list_dashboards(self, folder_id):
+        dashboards = self._client.search.search_dashboards(folder_ids=[folder_id])
+        # TODO
+
+    def get_dashboard(self, dashboard_id):
         try:
             source = self._call('GET', 'dashboards/db/{}'.format(dashboard_id))
         except requests.HTTPError as exc:
@@ -44,7 +53,7 @@ class APIStorage(Storage):
             raise
         return Dashboard.new(source['dashboard'], dashboard_id)
 
-    def save(self, dashboard_id, dashboard):
+    def save_dashboard(self, dashboard_id, dashboard):
         if not dashboard_id:
             dashboard_id = dashboard.slug
 
@@ -62,5 +71,9 @@ class APIStorage(Storage):
 
         self._call('POST', 'dashboards/db', data)
 
-    def remove(self, dashboard_id):
+    def move_dashboard(self, dashboard_id, folder_id):
+        # TODO is separate method alright for this?
+        pass
+
+    def delete_dashboard(self, dashboard_id):
         self._call('DELETE', 'dashboards/db/{}'.format(dashboard_id))

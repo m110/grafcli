@@ -8,8 +8,9 @@ LIB_PATH = os.path.dirname(os.path.realpath(__file__)) + '/../'
 sys.path.append(LIB_PATH)
 
 from grafcli.exceptions import InvalidPath, InvalidDocument, DocumentNotFound
-from grafcli.documents import Dashboard, Row, Panel, get_id, slug
+from grafcli.app.documents import Dashboard, Panel, get_id, slug
 
+# TODO add some bogus JSON dashboards exported from grafana
 
 def dashboard_source(rows=None):
     if not rows:
@@ -53,23 +54,11 @@ def mock_dashboard(id):
     return Dashboard.new(source, id)
 
 
-def mock_row(name="Any row", id=1):
-    source = row_source(name, [
-        panel_source(1, "First panel"),
-        panel_source(2, "Second panel"),
-    ])
-
-    return Row(source, id)
-
-
 def mock_panel(id=1):
     source = panel_source(id, "Any panel")
 
     return Panel(source, id)
 
-
-def rows(dashboard):
-    return [row.name for row in dashboard.rows]
 
 def panels(row):
     return [panel.name for panel in row.panels]

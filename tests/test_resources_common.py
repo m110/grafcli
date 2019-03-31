@@ -13,8 +13,7 @@ from climb.config import load_config_file
 load_config_file(CONFIG_PATH)
 
 from grafcli.exceptions import InvalidPath, DocumentNotFound, InvalidDocument
-from grafcli.resources.common import CommonResources
-from grafcli.documents import Dashboard, Row, Panel
+from grafcli.app.documents import Dashboard, Panel
 
 from tests.test_documents import dashboard_source, row_source, panel_source, mock_dashboard
 

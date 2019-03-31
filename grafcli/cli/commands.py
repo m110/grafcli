@@ -4,19 +4,21 @@ import json
 import shutil
 import tarfile
 import tempfile
+
+import climb.commands
 from climb.config import config
-from climb.commands import Commands, command, completers
+from climb.commands import command, completers
 from climb.exceptions import CLIException
 from climb.paths import format_path, split_path, ROOT_PATH
 
-from grafcli.documents import Document, Dashboard, Row, Panel
+from grafcli.app.documents import Document
 from grafcli.exceptions import CommandCancelled
-from grafcli.resources import Resources
+from grafcli.app import Resources
 from grafcli.storage.system import to_file_format, from_file_format
 from grafcli.utils import json_pretty
 
 
-class GrafCommands(Commands):
+class Commands(climb.commands.Commands):
 
     def __init__(self, cli):
         super().__init__(cli)
@@ -96,27 +98,6 @@ class GrafCommands(Commands):
         self._resources.remove(path)
 
         self._cli.log("rm: {}", path)
-
-    @command
-    @completers('path')
-    def template(self, path):
-        path = format_path(self._cli.current_path, path)
-        document = self._resources.get(path)
-
-        if isinstance(document, Dashboard):
-            template = 'dashboards'
-        elif isinstance(document, Row):
-            template = 'rows'
-        elif isinstance(document, Panel):
-            template = 'panels'
-        else:
-            raise CLIException("Unknown document type: {}".format(
-                document.__class__.__name__))
-
-        template_path = "/templates/{}".format(template)
-        self._resources.save(template_path, document)
-
-        self._cli.log("template: {} -> {}", path, template_path)
 
     @command
     @completers('path')
@@ -280,3 +261,5 @@ class GrafCommands(Commands):
             raise CLIException("Too many matching slugs, be more specific")
 
         return "{}/{}".format(destination, matches[0])
+
+    # TODO add mkdir?

@@ -1,8 +1,8 @@
-from climb.completer import Completer
+import climb.completer
 from climb.paths import ROOT_PATH, SEPARATOR
 
 
-class GrafCompleter(Completer):
+class Completer(climb.completer.Completer):
 
     def path(self, arg, text):
         if arg and not arg.endswith(SEPARATOR):

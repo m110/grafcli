@@ -15,7 +15,6 @@ Credit goes to [b3niup](https://github.com/b3niup) for the original idea!
 * Dashboards backup and restore.
 * Easy rows and panels moving/copying between dashboards.
 * Editing dashboards/rows/panels in-place.
-* Templates of dashboards, rows and panels.
 * File export/import.
 * Interactive CLI with completions support.
 * Compatibility across older Grafana versions.
@@ -68,30 +67,17 @@ cp /etc/grafcli/grafcli.conf.example /etc/grafcli/grafcli.conf
 Use `cd` and `ls` commands to list nodes and move around.
 
 ```
-[/]> cd templates
-[/templates]> ls
-dashboards
-rows
-panels
-[/templates]> ls dashboards
-example_dashboard
-another_dashboard
-[/templates]> ls dashboards/example_dashboard
-1-Example-Row
-2-Another-Row
-3-Yet-Another-Row
-[/templates]> ls dashboards/example_dashboard/1-Example-Row
-1-Example-Panel
-2-Another-Panel
+[/]> cd remote/mygrafana.com
+[/remote/mygrafana.com]> ls
+# TODO
 ```
 
 ## Directories
 
-In the root directory, you will find three basic directories:
+In the root directory, you will find two subdirectories:
 
-* `backups` - for storing backups of your dashboards (surprised?).
+* `local` - for storing backups of your dashboards or local templates.
 * `remote` - which lets you access remote hosts.
-* `templates` - that contains templates of dashboards, rows and panels.
 
 ## Management
 
@@ -103,7 +89,6 @@ Most of the arguments here are paths to a dashboard, row or panel.
 * `cp <source> <destination>` - copies one element to another. Can be used to copy whole dashboards, rows or single panels.
 * `mv <source> <destination>` - the same as `cp`, but moves (renames) the source.
 * `rm <path>` - removes the element.
-* `template <path>` - saves element as template.
 * `backup <remote_host> <system_path>` - saves backup of all dashboards from remote host as .tgz archive.
 * `restore <system_path> <remote_host>` - restores saved backup.
 * `export <path> <system_path>` - saves the JSON-encoded element to file.
@@ -176,11 +161,11 @@ All rows and panels names start with a number and it may seem that typing all th
 
 It is enough to provide just the number of the row or panel. So instead of typing:
 ```
-[/]> cp /templates/dashboards/dashboard/1-Top-Row/1-Top-Panel /remote/example/dashboard/1-Top-Row
+[/]> cp /local/dashboards/dashboard/1-Top-Row/1-Top-Panel /remote/example/dashboard/1-Top-Row
 ```
 You can just do:
 ```
-[/]> cp /templates/dashboards/dashboard/1/1 /remote/example/dashboard/1
+[/]> cp /local/dashboards/dashboard/1/1 /remote/example/dashboard/1
 ```
 
 But then again, TAB-completions make it easy enough to type full names.
@@ -189,46 +174,40 @@ But then again, TAB-completions make it easy enough to type full names.
 
 Some of the common operations.
 
-* Store dashboard as template (saved to `templates/dashboards/main_dashboard`):
-
-```
-[/]> template remote/example/main_dashboard
-```
-
 * Create the exact copy of dashboard's template:
 
 ```
-[/templates/dashboards]> cp main_dashboard new_dashboard
+[/local/dashboards]> cp main_dashboard new_dashboard
 ```
 
 * Update remote dashboard with local template:
 
 ```
-[/]> cp templates/dashboards/new_dashboard remote/main_dashboard
+[/]> cp local/dashboards/new_dashboard remote/main_dashboard
 ```
 
 * Move row from one dashboard to another (adds one more row to destination dashboard):
 
 ```
-[/templates/dashboards]> cp main_dashboard/1-Top-Row new_dashboard
+[/local/dashboards]> cp main_dashboard/1-Top-Row new_dashboard
 ```
 
 * Move row from one dashboard to another and replace existing row:
 
 ```
-[/templates/dashboards]> cp main_dashboard/1-Top-Row new_dashboard/2-Some-Existing-Row
+[/local/dashboards]> cp main_dashboard/1-Top-Row new_dashboard/2-Some-Existing-Row
 ```
 
 * Copy panel between rows (add one more panel to destination row).
 
 ```
-[/templates/dashboards]> cp main_dashboard/1-Top-Row/1-Top-Panel new_dashboard/1-Top-Row
+[/local/dashboards]> cp main_dashboard/1-Top-Row/1-Top-Panel new_dashboard/1-Top-Row
 ```
 
 * Copy panel between rows and replace existing panel.
 
 ```
-[/templates/dashboards]> cp main_dashboard/1-Top-Row/1-Top-Panel new_dashboard/1-Top-Row/2-Second-Panel
+[/local/dashboards]> cp main_dashboard/1-Top-Row/1-Top-Panel new_dashboard/1-Top-Row/2-Second-Panel
 ```
 
 * Backup all dashboards.
@@ -246,13 +225,13 @@ Some of the common operations.
 * Import dashboard from a file.
 
 ```
-[/]> import ~/dashboard.json templates/dashboards/dashboard
+[/]> import ~/dashboard.json local/dashboards/dashboard
 ```
 
 * Export dashboard to a file.
 
 ```
-[/]> export templates/dashboards/dashboard ~/dashboard.json
+[/]> export local/dashboards/dashboard ~/dashboard.json
 ```
 
 # Development
