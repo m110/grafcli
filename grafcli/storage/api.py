@@ -2,7 +2,7 @@ import os
 import requests
 from climb.config import config
 
-from grafcli.storage import Storage
+from grafcli.storage.storage import Storage
 from grafcli.documents import Dashboard
 from grafcli.exceptions import DocumentNotFound
 
