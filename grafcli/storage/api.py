@@ -5,14 +5,13 @@ from urllib.parse import urlparse
 from grafana_api.grafana_face import GrafanaFace
 
 from grafcli.storage import Storage
-from grafcli.app.documents import Dashboard
+from grafcli.app.documents import Dashboard, slug, get_id
 from grafcli.exceptions import DocumentNotFound
 
 
 class APIStorage(Storage):
 
     def __init__(self, host):
-        super().__init__(host)
         self._config = config[host]
 
         if self._config.get('token'):
@@ -41,17 +40,23 @@ class APIStorage(Storage):
 
     def list_dashboards(self, folder_id):
         dashboards = self._client.search.search_dashboards(folder_ids=[folder_id])
-        # TODO
+        return ["{}-{}".format(d['id'], slug(d['title'])) for d in dashboards]
 
-    def get_dashboard(self, dashboard_id):
+    def get_dashboard(self, folder_id, dashboard_id):
         try:
-            source = self._call('GET', 'dashboards/db/{}'.format(dashboard_id))
+            dashboards = self._client.search.search_dashboards(folder_ids=[folder_id])
+            filtered = [d for d in dashboards if d["id"] == get_id(dashboard_id)]
+            if not filtered:
+                raise DocumentNotFound("No such dashboard found in folder")
+
+            dashboard_uid = filtered[0]["uid"]
+            source = self._client.dashboard.get_dashboard(dashboard_uid)
         except requests.HTTPError as exc:
             if exc.response.status_code == 404:
                 raise DocumentNotFound("There is no such dashboard: {}".format(dashboard_id))
 
             raise
-        return Dashboard.new(source['dashboard'], dashboard_id)
+        return Dashboard(source['dashboard'], dashboard_id)
 
     def save_dashboard(self, dashboard_id, dashboard):
         if not dashboard_id:

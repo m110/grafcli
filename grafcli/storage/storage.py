@@ -20,7 +20,7 @@ class Storage(object, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_dashboard(self, dashboard_id):
+    def get_dashboard(self, folder_id, dashboard_id):
         pass
 
     @abstractmethod
