@@ -4,7 +4,7 @@ from climb.config import config
 
 from grafcli.app.documents import Dashboard
 from grafcli.exceptions import DocumentNotFound
-from grafcli.storage import Storage
+from grafcli.storage.storage import Storage
 
 
 def data_dir():
