@@ -9,7 +9,7 @@ import climb.commands
 from climb.config import config
 from climb.commands import command, completers
 from climb.exceptions import CLIException
-from climb.paths import format_path, split_path, ROOT_PATH
+from climb.paths import format_path, ROOT_PATH
 
 from grafcli.app.documents import Document
 from grafcli.exceptions import CommandCancelled

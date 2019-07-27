@@ -13,7 +13,7 @@ class Handler(object):
             return self._storage.list_folders()
 
         if not dashboard_name:
-            return self._storage.list_dashboards(folder_name)
+            return self._storage.list_dashboards(name_to_id(folder_name))
 
         dashboard = self.get(folder_name, dashboard_name)
         panels = [panel.name for panel in dashboard.panels]
@@ -30,7 +30,7 @@ class Handler(object):
         if not dashboard_name:
             raise InvalidPath("Provide the dashboard at least")
 
-        dashboard = self._storage.get_dashboard(folder_name, dashboard_name)
+        dashboard = self._storage.get_dashboard(name_to_id(folder_name), name_to_id(dashboard_name))
 
         if not panel_name:
             return dashboard
@@ -85,4 +85,9 @@ class Handler(object):
             dashboard.remove_panel(panel_name)
             self._storage.save(dashboard.id, dashboard)
         else:
-            self._storage.remove(dashboard.name)
+            self._storage.remove(dashboard.id)
+
+
+def name_to_id(name):
+    # TODO checks
+    return int(name.split('-')[0])

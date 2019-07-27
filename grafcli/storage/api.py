@@ -3,9 +3,10 @@ import requests
 from climb.config import config
 from urllib.parse import urlparse
 from grafana_api.grafana_face import GrafanaFace
+from grafana_api.grafana_api import GrafanaClientError
 
 from grafcli.storage import Storage
-from grafcli.app.documents import Dashboard, slug, get_id
+from grafcli.app.documents import Dashboard, slug
 from grafcli.exceptions import DocumentNotFound
 
 
@@ -39,23 +40,21 @@ class APIStorage(Storage):
         pass
 
     def list_dashboards(self, folder_id):
-        dashboards = self._client.search.search_dashboards(folder_ids=[folder_id])
+        dashboards = self._dashboards_by_folder(folder_id)
         return ["{}-{}".format(d['id'], slug(d['title'])) for d in dashboards]
 
     def get_dashboard(self, folder_id, dashboard_id):
+        dashboards = self._dashboards_by_folder(folder_id)
+        filtered = [d for d in dashboards if d["id"] == dashboard_id]
+        if not filtered:
+            raise DocumentNotFound("Dashboard with id: {} not found in folder with id: {}".format(folder_id, dashboard_id))
+
+        dashboard_uid = filtered[0]["uid"]
         try:
-            dashboards = self._client.search.search_dashboards(folder_ids=[folder_id])
-            filtered = [d for d in dashboards if d["id"] == get_id(dashboard_id)]
-            if not filtered:
-                raise DocumentNotFound("No such dashboard found in folder")
-
-            dashboard_uid = filtered[0]["uid"]
             source = self._client.dashboard.get_dashboard(dashboard_uid)
-        except requests.HTTPError as exc:
-            if exc.response.status_code == 404:
-                raise DocumentNotFound("There is no such dashboard: {}".format(dashboard_id))
+        except GrafanaClientError:
+            raise DocumentNotFound("There is no dashboard with uid: {}".format(dashboard_uid))
 
-            raise
         return Dashboard(source['dashboard'], dashboard_id)
 
     def save_dashboard(self, dashboard_id, dashboard):
@@ -82,3 +81,12 @@ class APIStorage(Storage):
 
     def delete_dashboard(self, dashboard_id):
         self._call('DELETE', 'dashboards/db/{}'.format(dashboard_id))
+
+    def _dashboards_by_folder(self, folder_id):
+        if folder_id != 0:
+            try:
+                self._client.folder.get_folder_by_id(folder_id)
+            except GrafanaClientError:
+                raise DocumentNotFound("There is no folder with id: {}".format(folder_id))
+
+        return self._client.search.search_dashboards(folder_ids=folder_id, type_='dash-db')
