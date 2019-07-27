@@ -135,27 +135,6 @@ class DocumentsTest(unittest.TestCase):
         with self.assertRaises(DocumentNotFound):
             dashboard.remove_child("1-any-row")
 
-    def test_dashboard_move_child(self):
-        dashboard = mock_dashboard('any_dashboard')
-        row = Row(row_source("C"))
-        dashboard.update(row)
-        row = Row(row_source("D"))
-        dashboard.update(row)
-
-        self.assertListEqual(rows(dashboard), ["1-a", "2-b", "3-c", "4-d"])
-
-        dashboard.move_child("4-d", '1')
-        self.assertListEqual(rows(dashboard), ["1-d", "2-a", "3-b", "4-c"])
-
-        dashboard.move_child("1-d", '+1')
-        self.assertListEqual(rows(dashboard), ["1-a", "2-d", "3-b", "4-c"])
-
-        dashboard.move_child("3-b", '-2')
-        self.assertListEqual(rows(dashboard), ["1-b", "2-a", "3-d", "4-c"])
-
-        dashboard.move_child("2-a", '4')
-        self.assertListEqual(rows(dashboard), ["1-b", "2-d", "3-c", "4-a"])
-
     def test_dashboard_max_panel_id(self):
         dashboard = mock_dashboard('any_dashboard')
 

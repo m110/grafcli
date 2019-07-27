@@ -148,26 +148,6 @@ class Commands(climb.commands.Commands):
             os.unlink(tmp_file)
 
     @command
-    @completers('path')
-    def pos(self, path, position):
-        if not path:
-            raise CLIException("No path provided")
-
-        if not position:
-            raise CLIException("No position provided")
-
-        path = format_path(self._cli.current_path, path)
-        parts = split_path(path)
-
-        parent_path = '/'.join(parts[:-1])
-        child = parts[-1]
-
-        parent = self._resources.get(parent_path)
-        parent.move_child(child, position)
-
-        self._resources.save(parent_path, parent)
-
-    @command
     @completers('path', 'system_path')
     def backup(self, path, system_path):
         if not path:

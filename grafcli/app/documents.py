@@ -23,17 +23,6 @@ def slug(name):
     return '-'.join(name.lower().split())
 
 
-def relative_index(index, position):
-    if position.startswith('+'):
-        index += int(position[1:])
-    elif position.startswith('-'):
-        index -= int(position[1:])
-    else:
-        index = int(position)-1
-
-    return index
-
-
 class Document(object, metaclass=ABCMeta):
     # TODO probably should add uid - investigate how it works now with id in mind
     # Either here or in Dashboard
@@ -105,24 +94,11 @@ class Dashboard(Document):
         id = self._get_panel_id(name)
         del self._panels[id-1]
 
-    def move_child(self, name, position):
-        child = self._panels[self._get_panel_id(name)-1]
-        index = relative_index(self._panels.index(child), position)
-
-        self._panels.remove(child)
-        self._panels.insert(index, child)
-
-        self._refresh_panels_id()
-
     def _add_panel(self, source):
         max_id = len(self._panels)
         panel = Panel(source, max_id+1, self)
         self._panels.append(panel)
         return panel
-
-    def _refresh_panels_id(self):
-        for i, panel in enumerate(self._panels):
-            panel.set_id(i+1)
 
     def panel(self, name):
         id = self._get_panel_id(name)
