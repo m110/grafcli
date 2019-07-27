@@ -24,8 +24,6 @@ def slug(name):
 
 
 class Document(object, metaclass=ABCMeta):
-    # TODO probably should add uid - investigate how it works now with id in mind
-    # Either here or in Dashboard
     _id = None
     _name = None
     _source = None

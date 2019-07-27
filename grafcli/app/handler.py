@@ -15,7 +15,7 @@ class Handler(object):
         if not dashboard_name:
             return self._storage.list_dashboards(folder_name)
 
-        dashboard = self.get(dashboard_name)
+        dashboard = self.get(folder_name, dashboard_name)
         panels = [panel.name for panel in dashboard.panels]
 
         if not panel_name:
@@ -26,11 +26,11 @@ class Handler(object):
         else:
             raise DocumentNotFound("There is no such panel: {}".format(panel_name))
 
-    def get(self, folder_name=None, dashboard_name=None, panel_name=None):
-        if not folder_name or not dashboard_name:
+    def get(self, folder_name, dashboard_name=None, panel_name=None):
+        if not dashboard_name:
             raise InvalidPath("Provide the dashboard at least")
 
-        dashboard = self._storage.get(dashboard_name)
+        dashboard = self._storage.get_dashboard(folder_name, dashboard_name)
 
         if not panel_name:
             return dashboard
